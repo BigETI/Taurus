@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ENet-CSharp" Version="2.4.8" />
+    <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+  </ItemGroup>
+
+</Project>
