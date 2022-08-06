@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Taurus.Compressors;
+using Taurus.Fragmenters;
 
 namespace Taurus.Connectors.Local
 {
@@ -24,8 +25,9 @@ namespace Taurus.Connectors.Local
         /// Constructs a local connector
         /// </summary>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
+        /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
-        public LocalConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, compressor)
+        public LocalConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter = null, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
             // ...
         }

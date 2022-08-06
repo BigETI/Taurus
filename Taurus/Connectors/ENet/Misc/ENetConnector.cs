@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Taurus.Compressors;
+using Taurus.Fragmenters;
 
 namespace Taurus.Connectors.ENet
 {
@@ -59,8 +60,9 @@ namespace Taurus.Connectors.ENet
         /// <param name="host">Host</param>
         /// <param name="timeoutTime">Timeout time in seconds</param>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
+        /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
-        public ENetConnector(Host host, uint timeoutTime, HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, ICompressor? compressor) : base(onHandlePeerConnectionAttempt, compressor)
+        public ENetConnector(Host host, uint timeoutTime, HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
             Host = host;
             TimeoutTime = timeoutTime;

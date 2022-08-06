@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Taurus.Compressors;
+using Taurus.Fragmenters;
 
 namespace Taurus.Connectors
 {
@@ -19,6 +20,11 @@ namespace Taurus.Connectors
         /// Connected peers
         /// </summary>
         private readonly Dictionary<Guid, IPeer> peers = new Dictionary<Guid, IPeer>();
+
+        /// <summary>
+        /// Peer GUID to defragmenter stream lookup
+        /// </summary>
+        private readonly Dictionary<Guid, IDefragmenterStream> peerGUIDToDefragmenterStreamLookup = new Dictionary<Guid, IDefragmenterStream>();
 
         /// <summary>
         /// Peer connection attempt events
@@ -61,6 +67,11 @@ namespace Taurus.Connectors
         public IReadOnlyDictionary<Guid, IPeer> Peers => peers;
 
         /// <summary>
+        /// Fragmenter
+        /// </summary>
+        public IFragmenter Fragmenter { get; }
+
+        /// <summary>
         /// Compressor
         /// </summary>
         public ICompressor Compressor { get; }
@@ -98,10 +109,12 @@ namespace Taurus.Connectors
         /// <summary>
         /// Constructs a connector
         /// </summary>
-        /// <param name="compressionLevel">Compression level</param>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
-        public AConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, ICompressor? compressor)
+        /// <param name="fragmenter">Fragmenter</param>
+        /// <param name="compressor">Compressor</param>
+        public AConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor)
         {
+            Fragmenter = fragmenter ?? Fragmentation.NoFragmenter;
             Compressor = compressor ?? Compression.NoCompressionCompressor;
             this.onHandlePeerConnectionAttempt = onHandlePeerConnectionAttempt;
         }
@@ -184,7 +197,7 @@ namespace Taurus.Connectors
         {
             if ((message.Length > 0) && IsPeerContained(peer))
             {
-                sendingPeerMessageRequestedEvents.Enqueue(new PeerMessage(peer, Compressor.Compress(message)));
+                sendingPeerMessageRequestedEvents.Enqueue(new PeerMessage(peer, Fragmenter.Fragment(Compressor.Compress(message))));
             }
         }
 
@@ -197,6 +210,7 @@ namespace Taurus.Connectors
             {
                 if (peers.TryAdd(peer.GUID, peer))
                 {
+                    OnPeerConnectionAttempted?.Invoke(peer);
                     if (IsConnectionAllowed(peer))
                     {
                         OnPeerConnected?.Invoke(peer);
@@ -234,7 +248,16 @@ namespace Taurus.Connectors
             {
                 if (IsPeerContained(peer_message_received_event.Peer))
                 {
-                    OnPeerMessageReceived?.Invoke(peer_message_received_event.Peer, Compressor.Decompress(peer_message_received_event.Message.Span));
+                    if (!peerGUIDToDefragmenterStreamLookup.TryGetValue(peer_message_received_event.Peer.GUID, out IDefragmenterStream defragmenter_stream))
+                    {
+                        defragmenter_stream = Fragmenter.CreateDefragmenterStream();
+                        peerGUIDToDefragmenterStreamLookup.Add(peer_message_received_event.Peer.GUID, defragmenter_stream);
+                    }
+                    defragmenter_stream.Write(peer_message_received_event.Message.Span);
+                    while (defragmenter_stream.TryDequeuingMessage(out ReadOnlySpan<byte> message))
+                    {
+                        OnPeerMessageReceived?.Invoke(peer_message_received_event.Peer, Compressor.Decompress(message));
+                    }
                 }
             }
         }

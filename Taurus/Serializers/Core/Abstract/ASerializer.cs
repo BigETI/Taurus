@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Taurus.Serializers
 {
-    internal abstract class ASerializer : ISerializer
+    public abstract class ASerializer : ISerializer
     {
         public virtual ReadOnlySpan<byte> Serialize<T>(T obj)
         {

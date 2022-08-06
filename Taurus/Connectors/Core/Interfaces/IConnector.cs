@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Taurus.Compressors;
+using Taurus.Fragmenters;
 
 namespace Taurus.Connectors
 {
@@ -13,6 +14,11 @@ namespace Taurus.Connectors
         /// Connected peers
         /// </summary>
         IReadOnlyDictionary<Guid, IPeer> Peers { get; }
+
+        /// <summary>
+        /// Fragmenter
+        /// </summary>
+        IFragmenter Fragmenter { get; }
 
         /// <summary>
         /// Compressor

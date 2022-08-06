@@ -4,11 +4,18 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Taurus.Compressors;
+using Taurus.Fragmenters;
+using Taurus.Fragmenters.TaurusFragmenter;
 
 namespace Taurus.Connectors.WebSocket
 {
     internal class WebSocketConnector : AConnector, IWebSocketConnector
     {
+        /// <summary>
+        /// Default fragmenter
+        /// </summary>
+        public static IFragmenter DefaultFragmenter { get; } = new TaurusFragmenter();
+
         /// <summary>
         /// Connect to IP addresses
         /// </summary>
@@ -43,7 +50,9 @@ namespace Taurus.Connectors.WebSocket
         /// Constructor
         /// </summary>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
-        public WebSocketConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, compressor)
+        /// <param name="fragmenter">Fragmenter</param>
+        /// <param name="compressor">Compressor</param>
+        public WebSocketConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, fragmenter ?? DefaultFragmenter, compressor)
         {
             connectorThread = new Thread(() =>
             {
@@ -52,7 +61,6 @@ namespace Taurus.Connectors.WebSocket
                 int old_listener_backlog = 0;
                 while (isConnectorThreadRunning)
                 {
-                    // TODO: Process messages for WebSocket connector
                     ushort listening_to_port = listeningToPort;
                     int listener_backlog = listenerBacklog;
                     if (listened_to_port != listening_to_port)

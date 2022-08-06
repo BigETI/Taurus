@@ -5,7 +5,7 @@ namespace Taurus.Fragmenters
 {
     internal class NoDefragmenterStream : ADefragmenterStream, INoDefragmenterStream
     {
-        private MemoryStream memoryStream = new MemoryStream();
+        private readonly MemoryStream memoryStream = new MemoryStream();
 
         public override bool IsMessagePending { get; } = false;
 

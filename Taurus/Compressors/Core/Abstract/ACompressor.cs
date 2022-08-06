@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Taurus.Compressors
 {
-    internal abstract class ACompressor : ICompressor
+    public abstract class ACompressor : ICompressor
     {
         public virtual ReadOnlySpan<byte> Compress(ReadOnlySpan<byte> bytes)
         {
