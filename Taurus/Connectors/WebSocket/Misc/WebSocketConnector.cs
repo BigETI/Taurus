@@ -7,8 +7,14 @@ using Taurus.Compressors;
 using Taurus.Fragmenters;
 using Taurus.Fragmenters.TaurusFragmenter;
 
+/// <summary>
+/// Taurus connectors WebSocket namespace
+/// </summary>
 namespace Taurus.Connectors.WebSocket
 {
+    /// <summary>
+    /// A class that describes a WebSocket connector
+    /// </summary>
     internal class WebSocketConnector : AConnector, IWebSocketConnector
     {
         /// <summary>
@@ -17,7 +23,7 @@ namespace Taurus.Connectors.WebSocket
         public static IFragmenter DefaultFragmenter { get; } = new TaurusFragmenter();
 
         /// <summary>
-        /// Connect to IP addresses
+        /// Connect to host and port events
         /// </summary>
         private readonly ConcurrentQueue<WebSocketConnection> connectToHostAndPortEvents = new ConcurrentQueue<WebSocketConnection>();
 
@@ -37,7 +43,7 @@ namespace Taurus.Connectors.WebSocket
         private volatile ushort listeningToPort;
 
         /// <summary>
-        /// Backlog
+        /// Listener backlog
         /// </summary>
         private volatile int listenerBacklog;
 
@@ -47,9 +53,9 @@ namespace Taurus.Connectors.WebSocket
         private byte[] buffer = new byte[2048];
 
         /// <summary>
-        /// Constructor
+        /// Constructs a new WebSocket connector
         /// </summary>
-        /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
+        /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer connection attempt needs to be handled</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
         public WebSocketConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, fragmenter ?? DefaultFragmenter, compressor)
@@ -124,7 +130,7 @@ namespace Taurus.Connectors.WebSocket
                                 int read_bytes_count = web_socket_peer.TCPClient.GetStream().Read(buffer, 0, available_bytes_count);
                                 if (read_bytes_count > 0)
                                 {
-                                    ReceivePeerMessage(peer, buffer.AsSpan(0, read_bytes_count));
+                                    EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, read_bytes_count));
                                 }
                             }
                         }
@@ -136,6 +142,12 @@ namespace Taurus.Connectors.WebSocket
             connectorThread.Start();
         }
 
+        /// <summary>
+        /// Tries to get a WebSocket peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="webSocketPeer">WebSocket peer</param>
+        /// <returns></returns>
         private bool TryGettingWebSocketPeer(IPeer peer, out IWebSocketPeer? webSocketPeer)
         {
             bool ret = false;
@@ -151,6 +163,11 @@ namespace Taurus.Connectors.WebSocket
             return ret;
         }
 
+        /// <summary>
+        /// Asserts that peer is a WebSocket peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="onPeerIsWebSocketPeerAsserted">Gets invoked when peer is a WebSocket peer asserted</param>
         private void AssertPeerIsWebSocketPeer(IPeer peer, PeerIsWebSocketPeerAssertedDelegate onPeerIsWebSocketPeerAsserted)
         {
             if (TryGettingWebSocketPeer(peer, out IWebSocketPeer? web_socket_peer))
@@ -159,6 +176,10 @@ namespace Taurus.Connectors.WebSocket
             }
         }
 
+        /// <summary>
+        /// Stops TCP listener
+        /// </summary>
+        /// <param name="tcpListener">TCP listener</param>
         private void StopTCPListener(TcpListener? tcpListener)
         {
             tcpListener?.Stop();
@@ -221,17 +242,15 @@ namespace Taurus.Connectors.WebSocket
             listeningToPort = 0;
 
         /// <summary>
-        /// Connects to a WebSocket
+        /// Connects to the specified WebSocket
         /// </summary>
         /// <param name="host">Host</param>
         /// <param name="port">Port</param>
-        public void ConnectToWebSocket(string host, ushort port)
-        {
+        public void ConnectToWebSocket(string host, ushort port) =>
             connectToHostAndPortEvents.Enqueue(new WebSocketConnection(host, port));
-        }
 
         /// <summary>
-        /// Closes connection to all peers
+        /// Closes connection to all connected peers in this connector
         /// </summary>
         /// <param name="reason">Disconnection reason</param>
         public override void Close(EDisconnectionReason reason)

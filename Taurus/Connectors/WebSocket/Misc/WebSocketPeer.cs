@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Net.Sockets;
 
+/// <summary>
+/// Taurus connectors WebSocket namespace
+/// </summary>
 namespace Taurus.Connectors.WebSocket
 {
+    /// <summary>
+    /// A class that describes a WebSocket peer
+    /// </summary>
     internal class WebSocketPeer : APeer, IWebSocketPeer
     {
         /// <summary>

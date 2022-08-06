@@ -1,4 +1,7 @@
-﻿namespace Taurus.Connectors
+﻿/// <summary>
+/// Taurus connectors namespace
+/// </summary>
+namespace Taurus.Connectors
 {
     /// <summary>
     /// A structure that describes a peer disconnection

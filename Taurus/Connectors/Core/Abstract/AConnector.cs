@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
+/// <summary>
+/// Taurus connectors namespace
+/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>
@@ -13,12 +16,12 @@ namespace Taurus.Connectors
     internal abstract class AConnector : IConnector
     {
         /// <summary>
-        /// On handle peer connection attempt
+        /// Gets invoked when peer connection attempt needs to be handled
         /// </summary>
         private readonly HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt;
 
         /// <summary>
-        /// Connected peers
+        /// Peers
         /// </summary>
         private readonly Dictionary<Guid, IPeer> peers = new Dictionary<Guid, IPeer>();
 
@@ -28,7 +31,7 @@ namespace Taurus.Connectors
         private readonly Dictionary<Guid, IDefragmenterStream> peerGUIDToDefragmenterStreamLookup = new Dictionary<Guid, IDefragmenterStream>();
 
         /// <summary>
-        /// Peer connection attempt events
+        /// Peer connection attempted events
         /// </summary>
         private readonly ConcurrentQueue<IPeer> peerConnectionAttemptedEvents = new ConcurrentQueue<IPeer>();
 
@@ -43,7 +46,7 @@ namespace Taurus.Connectors
         private readonly ConcurrentQueue<PeerDisconnection> validPeerDisconnectionRequestedEvents = new ConcurrentQueue<PeerDisconnection>();
 
         /// <summary>
-        /// Peer disconnection events
+        /// Peer disconnected events
         /// </summary>
         private readonly ConcurrentQueue<PeerDisconnection> peerDisconnectedEvents = new ConcurrentQueue<PeerDisconnection>();
 
@@ -63,7 +66,7 @@ namespace Taurus.Connectors
         private readonly ConcurrentQueue<PeerMessage> peerMessageReceivedEvents = new ConcurrentQueue<PeerMessage>();
 
         /// <summary>
-        /// Connected peers
+        /// Peers
         /// </summary>
         public IReadOnlyDictionary<Guid, IPeer> Peers => peers;
 
@@ -78,22 +81,22 @@ namespace Taurus.Connectors
         public ICompressor Compressor { get; }
 
         /// <summary>
-        /// This event will be invoked when a peer attempted to connect to this connector.
+        /// Gets invoked when a peer connection has been attempted
         /// </summary>
         public event PeerConnectionAttemptedDelegate? OnPeerConnectionAttempted;
 
         /// <summary>
-        /// This event will be invoked when a peer has been successfully connected to this connector.
+        /// Gets invoked when a peer has been connected
         /// </summary>
         public event PeerConnectedDelegate? OnPeerConnected;
 
         /// <summary>
-        /// This event will be invoked when a peer connection has been denied.
+        /// Gets invoked when a peer connection has been denied
         /// </summary>
         public event PeerConnectionDeniedDelegate? OnPeerConnectionDenied;
 
         /// <summary>
-        /// This event will be invoked when a peer has disconnected from this connector.
+        /// Gets invoked when a peer has been disconnected
         /// </summary>
         public event PeerDisconnectedDelegate? OnPeerDisconnected;
 
@@ -103,14 +106,14 @@ namespace Taurus.Connectors
         public event PeerMessageSentDelegate? OnPeerMessageSent;
 
         /// <summary>
-        /// This event will be invoked when a peer has sent a message to this connector
+        /// Gets invoked when a peer message has been received
         /// </summary>
         public event PeerMessageReceivedDelegate? OnPeerMessageReceived;
 
         /// <summary>
-        /// Constructs a connector
+        /// Constructs a new connector
         /// </summary>
-        /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
+        /// <param name="onHandlePeerConnectionAttempt">Gets invoked when peer connection attempt needs to be handled</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
         public AConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor)
@@ -128,7 +131,7 @@ namespace Taurus.Connectors
             peerConnectionAttemptedEvents.Enqueue(peer);
 
         /// <summary>
-        /// Enqueues peer connected event
+        /// Enqueues peer disconnected event
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="disconnectionReason">Disconnection reason</param>
@@ -136,11 +139,11 @@ namespace Taurus.Connectors
             peerDisconnectedEvents.Enqueue(new PeerDisconnection(peer, disconnectionReason));
 
         /// <summary>
-        /// Recieves a peer message
+        /// Enqueues a peer message received event
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
-        protected void ReceivePeerMessage(IPeer peer, ReadOnlySpan<byte> message) =>
+        protected void EnqueuePeerMessageReceivedEvent(IPeer peer, ReadOnlySpan<byte> message) =>
             peerMessageReceivedEvents.Enqueue(new PeerMessage(peer, message));
 
         /// <summary>
@@ -190,7 +193,7 @@ namespace Taurus.Connectors
             peerDisconnectionRequestedEvents.Enqueue(new PeerDisconnection(peer, disconnectionReason));
 
         /// <summary>
-        /// Sends a message to a peer
+        /// Sends a message to a peer asynchronously
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
@@ -199,6 +202,30 @@ namespace Taurus.Connectors
             (message.Length > 0) ?
                 Task.Run(() => sendingPeerMessageRequestedEvents.Enqueue(new PeerMessage(peer, Fragmenter.Fragment(Compressor.Compress(message.Span))))) :
                 Task.CompletedTask;
+
+        /// <summary>
+        /// Is connection by the specfied peer allowed
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <returns>"true" if connection is allowed, otherwise "false"</returns>
+        public bool IsConnectionAllowed(IPeer peer) =>
+            onHandlePeerConnectionAttempt(peer);
+
+        /// <summary>
+        /// Closes connection to all connected peers in this connector
+        /// </summary>
+        /// <param name="reason">Disconnection reason</param>
+        public virtual void Close(EDisconnectionReason reason)
+        {
+            while (peers.Count > 0)
+            {
+                foreach (IPeer peer in peers.Values)
+                {
+                    DisconnectPeer(peer, reason);
+                }
+                ProcessEvents();
+            }
+        }
 
         /// <summary>
         /// Processes all events appeared since last call
@@ -262,31 +289,7 @@ namespace Taurus.Connectors
         }
 
         /// <summary>
-        /// Is connection by peer allowed
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <returns>"true" if connection is allowed, otherwise "false"</returns>
-        public bool IsConnectionAllowed(IPeer peer) =>
-            onHandlePeerConnectionAttempt(peer);
-
-        /// <summary>
-        /// Closes connection to all connected peers in this connector
-        /// </summary>
-        /// <param name="reason">Disconnection reason</param>
-        public virtual void Close(EDisconnectionReason reason)
-        {
-            while (peers.Count > 0)
-            {
-                foreach (IPeer peer in peers.Values)
-                {
-                    DisconnectPeer(peer, reason);
-                }
-                ProcessEvents();
-            }
-        }
-
-        /// <summary>
-        /// Dispose
+        /// Disposes this object
         /// </summary>
         public void Dispose() => Close(EDisconnectionReason.Disposed);
     }

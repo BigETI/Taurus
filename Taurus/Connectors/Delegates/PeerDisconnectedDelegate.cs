@@ -1,7 +1,10 @@
-﻿namespace Taurus.Connectors
+﻿/// <summary>
+/// Taurus connectors namespace
+/// </summary>
+namespace Taurus.Connectors
 {
     /// <summary>
-    /// Used to signal a peer being disconnected
+    /// Used to invoke when a peer has been disconnected
     /// </summary>
     /// <param name="peer">Peer</param>
     /// <param name="disconnectionReason">Disconnection reason</param>

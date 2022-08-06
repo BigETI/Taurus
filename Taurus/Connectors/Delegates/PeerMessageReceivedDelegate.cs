@@ -1,9 +1,12 @@
 ﻿using System;
 
+/// <summary>
+/// Taurus connectors namespace
+/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>
-    /// Used to signal a message received from a peer
+    /// Used to invoke when a peer message has been received
     /// </summary>
     /// <param name="peer">Peer</param>
     /// <param name="message">Message</param>

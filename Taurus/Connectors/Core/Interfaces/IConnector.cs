@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
+/// <summary>
+/// Taurus connectors namespace
+/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>
@@ -12,7 +15,7 @@ namespace Taurus.Connectors
     public interface IConnector : ISynchronizedEvents, IDisposable
     {
         /// <summary>
-        /// Connected peers
+        /// Peers
         /// </summary>
         IReadOnlyDictionary<Guid, IPeer> Peers { get; }
 
@@ -27,22 +30,32 @@ namespace Taurus.Connectors
         ICompressor Compressor { get; }
 
         /// <summary>
-        /// This event will be invoked when a peer attempted to connect to this connector.
+        /// Gets invoked when a peer connection has been attempted
         /// </summary>
         event PeerConnectionAttemptedDelegate? OnPeerConnectionAttempted;
 
         /// <summary>
-        /// This event will be invoked when a peer has been successfully connected to this connector.
+        /// Gets invoked when a peer has been connected
         /// </summary>
         event PeerConnectedDelegate? OnPeerConnected;
 
         /// <summary>
-        /// This event will be invoked when a peer has disconnected from this connector.
+        /// Gets invoked when a peer connection has been denied
+        /// </summary>
+        event PeerConnectionDeniedDelegate? OnPeerConnectionDenied;
+
+        /// <summary>
+        /// Gets invoked when a peer has been disconnected
         /// </summary>
         event PeerDisconnectedDelegate? OnPeerDisconnected;
 
         /// <summary>
-        /// This event will be invoked when a peer has sent a message to this connector
+        /// Gets invoke when a peer message has been sent
+        /// </summary>
+        event PeerMessageSentDelegate? OnPeerMessageSent;
+
+        /// <summary>
+        /// Gets invoked when a peer message has been received
         /// </summary>
         event PeerMessageReceivedDelegate? OnPeerMessageReceived;
 
@@ -69,7 +82,7 @@ namespace Taurus.Connectors
         Task SendMessageToPeerAsync(IPeer peer, ReadOnlyMemory<byte> message);
 
         /// <summary>
-        /// Is connection by peer allowed
+        /// Is connection by the specfied peer allowed
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <returns>"true" if connection is allowed, otherwise "false"</returns>

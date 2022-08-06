@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Taurus.JSONConverters;
 
+/// <summary>
+/// Taurus connectors namespace
+/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>
     /// Disconnection reason enumerator
     /// </summary>
-    [JsonConverter(typeof(DisconnectionReasonJSONConverter))]
+[JsonConverter(typeof(DisconnectionReasonJSONConverter))]
     public enum EDisconnectionReason
     {
         /// <summary>

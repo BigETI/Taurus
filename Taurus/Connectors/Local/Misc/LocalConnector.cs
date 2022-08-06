@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
+/// <summary>
+/// Taurus connectors local namespace
+/// </summary>
 namespace Taurus.Connectors.Local
 {
     /// <summary>
@@ -17,80 +20,19 @@ namespace Taurus.Connectors.Local
         private readonly ConcurrentQueue<LocalConnector> connectToLocalConnectors = new ConcurrentQueue<LocalConnector>();
 
         /// <summary>
-        /// Peer to peer lookup
+        /// local peer GUID to target local peer lookup
         /// </summary>
         private readonly Dictionary<Guid, ILocalPeer> localPeerGUIDToTargetLocalPeerLookup = new Dictionary<Guid, ILocalPeer>();
 
         /// <summary>
         /// Constructs a local connector
         /// </summary>
-        /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
+        /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer connection needs to be handled</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
         public LocalConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter = null, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
             // ...
-        }
-
-        /// <summary>
-        /// Handles peer disconnection request
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <param name="disconnectionReason">Disconnection reason</param>
-        protected override void HandlePeerDisconnectionRequest(IPeer peer, EDisconnectionReason disconnectionReason)
-        {
-            if (localPeerGUIDToTargetLocalPeerLookup.TryGetValue(peer.GUID, out ILocalPeer target_local_peer))
-            {
-                localPeerGUIDToTargetLocalPeerLookup.Remove(peer.GUID);
-                target_local_peer.Disconnect(disconnectionReason);
-            }
-        }
-
-        /// <summary>
-        /// Handles sending peer message request
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <param name="message">Message</param>
-        protected override void HandleSendingPeerMessageRequest(IPeer peer, ReadOnlySpan<byte> message)
-        {
-            if (localPeerGUIDToTargetLocalPeerLookup.TryGetValue(peer.GUID, out ILocalPeer target_local_peer) && (target_local_peer.Connector is LocalConnector target_local_connector))
-            {
-                target_local_connector.ReceivePeerMessage(peer, message);
-            }
-        }
-
-        /// <summary>
-        /// Processes events
-        /// </summary>
-        public override void ProcessEvents()
-        {
-            base.ProcessEvents();
-            ProcessRequests();
-            while (connectToLocalConnectors.TryDequeue(out LocalConnector connect_to_local_connector))
-            {
-                connect_to_local_connector.RegisterConnectingPeer(new LocalPeer(Guid.NewGuid(), this, connect_to_local_connector));
-            }
-        }
-
-        /// <summary>
-        /// Connects to the specified target local connector
-        /// </summary>
-        /// <param name="targetLocalConnector">Target local connector</param>
-        public void ConnectToLocalConnector(ILocalConnector targetLocalConnector)
-        {
-            if (targetLocalConnector == null)
-            {
-                throw new ArgumentNullException(nameof(targetLocalConnector));
-            }
-            if (targetLocalConnector == this)
-            {
-                throw new ArgumentException("Target local connector must be of another instance.", nameof(targetLocalConnector));
-            }
-            if (!(targetLocalConnector is LocalConnector target_local_connector))
-            {
-                throw new ArgumentException($"Target local connector is not an instance of \"{ nameof(LocalConnector) }\".", nameof(targetLocalConnector));
-            }
-            connectToLocalConnectors.Enqueue(target_local_connector);
         }
 
         /// <summary>
@@ -139,6 +81,71 @@ namespace Taurus.Connectors.Local
             if (localPeerGUIDToTargetLocalPeerLookup.TryAdd(newLocalPeer.GUID, localPeer))
             {
                 EnqueuePeerConnectionAttemptedEvent(localPeer);
+            }
+        }
+
+        /// <summary>
+        /// Handles peer disconnection request
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="disconnectionReason">Disconnection reason</param>
+        protected override void HandlePeerDisconnectionRequest(IPeer peer, EDisconnectionReason disconnectionReason)
+        {
+            if (localPeerGUIDToTargetLocalPeerLookup.TryGetValue(peer.GUID, out ILocalPeer target_local_peer))
+            {
+                localPeerGUIDToTargetLocalPeerLookup.Remove(peer.GUID);
+                target_local_peer.Disconnect(disconnectionReason);
+            }
+        }
+
+        /// <summary>
+        /// Handles sending peer message request
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="message">Message</param>
+        protected override void HandleSendingPeerMessageRequest(IPeer peer, ReadOnlySpan<byte> message)
+        {
+            if
+            (
+                localPeerGUIDToTargetLocalPeerLookup.TryGetValue(peer.GUID, out ILocalPeer target_local_peer) &&
+                (target_local_peer.Connector is LocalConnector target_local_connector)
+            )
+            {
+                target_local_connector.EnqueuePeerMessageReceivedEvent(peer, message);
+            }
+        }
+
+        /// <summary>
+        /// Connects to the specified target local connector
+        /// </summary>
+        /// <param name="targetLocalConnector">Target local connector</param>
+        public void ConnectToLocalConnector(ILocalConnector targetLocalConnector)
+        {
+            if (targetLocalConnector == null)
+            {
+                throw new ArgumentNullException(nameof(targetLocalConnector));
+            }
+            if (targetLocalConnector == this)
+            {
+                throw new ArgumentException("Target local connector must be of another instance.", nameof(targetLocalConnector));
+            }
+            if (!(targetLocalConnector is LocalConnector target_local_connector))
+            {
+                throw new ArgumentException($"Target local connector is not an instance of \"{ nameof(LocalConnector) }\".", nameof(targetLocalConnector));
+            }
+            connectToLocalConnectors.Enqueue(target_local_connector);
+        }
+
+        /// <summary>
+        /// Processes all events appeared since last call
+        /// </summary>
+        public override void ProcessEvents()
+        {
+            base.ProcessEvents();
+            ProcessRequests();
+            while (connectToLocalConnectors.TryDequeue(out LocalConnector connect_to_local_connector))
+            {
+                connect_to_local_connector.RegisterConnectingPeer(new LocalPeer(Guid.NewGuid(), this, connect_to_local_connector));
             }
         }
     }

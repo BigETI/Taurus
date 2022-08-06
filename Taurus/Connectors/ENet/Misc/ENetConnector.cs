@@ -7,6 +7,9 @@ using System.Threading;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
+/// <summary>
+/// Taurus connectors ENet namespace
+/// </summary>
 namespace Taurus.Connectors.ENet
 {
     /// <summary>
@@ -25,7 +28,7 @@ namespace Taurus.Connectors.ENet
         private readonly List<Packet> disposePackets = new List<Packet>();
 
         /// <summary>
-        /// Peer ID to peer lookup
+        /// ENet peer ID to peer lookup
         /// </summary>
         private readonly Dictionary<uint, IPeer> peerIDToPeerLookup = new Dictionary<uint, IPeer>();
 
@@ -109,7 +112,7 @@ namespace Taurus.Connectors.ENet
                                         }
                                         packet.CopyTo(buffer);
                                         Marshal.Copy(packet.Data, buffer, 0, packet.Length);
-                                        ReceivePeerMessage(peer, buffer.AsSpan(0, packet.Length));
+                                        EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, packet.Length));
                                     }
                                     break;
                                 case EventType.Timeout:
@@ -141,6 +144,12 @@ namespace Taurus.Connectors.ENet
             connectorThread.Start();
         }
 
+        /// <summary>
+        /// Tries to get ENet peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="eNetPeer">ENet peer</param>
+        /// <returns></returns>
         private bool TryGettingENetPeer(IPeer peer, out IENetPeer? eNetPeer)
         {
             bool ret = false;
@@ -156,6 +165,11 @@ namespace Taurus.Connectors.ENet
             return ret;
         }
 
+        /// <summary>
+        /// Asserts that peer is an ENet peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="onPeerIsENetPeerAsserted">Gets invoked when a peer is an ENet peer asserted</param>
         private void AssertPeerIsENetPeer(IPeer peer, PeerIsENetPeerAssertedDelegate onPeerIsENetPeerAsserted)
         {
             if (TryGettingENetPeer(peer, out IENetPeer? e_net_peer))
@@ -206,7 +220,7 @@ namespace Taurus.Connectors.ENet
             connectToENetAddresses.Enqueue(address);
 
         /// <summary>
-        /// Closes connection to all peers
+        /// Closes connection to all connected peers in this connector
         /// </summary>
         /// <param name="reason">Disconnection reason</param>
         public override void Close(EDisconnectionReason reason)

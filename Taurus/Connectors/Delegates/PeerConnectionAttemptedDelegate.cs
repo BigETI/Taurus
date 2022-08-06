@@ -1,8 +1,11 @@
-﻿namespace Taurus.Connectors
+﻿/// <summary>
+/// Taurus connectors namespace
+/// </summary>
+namespace Taurus.Connectors
 {
     /// <summary>
-    /// Used to signal a peer connection attempt
+    /// Used to invoke when a peer connection has been attempted
     /// </summary>
-    /// <param name="peer">Connecting peer</param>
+    /// <param name="peer">Peer</param>
     public delegate void PeerConnectionAttemptedDelegate(IPeer peer);
 }

@@ -1,5 +1,8 @@
 ﻿using System;
 
+/// <summary>
+/// Taurus connectors namespace
+/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>

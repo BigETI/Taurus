@@ -1,14 +1,17 @@
 ﻿using ENet;
 
+/// <summary>
+/// Taurus connectors ENet namespace
+/// </summary>
 namespace Taurus.Connectors.ENet
 {
     /// <summary>
-    /// An interface that represents a connector for ENet
+    /// An interface that represents an ENet connector
     /// </summary>
     public interface IENetConnector : IConnector
     {
         /// <summary>
-        /// Host
+        /// ENet Host
         /// </summary>
         Host Host { get; }
 
