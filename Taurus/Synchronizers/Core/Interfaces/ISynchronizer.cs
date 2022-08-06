@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Taurus.Connectors;
 using Taurus.Serializers;
 
@@ -8,7 +9,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An interface that represents a generalized synchronizer
     /// </summary>
-    public interface ISynchronizer : IDisposable
+    public interface ISynchronizer : ISynchronizedEvents, IDisposable
     {
         /// <summary>
         /// Available connectors
@@ -85,12 +86,13 @@ namespace Taurus.Synchronizers
         bool TryGetConnectorOfType<T>(out T connector) where T : IConnector?;
 
         /// <summary>
-        /// Sends a message to peer
+        /// Sends a message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
-        void SendMessageToPeer<T>(IPeer peer, T message) where T : IBaseMessageData;
+        /// <returns>Task</returns>
+        Task SendMessageToPeerAsync<T>(IPeer peer, T message) where T : IBaseMessageData;
 
         /// <summary>
         /// Adds a message parser
@@ -133,20 +135,22 @@ namespace Taurus.Synchronizers
         void ParseMessage(IPeer peer, ReadOnlySpan<byte> bytes);
 
         /// <summary>
-        /// Sends an invalid message parameters error message to peer
+        /// Sends an invalid message parameters error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
-        void SendInvalidMessageParametersErrorMessageToPeer<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
+        /// <returns>TAsk</returns>
+        Task SendInvalidMessageParametersErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
 
         /// <summary>
-        /// Sends an invalid message context error message to peer
+        /// Sends an invalid message context error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
-        void SendInvalidMessageContextErrorMessageToPeer<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
+        /// <returns>Task</returns>
+        Task SendInvalidMessageContextErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
 
         /// <summary>
         /// Sends an unknown error message to peer
@@ -154,7 +158,8 @@ namespace Taurus.Synchronizers
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
-        void SendUnknownErrorMessageToPeer<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
+        /// <returns>Task</returns>
+        Task SendUnknownErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
 
         /// <summary>
         /// Closes connections to all peers

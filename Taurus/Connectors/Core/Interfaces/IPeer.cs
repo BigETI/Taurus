@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Taurus.Connectors
 {
@@ -24,9 +25,10 @@ namespace Taurus.Connectors
         void Disconnect(EDisconnectionReason disconnectionReason);
 
         /// <summary>
-        /// Sends the specified message to the peer
+        /// Sends the specified message to the peer asynchronously
         /// </summary>
         /// <param name="message">Message</param>
-        void SendMessage(ReadOnlySpan<byte> message) => Connector.SendMessageToPeer(this, message);
+        /// <returns>Task</returns>
+        Task SendMessageAsync(ReadOnlyMemory<byte> message);
     }
 }

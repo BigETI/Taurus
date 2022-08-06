@@ -68,20 +68,20 @@ namespace Taurus.Synchronizers
             {
                 if (message.MessageType != MessageType)
                 {
-                    OnMessageParseFailed?.Invoke(peer, MessageType, bytes);
+                    OnMessageParseFailed?.Invoke(peer, MessageType, bytes.ToArray());
                 }
                 if (message.IsValid)
                 {
-                    OnMessageParsed?.Invoke(peer, message, bytes);
+                    OnMessageParsed?.Invoke(peer, message, bytes.ToArray());
                 }
                 else
                 {
-                    OnMessageValidationFailed?.Invoke(peer, message, bytes);
+                    OnMessageValidationFailed?.Invoke(peer, message, bytes.ToArray());
                 }
             }
             else
             {
-                OnMessageParseFailed?.Invoke(peer, MessageType, bytes);
+                OnMessageParseFailed?.Invoke(peer, MessageType, bytes.ToArray());
             }
         }
     }

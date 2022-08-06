@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
@@ -193,13 +194,11 @@ namespace Taurus.Connectors
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
-        public void SendMessageToPeer(IPeer peer, ReadOnlySpan<byte> message)
-        {
-            if ((message.Length > 0) && IsPeerContained(peer))
-            {
-                sendingPeerMessageRequestedEvents.Enqueue(new PeerMessage(peer, Fragmenter.Fragment(Compressor.Compress(message))));
-            }
-        }
+        /// <returns>Task</returns>
+        public Task SendMessageToPeerAsync(IPeer peer, ReadOnlyMemory<byte> message) =>
+            (message.Length > 0) ?
+                Task.Run(() => sendingPeerMessageRequestedEvents.Enqueue(new PeerMessage(peer, Fragmenter.Fragment(Compressor.Compress(message.Span))))) :
+                Task.CompletedTask;
 
         /// <summary>
         /// Processes all events appeared since last call

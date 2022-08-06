@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Taurus.Connectors;
 
 namespace Taurus.Synchronizers
@@ -10,5 +11,6 @@ namespace Taurus.Synchronizers
     /// <param name="peer">Peer</param>
     /// <param name="message">Message</param>
     /// <param name="bytes">Bytes</param>
-    public delegate void MessageParsedDelegate<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes) where T : IBaseMessageData;
+    /// <returns>Task</returns>
+    public delegate Task MessageParsedDelegate<T>(IPeer peer, T message, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData;
 }

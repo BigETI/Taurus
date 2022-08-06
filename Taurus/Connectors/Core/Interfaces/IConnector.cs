@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
@@ -8,7 +9,7 @@ namespace Taurus.Connectors
     /// <summary>
     /// An interface that represents any connector
     /// </summary>
-    public interface IConnector : IDisposable
+    public interface IConnector : ISynchronizedEvents, IDisposable
     {
         /// <summary>
         /// Connected peers
@@ -60,16 +61,12 @@ namespace Taurus.Connectors
         void DisconnectPeer(IPeer peer, EDisconnectionReason disconnectionReason);
 
         /// <summary>
-        /// Sends a message to a peer
+        /// Sends a message to a peer asynchronously
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
-        void SendMessageToPeer(IPeer peer, ReadOnlySpan<byte> message);
-
-        /// <summary>
-        /// Processes all events appeared since last call
-        /// </summary>
-        void ProcessEvents();
+        /// <returns>Task</returns>
+        Task SendMessageToPeerAsync(IPeer peer, ReadOnlyMemory<byte> message);
 
         /// <summary>
         /// Is connection by peer allowed

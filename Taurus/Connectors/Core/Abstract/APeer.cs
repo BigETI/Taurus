@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Taurus.Connectors
 {
+    /// <summary>
+    /// An abstract class that describes a peer
+    /// </summary>
     internal abstract class APeer : IPeer
     {
         /// <summary>
@@ -37,9 +41,10 @@ namespace Taurus.Connectors
         public void Disconnect(EDisconnectionReason disconnectionReason) => Connector.DisconnectPeer(this, disconnectionReason);
 
         /// <summary>
-        /// Sends the specified message to the peer
+        /// Sends the specified message to the peer asynchronously
         /// </summary>
         /// <param name="message">Message</param>
-        public void SendMessage(ReadOnlySpan<byte> message) => Connector.SendMessageToPeer(this, message);
+        /// <returns>Task</returns>
+        public Task SendMessageAsync(ReadOnlyMemory<byte> message) => Connector.SendMessageToPeerAsync(this, message);
     }
 }

@@ -1,8 +1,7 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
-using System;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
+using System.Threading.Tasks;
 using Taurus.Connectors;
 using Taurus.Serializers;
 using Taurus.Synchronizers.Data.Messages;
@@ -32,9 +31,9 @@ namespace Taurus.Synchronizers
         private readonly Dictionary<Guid, IUser> peerGUIDToUserLookup = new Dictionary<Guid, IUser>();
 
         /// <summary>
-        /// JSON serializer
+        /// User authenticated events
         /// </summary>
-        private readonly JsonSerializer jsonSerializer = new JsonSerializer();
+        private readonly ConcurrentQueue<IUser> userAuthenticatedEvents = new ConcurrentQueue<IUser>();
 
         /// <summary>
         /// Available connectors
@@ -104,41 +103,37 @@ namespace Taurus.Synchronizers
                 {
                     OnErrorMessageReceived?.Invoke(message.ErrorType, message.Message ?? string.Empty);
                     Console.Error.WriteLine($"[{ message.ErrorType }] { message.Message ?? string.Empty }");
+                    return Task.CompletedTask;
                 },
-                (peer, message, _) =>
+                async (peer, message, _) =>
                 {
                     if (message.ErrorType == EErrorType.Invalid)
                     {
-                        SendErrorMessageToPeer<ErrorMessageData>(peer, EErrorType.InvalidErrorType, "An error message with an invalid error type has been sent.");
+                        await SendErrorMessageToPeerAsync<ErrorMessageData>(peer, EErrorType.InvalidErrorType, "An error message with an invalid error type has been sent.");
                     }
                     else if (string.IsNullOrWhiteSpace(message.MessageType))
                     {
-                        SendErrorMessageToPeer<ErrorMessageData>(peer, EErrorType.InvalidMessageType, "An error message with an invalid message type has been sent.");
+                        await SendErrorMessageToPeerAsync<ErrorMessageData>(peer, EErrorType.InvalidMessageType, "An error message with an invalid message type has been sent.");
                     }
                     else if (message.Message == null)
                     {
-                        SendErrorMessageToPeer<ErrorMessageData>(peer, EErrorType.MessageIsNull, "An error message with message being null has been sent.");
+                        await SendErrorMessageToPeerAsync<ErrorMessageData>(peer, EErrorType.MessageIsNull, "An error message with message being null has been sent.");
                     }
                     else
                     {
-                        SendUnknownErrorMessageToPeer<ErrorMessageData>(peer, "Message validation has failed.");
+                        await SendUnknownErrorMessageToPeerAsync<ErrorMessageData>(peer, "Message validation has failed.");
                     }
                 },
                 MessageParseFailedEvent<ErrorMessageData>
             );
             AddMessageParser<TAuthenticationMessageData>
             (
-                (peer, message, _) =>
+                async (peer, message, _) =>
                 {
-                    if
-                    (
-                        HandlePeerAuthentication(peer, message, out IUser user) &&
-                        (user.Peer == peer) &&
-                        users.TryAdd(user.GUID, user) &&
-                        peerGUIDToUserLookup.TryAdd(peer.GUID, user)
-                    )
+                    IUser user = await HandlePeerAuthenticationAsync(peer, message);
+                    if (user.Peer == peer)
                     {
-                        OnUserAuthenticated?.Invoke(user);
+                        userAuthenticatedEvents.Enqueue(user);
                     }
                 },
                 FatalMessageValidationFailedEvent<TAuthenticationMessageData>,
@@ -153,7 +148,8 @@ namespace Taurus.Synchronizers
         /// <param name="expectedMessageType">Expected message type</param>
         /// <param name="bytes">Message bytes</param>
         /// <param name="isFatal">Is error fatal</param>
-        protected void MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Expected message type: \"{ expectedMessageType }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes) }", isFatal);
+        /// <returns>Task</returns>
+        protected Task MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlyMemory<byte> bytes, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeerAsync<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Expected message type: \"{ expectedMessageType }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes.Span) }", isFatal);
 
         /// <summary>
         /// Listens to any message parse failed event
@@ -161,7 +157,8 @@ namespace Taurus.Synchronizers
         /// <param name="peer">Peer</param>
         /// <param name="expectedMessageType">Expected message tyoe</param>
         /// <param name="bytes">Bytes</param>
-        protected void MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bytes, false);
+        /// <returns>Task</returns>
+        protected Task MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bytes, false);
 
         /// <summary>
         /// Listens to any message parse failed event that is fatal
@@ -169,7 +166,8 @@ namespace Taurus.Synchronizers
         /// <param name="peer">peer</param>
         /// <param name="expectedMessageType">Expected message type</param>
         /// <param name="bytes">Message bytes</param>
-        protected void FatalMessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bytes, true);
+        /// <returns>Task</returns>
+        protected Task FatalMessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bytes, true);
 
         /// <summary>
         /// Listens to any message validation event
@@ -179,7 +177,8 @@ namespace Taurus.Synchronizers
         /// <param name="message">Received message</param>
         /// <param name="bytes">Message bytes</param>
         /// <param name="isFatal">Is validation fail fatal</param>
-        protected void MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Message type: \"{ message.GetType().FullName }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes) }", isFatal);
+        /// <returns>Task</returns>
+        protected Task MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlyMemory<byte> bytes, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeerAsync<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Message type: \"{ message.GetType().FullName }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes.Span) }", isFatal);
 
         /// <summary>
         /// Listens to any message validation event
@@ -188,7 +187,8 @@ namespace Taurus.Synchronizers
         /// <param name="peer">Peer</param>
         /// <param name="message">Received message</param>
         /// <param name="bytes">Message bytes</param>
-        protected void MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, false);
+        /// <returns>Task</returns>
+        protected Task MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, false);
 
         /// <summary>
         /// Listens to any message validation event that is fatal
@@ -197,7 +197,8 @@ namespace Taurus.Synchronizers
         /// <param name="peer">Peer</param>
         /// <param name="message">Received message</param>
         /// <param name="bytes">Message bytes</param>
-        protected void FatalMessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, true);
+        /// <returns>Task</returns>
+        protected Task FatalMessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, true);
 
         /// <summary>
         /// Adds an automatic message parser
@@ -225,12 +226,12 @@ namespace Taurus.Synchronizers
         protected IMessageParser<T> AddAutomaticMessageParserWithFatality<T>(MessageParsedDelegate<T> onMessageParsed) where T : IBaseMessageData => AddAutomaticMessageParser(onMessageParsed, false);
 
         /// <summary>
-        /// Handles peer authentication
+        /// Handles peer authentication asynchronously
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="authenticationMessageData">Autjentication message data</param>
         /// <returns>"true" if authentication was successful, otherwise "false"</returns>
-        protected abstract bool HandlePeerAuthentication(IPeer peer, TAuthenticationMessageData authenticationMessageData, out IUser user);
+        protected abstract Task<IUser> HandlePeerAuthenticationAsync(IPeer peer, TAuthenticationMessageData authenticationMessageData);
 
         /// <summary>
         /// Add connector
@@ -305,12 +306,13 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
-        /// Sends a message to peer
+        /// Sends a message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
-        public void SendMessageToPeer<T>(IPeer peer, T message) where T : IBaseMessageData
+        /// <returns>Task</returns>
+        public Task SendMessageToPeerAsync<T>(IPeer peer, T message) where T : IBaseMessageData
         {
             if (peer == null)
             {
@@ -320,13 +322,7 @@ namespace Taurus.Synchronizers
             {
                 throw new ArgumentNullException(nameof(message));
             }
-            using MemoryStream memory_stream = new MemoryStream();
-            using (BsonDataWriter bson_data_writer = new BsonDataWriter(memory_stream))
-            {
-                jsonSerializer.Serialize(bson_data_writer, message);
-            }
-            memory_stream.Seek(0L, SeekOrigin.Begin);
-            peer.SendMessage(memory_stream.ToArray());
+            return peer.SendMessageAsync(Serializer.Serialize(message).ToArray());
         }
 
         /// <summary>
@@ -456,26 +452,27 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
-        /// Sends an error message to peer
+        /// Sends an error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorType">Error type</param>
         /// <param name="errorMessage">Error message</param>
-        public void SendErrorMessageToPeer<T>(IPeer peer, EErrorType errorType, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, errorType, errorMessage, false);
+        public Task SendErrorMessageToPeerAsync<T>(IPeer peer, EErrorType errorType, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeerAsync<T>(peer, errorType, errorMessage, false);
 
         /// <summary>
-        /// Sends an error message to peer
+        /// Sends an error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorType">Error tyoe</param>
         /// <param name="errorMessage">Error message</param>
         /// <param name="isFatal">Is error fatal</param>
-        public void SendErrorMessageToPeer<T>(IPeer peer, EErrorType errorType, string errorMessage, bool isFatal) where T : IBaseMessageData
+        /// <returns>Task</returns>
+        public async Task SendErrorMessageToPeerAsync<T>(IPeer peer, EErrorType errorType, string errorMessage, bool isFatal) where T : IBaseMessageData
         {
             Console.Error.WriteLine($"[{ errorType }] { errorMessage }");
-            SendMessageToPeer(peer, new ErrorMessageData(errorType, Naming.GetMessageTypeNameFromMessageDataType<T>(), errorMessage));
+            await SendMessageToPeerAsync(peer, new ErrorMessageData(errorType, Naming.GetMessageTypeNameFromMessageDataType<T>(), errorMessage));
             if (isFatal)
             {
                 peer.Disconnect(EDisconnectionReason.Error);
@@ -483,28 +480,30 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
-        /// Sends an invalid message parameters error message to peer
+        /// Sends an invalid message parameters error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
-        public void SendInvalidMessageParametersErrorMessageToPeer<T>(IPeer peer, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, errorMessage);
+        public Task SendInvalidMessageParametersErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeerAsync<T>(peer, EErrorType.InvalidMessageParameters, errorMessage);
 
         /// <summary>
-        /// Sends an invalid message context error message to peer
+        /// Sends an invalid message context error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
-        public void SendInvalidMessageContextErrorMessageToPeer<T>(IPeer peer, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageContext, errorMessage);
+        /// <returns>Task</returns>
+        public Task SendInvalidMessageContextErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeerAsync<T>(peer, EErrorType.InvalidMessageContext, errorMessage);
 
         /// <summary>
-        /// Sends an unknown error message to peer
+        /// Sends an unknown error message to peer asynchronously
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
-        public void SendUnknownErrorMessageToPeer<T>(IPeer peer, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.Unknown, errorMessage);
+        /// <returns>Task</returns>
+        public Task SendUnknownErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData => SendErrorMessageToPeerAsync<T>(peer, EErrorType.Unknown, errorMessage);
 
         /// <summary>
         /// Closes connections to all peers
@@ -517,6 +516,20 @@ namespace Taurus.Synchronizers
                 connector.Close(reason);
             }
             connectors.Clear();
+        }
+
+        /// <summary>
+        /// Processes all events appeared since last call
+        /// </summary>
+        public virtual void ProcessEvents()
+        {
+            while (userAuthenticatedEvents.TryDequeue(out IUser user))
+            {
+                if (users.TryAdd(user.GUID, user) && peerGUIDToUserLookup.TryAdd(user.Peer.GUID, user))
+                {
+                    OnUserAuthenticated?.Invoke(user);
+                }
+            }
         }
 
         /// <summary>

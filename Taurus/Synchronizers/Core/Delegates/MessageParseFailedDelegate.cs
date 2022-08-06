@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Taurus.Connectors;
 
 namespace Taurus.Synchronizers
@@ -9,5 +10,6 @@ namespace Taurus.Synchronizers
     /// <param name="peer">Sending peer</param>
     /// <param name="expectedMessageType">Expected message type</param>
     /// <param name="bytes">Message bytes</param>
-    public delegate void MessageParseFailedDelegate(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes);
+    /// <returns>Task</returns>
+    public delegate Task MessageParseFailedDelegate(IPeer peer, string expectedMessageType, ReadOnlyMemory<byte> bytes);
 }
