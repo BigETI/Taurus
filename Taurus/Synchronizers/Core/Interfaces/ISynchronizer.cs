@@ -51,6 +51,11 @@ namespace Taurus.Synchronizers
         event ErrorMessageReceivedDelegate OnErrorMessageReceived;
 
         /// <summary>
+        /// Gets invoked when an user has been authenticated
+        /// </summary>
+        event UserAuthenticatedDelegate? OnUserAuthenticated;
+
+        /// <summary>
         /// Add connector
         /// </summary>
         /// <param name="connector">Connector</param>
@@ -124,8 +129,8 @@ namespace Taurus.Synchronizers
         /// Parses incoming message
         /// </summary>
         /// <param name="peer">Peer</param>
-        /// <param name="bson">BSON</param>
-        void ParseMessage(IPeer peer, ReadOnlySpan<byte> bson);
+        /// <param name="bytes">Message bytes</param>
+        void ParseMessage(IPeer peer, ReadOnlySpan<byte> bytes);
 
         /// <summary>
         /// Sends an invalid message parameters error message to peer

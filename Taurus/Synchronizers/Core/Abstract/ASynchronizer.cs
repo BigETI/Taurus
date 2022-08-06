@@ -9,7 +9,7 @@ using Taurus.Synchronizers.Data.Messages;
 
 namespace Taurus.Synchronizers
 {
-    public abstract class ASynchronizer : ISynchronizer
+    public abstract class ASynchronizer<TAuthenticationMessageData> : ISynchronizer where TAuthenticationMessageData : IBaseMessageData
     {
         /// <summary>
         /// Available connectors
@@ -22,6 +22,16 @@ namespace Taurus.Synchronizers
         private readonly Dictionary<string, List<IBaseMessageParser>> messageParsers = new Dictionary<string, List<IBaseMessageParser>>();
 
         /// <summary>
+        /// Users
+        /// </summary>
+        private readonly Dictionary<Guid, IUser> users = new Dictionary<Guid, IUser>();
+
+        /// <summary>
+        /// Peer GUID to user lookup
+        /// </summary>
+        private readonly Dictionary<Guid, IUser> peerGUIDToUserLookup = new Dictionary<Guid, IUser>();
+
+        /// <summary>
         /// JSON serializer
         /// </summary>
         private readonly JsonSerializer jsonSerializer = new JsonSerializer();
@@ -30,6 +40,11 @@ namespace Taurus.Synchronizers
         /// Available connectors
         /// </summary>
         public IEnumerable<IConnector> Connectors => connectors;
+
+        /// <summary>
+        /// Users
+        /// </summary>
+        public IReadOnlyDictionary<Guid, IUser> IUsers => users;
 
         /// <summary>
         /// Serializer
@@ -67,6 +82,16 @@ namespace Taurus.Synchronizers
         public event ErrorMessageReceivedDelegate? OnErrorMessageReceived;
 
         /// <summary>
+        /// Gets invoked when an user has been authenticated
+        /// </summary>
+        public event UserAuthenticatedDelegate? OnUserAuthenticated;
+
+        /// <summary>
+        /// Gets invoked when an user has been disconnected
+        /// </summary>
+        public event UserDisconnectedDelegate? OnUserDisconnected;
+
+        /// <summary>
         /// Constructs a generalised synchronizer object
         /// </summary>
         /// <param name="serializer">Serializer</param>
@@ -101,6 +126,24 @@ namespace Taurus.Synchronizers
                 },
                 MessageParseFailedEvent<ErrorMessageData>
             );
+            AddMessageParser<TAuthenticationMessageData>
+            (
+                (peer, message, _) =>
+                {
+                    if
+                    (
+                        HandlePeerAuthentication(peer, message, out IUser user) &&
+                        (user.Peer == peer) &&
+                        users.TryAdd(user.GUID, user) &&
+                        peerGUIDToUserLookup.TryAdd(peer.GUID, user)
+                    )
+                    {
+                        OnUserAuthenticated?.Invoke(user);
+                    }
+                },
+                FatalMessageValidationFailedEvent<TAuthenticationMessageData>,
+                FatalMessageParseFailedEvent<TAuthenticationMessageData>
+            );
         }
 
         /// <summary>
@@ -108,25 +151,25 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="expectedMessageType">Expected message type</param>
-        /// <param name="bson">BSON</param>
+        /// <param name="bytes">Message bytes</param>
         /// <param name="isFatal">Is error fatal</param>
-        protected void MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bson, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Expected message type: \"{ expectedMessageType }\"{ Environment.NewLine }{ Environment.NewLine }BSON:{ Environment.NewLine }{ Convert.ToBase64String(bson) }", isFatal);
+        protected void MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Expected message type: \"{ expectedMessageType }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes) }", isFatal);
 
         /// <summary>
         /// Listens to any message parse failed event
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="expectedMessageType">Expected message tyoe</param>
-        /// <param name="bson">BSON</param>
-        protected void MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bson) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bson, false);
+        /// <param name="bytes">Bytes</param>
+        protected void MessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bytes, false);
 
         /// <summary>
         /// Listens to any message parse failed event that is fatal
         /// </summary>
         /// <param name="peer">peer</param>
         /// <param name="expectedMessageType">Expected message type</param>
-        /// <param name="bson">BSON</param>
-        protected void FatalMessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bson) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bson, true);
+        /// <param name="bytes">Message bytes</param>
+        protected void FatalMessageParseFailedEvent<T>(IPeer peer, string expectedMessageType, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageParseFailedEvent<T>(peer, expectedMessageType, bytes, true);
 
         /// <summary>
         /// Listens to any message validation event
@@ -134,9 +177,9 @@ namespace Taurus.Synchronizers
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="message">Received message</param>
-        /// <param name="bson">Message BSON</param>
+        /// <param name="bytes">Message bytes</param>
         /// <param name="isFatal">Is validation fail fatal</param>
-        protected void MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bson, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Message type: \"{ message.GetType().FullName }\"{ Environment.NewLine }{ Environment.NewLine }JSON:{ Environment.NewLine }{ Convert.ToBase64String(bson) }", isFatal);
+        protected void MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes, bool isFatal) where T : IBaseMessageData => SendErrorMessageToPeer<T>(peer, EErrorType.InvalidMessageParameters, $"Message is invalid. Message type: \"{ message.GetType().FullName }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes) }", isFatal);
 
         /// <summary>
         /// Listens to any message validation event
@@ -144,8 +187,8 @@ namespace Taurus.Synchronizers
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="message">Received message</param>
-        /// <param name="bson">Message BSON</param>
-        protected void MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bson) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bson, false);
+        /// <param name="bytes">Message bytes</param>
+        protected void MessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, false);
 
         /// <summary>
         /// Listens to any message validation event that is fatal
@@ -153,8 +196,8 @@ namespace Taurus.Synchronizers
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="message">Received message</param>
-        /// <param name="bson">Message BSON</param>
-        protected void FatalMessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bson) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bson, true);
+        /// <param name="bytes">Message bytes</param>
+        protected void FatalMessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlySpan<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, true);
 
         /// <summary>
         /// Adds an automatic message parser
@@ -182,6 +225,14 @@ namespace Taurus.Synchronizers
         protected IMessageParser<T> AddAutomaticMessageParserWithFatality<T>(MessageParsedDelegate<T> onMessageParsed) where T : IBaseMessageData => AddAutomaticMessageParser(onMessageParsed, false);
 
         /// <summary>
+        /// Handles peer authentication
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="authenticationMessageData">Autjentication message data</param>
+        /// <returns>"true" if authentication was successful, otherwise "false"</returns>
+        protected abstract bool HandlePeerAuthentication(IPeer peer, TAuthenticationMessageData authenticationMessageData, out IUser user);
+
+        /// <summary>
         /// Add connector
         /// </summary>
         /// <param name="connector">Connector</param>
@@ -194,7 +245,16 @@ namespace Taurus.Synchronizers
                 connectors.Add(connector);
                 connector.OnPeerConnectionAttempted += (peer) => OnPeerConnectionAttempted?.Invoke(peer);
                 connector.OnPeerConnected += (peer) => OnPeerConnected?.Invoke(peer);
-                connector.OnPeerDisconnected += (peer, disconnectionReason) => OnPeerDisconnected?.Invoke(peer, disconnectionReason);
+                connector.OnPeerDisconnected += (peer, disconnectionReason) =>
+                {
+                    if (TryGettingUserFromPeer(peer, out IUser user))
+                    {
+                        OnUserDisconnected?.Invoke(user);
+                        users.Remove(user.GUID);
+                    }
+                    peerGUIDToUserLookup.Remove(peer.GUID);
+                    OnPeerDisconnected?.Invoke(peer, disconnectionReason);
+                };
                 connector.OnPeerMessageReceived += (peer, message) =>
                 {
                     OnPeerMessageReceived?.Invoke(peer, message);
@@ -353,7 +413,7 @@ namespace Taurus.Synchronizers
         /// Parses incoming message
         /// </summary>
         /// <param name="peer">Peer</param>
-        /// <param name="bytes">BYtes</param>
+        /// <param name="bytes">Bytes</param>
         public void ParseMessage(IPeer peer, ReadOnlySpan<byte> bytes)
         {
             BaseMessageData base_network_message_data = Serializer.Deserialize<BaseMessageData>(bytes);
@@ -370,6 +430,28 @@ namespace Taurus.Synchronizers
                 {
                     OnUnknownMessageReceived?.Invoke(base_network_message_data, bytes);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Tries to get user from the specified peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="user">User</param>
+        /// <returns>"true" if peer is an user, otherwise "false"</returns>
+        public bool TryGettingUserFromPeer(IPeer peer, out IUser user) =>
+            peerGUIDToUserLookup.TryGetValue(peer.GUID, out user) && (user.Peer == peer);
+
+        /// <summary>
+        /// Asserts that the specified peer is an user
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="onPeerIsAnUserAsserted">Gets invoked when the specified peer is an user</param>
+        public void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate onPeerIsAnUserAsserted)
+        {
+            if (TryGettingUserFromPeer(peer, out IUser user))
+            {
+                onPeerIsAnUserAsserted(user);
             }
         }
 
@@ -438,7 +520,7 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
-        /// Dispose object
+        /// Disposes this object
         /// </summary>
         public void Dispose() => Close(EDisconnectionReason.Disposed);
     }
