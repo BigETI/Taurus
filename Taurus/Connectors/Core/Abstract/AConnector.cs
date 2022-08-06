@@ -115,7 +115,7 @@ namespace Taurus.Connectors
         /// <param name="compressor">Compressor</param>
         public AConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor)
         {
-            Fragmenter = fragmenter ?? Fragmentation.NoFragmenter;
+            Fragmenter = fragmenter ?? Fragmentation.NoFragmentationFragmenter;
             Compressor = compressor ?? Compression.NoCompressionCompressor;
             this.onHandlePeerConnectionAttempt = onHandlePeerConnectionAttempt;
         }

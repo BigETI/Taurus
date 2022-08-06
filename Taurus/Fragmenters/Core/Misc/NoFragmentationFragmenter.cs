@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Taurus.Fragmenters
 {
-    internal class NoFragmenter : AFragmenter, INoFragmenter
+    internal class NoFragmentationFragmenter : AFragmenter, INoFragmentationFragmenter
     {
         public override ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> bytes) => bytes;
 

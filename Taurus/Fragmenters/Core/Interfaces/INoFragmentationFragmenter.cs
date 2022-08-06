@@ -1,6 +1,6 @@
 ﻿namespace Taurus.Fragmenters
 {
-    public interface INoFragmenter : IFragmenter
+    public interface INoFragmentationFragmenter : IFragmenter
     {
         // ...
     }

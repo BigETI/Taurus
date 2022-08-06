@@ -3,8 +3,8 @@
     public static class Fragmentation
     {
         /// <summary>
-        /// No fragmenter
+        /// No fragmentation fragmenter
         /// </summary>
-        public static IFragmenter NoFragmenter { get; } = new NoFragmenter();
+        public static IFragmenter NoFragmentationFragmenter { get; } = new NoFragmentationFragmenter();
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace Taurus.Compressors
+﻿/// <summary>
+/// Taurus compressors namespace
+/// </summary>
+namespace Taurus.Compressors
 {
     /// <summary>
     /// A class used for compressing or decompressing data

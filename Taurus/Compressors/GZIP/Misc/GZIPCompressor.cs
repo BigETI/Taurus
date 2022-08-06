@@ -2,14 +2,33 @@
 using System.IO;
 using System.IO.Compression;
 
+/// <summary>
+/// Taurus compressors Gzip namespace
+/// </summary>
 namespace Taurus.Compressors.GZIP
 {
+    /// <summary>
+    /// A class that describes a Gzip compressor
+    /// </summary>
     internal class GZIPCompressor : ACompressor, IGZIPCompressor
     {
+        /// <summary>
+        /// Compression level
+        /// </summary>
         public CompressionLevel CompressionLevel { get; }
 
+        /// <summary>
+        /// Constructs a new Gzip compressor
+        /// </summary>
+        /// <param name="compressionLevel">Compression level</param>
         public GZIPCompressor(CompressionLevel compressionLevel) => CompressionLevel = compressionLevel;
 
+        /// <summary>
+        /// Tries to compress the specified stream
+        /// </summary>
+        /// <param name="inputStream">Input stream</param>
+        /// <param name="outputStream">Output stream</param>
+        /// <returns>"true" if compression was successful, otherwise "false"</returns>
         public override bool TryCompressingStream(Stream inputStream, Stream outputStream)
         {
             if (!inputStream.CanRead)
@@ -37,6 +56,12 @@ namespace Taurus.Compressors.GZIP
             return ret;
         }
 
+        /// <summary>
+        /// Tries to decompress the specified stream
+        /// </summary>
+        /// <param name="inputStream">Input stream</param>
+        /// <param name="outputStream">Output stream</param>
+        /// <returns>"true" if compression was successful, otherwise "false"</returns>
         public override bool TryDecompressingStream(Stream inputStream, Stream outputStream)
         {
             if (!inputStream.CanRead)
