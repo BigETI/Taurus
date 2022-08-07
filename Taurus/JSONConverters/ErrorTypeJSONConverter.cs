@@ -1,5 +1,8 @@
 ﻿using Taurus.Synchronizers;
 
+/// <summary>
+/// Taurus JSON converters
+/// </summary>
 namespace Taurus.JSONConverters
 {
     /// <summary>
@@ -8,7 +11,7 @@ namespace Taurus.JSONConverters
     internal class ErrorTypeJSONConverter : EnumeratorValueJSONConverter<EErrorType>
     {
         /// <summary>
-        /// Constructs an error type JSON converter
+        /// Constructs a new error type JSON converter
         /// </summary>
         public ErrorTypeJSONConverter() : base(EErrorType.Invalid)
         {

@@ -1,10 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System;
 
+/// <summary>
+/// Taurus JSON converters
+/// </summary>
 namespace Taurus.JSONConverters
 {
     /// <summary>
-    /// A class used for converting enumerator values to JSON and vice versa
+    /// A class used for converting enumerator values to JSON or BSON and vice versa
     /// </summary>
     /// <typeparam name="T">Enum type</typeparam>
     internal class EnumeratorValueJSONConverter<T> : JsonConverter where T : struct
@@ -15,7 +18,7 @@ namespace Taurus.JSONConverters
         private readonly T defaultEnumeratorValue;
 
         /// <summary>
-        /// Constructs a JSON converter for enumerator values
+        /// Constructs a new JSON converter for enumerator values
         /// </summary>
         /// <param name="defaultEnumeratorValue">Default enumerator value</param>
         public EnumeratorValueJSONConverter(T defaultEnumeratorValue) : base() => this.defaultEnumeratorValue = defaultEnumeratorValue;
