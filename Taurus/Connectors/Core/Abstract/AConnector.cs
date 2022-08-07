@@ -36,6 +36,11 @@ namespace Taurus.Connectors
         private readonly ConcurrentQueue<IPeer> peerConnectionAttemptedEvents = new ConcurrentQueue<IPeer>();
 
         /// <summary>
+        /// Peer connection handled events
+        /// </summary>
+        private readonly ConcurrentQueue<PeerConnection> peerConnectionHandledEvents = new ConcurrentQueue<PeerConnection>();
+        
+        /// <summary>
         /// Peer disconnection requested events
         /// </summary>
         private readonly ConcurrentQueue<PeerDisconnection> peerDisconnectionRequestedEvents = new ConcurrentQueue<PeerDisconnection>();
@@ -204,14 +209,6 @@ namespace Taurus.Connectors
                 Task.CompletedTask;
 
         /// <summary>
-        /// Is connection by the specfied peer allowed
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <returns>"true" if connection is allowed, otherwise "false"</returns>
-        public bool IsConnectionAllowed(IPeer peer) =>
-            onHandlePeerConnectionAttempt(peer);
-
-        /// <summary>
         /// Closes connection to all connected peers in this connector
         /// </summary>
         /// <param name="reason">Disconnection reason</param>
@@ -236,16 +233,42 @@ namespace Taurus.Connectors
             {
                 if (peers.TryAdd(peer.GUID, peer))
                 {
+                    peerConnectionHandledEvents.Enqueue(new PeerConnection(peer, onHandlePeerConnectionAttempt(peer)));
                     OnPeerConnectionAttempted?.Invoke(peer);
-                    if (IsConnectionAllowed(peer))
-                    {
-                        OnPeerConnected?.Invoke(peer);
-                    }
-                    else
-                    {
-                        DisconnectPeer(peer, EDisconnectionReason.Denied);
-                        OnPeerConnectionDenied?.Invoke(peer, EDisconnectionReason.Denied);
-                    }
+                }
+            }
+            PeerConnection? first_peer_connection_handled_event = null;
+            while (peerConnectionHandledEvents.TryDequeue(out PeerConnection peer_connection_handled_event))
+            {
+                if (first_peer_connection_handled_event == null)
+                {
+                    first_peer_connection_handled_event = peer_connection_handled_event;
+                }
+                else if (first_peer_connection_handled_event.Value.Peer == peer_connection_handled_event.Peer)
+                {
+                    peerConnectionHandledEvents.Enqueue(peer_connection_handled_event);
+                    break;
+                }
+                TaskStatus task_status = peer_connection_handled_event.IsPeerConnectionSuccessfulTask.Status;
+                switch (task_status)
+                {
+                    case TaskStatus.Canceled:
+                    case TaskStatus.Faulted:
+                        DisconnectPeer(peer_connection_handled_event.Peer, EDisconnectionReason.Error);
+                        OnPeerConnectionDenied?.Invoke(peer_connection_handled_event.Peer, EDisconnectionReason.Denied);
+                        break;
+                    case TaskStatus.Created:
+                    case TaskStatus.Running:
+                    case TaskStatus.WaitingForActivation:
+                    case TaskStatus.WaitingForChildrenToComplete:
+                    case TaskStatus.WaitingToRun:
+                        peerConnectionHandledEvents.Enqueue(peer_connection_handled_event);
+                        break;
+                    case TaskStatus.RanToCompletion:
+                        OnPeerConnected?.Invoke(peer_connection_handled_event.Peer);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Task status { task_status } is not supported yet.");
                 }
             }
             while (peerDisconnectionRequestedEvents.TryDequeue(out PeerDisconnection peer_disconnection_requested_event))

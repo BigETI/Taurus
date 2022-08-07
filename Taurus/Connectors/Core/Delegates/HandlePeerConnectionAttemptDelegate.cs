@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿using System.Threading.Tasks;
+
+/// <summary>
 /// Taurus connectors namespace
 /// </summary>
 namespace Taurus.Connectors
@@ -8,5 +10,5 @@ namespace Taurus.Connectors
     /// </summary>
     /// <param name="peer">Connecting peer</param>
     /// <returns>"true" if connection should be established, otherwise "false"</returns>
-    public delegate bool HandlePeerConnectionAttemptDelegate(IPeer peer);
+    public delegate Task<bool> HandlePeerConnectionAttemptDelegate(IPeer peer);
 }

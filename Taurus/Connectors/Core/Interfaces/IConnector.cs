@@ -82,13 +82,6 @@ namespace Taurus.Connectors
         Task SendMessageToPeerAsync(IPeer peer, ReadOnlyMemory<byte> message);
 
         /// <summary>
-        /// Is connection by the specfied peer allowed
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <returns>"true" if connection is allowed, otherwise "false"</returns>
-        bool IsConnectionAllowed(IPeer peer);
-
-        /// <summary>
         /// Closes connection to all connected peers in this connector
         /// </summary>
         /// <param name="reason">Disconnection reason</param>
