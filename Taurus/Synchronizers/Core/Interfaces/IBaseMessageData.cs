@@ -1,7 +1,10 @@
-﻿namespace Taurus.Synchronizers
+﻿/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
+namespace Taurus.Synchronizers
 {
     /// <summary>
-    /// An interface that represents the base of any sent or received data
+    /// An interface that represents base message data
     /// </summary>
     public interface IBaseMessageData : IValidable
     {

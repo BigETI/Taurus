@@ -1,6 +1,9 @@
 ﻿using System;
 using Taurus.Connectors;
 
+/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>

@@ -1,4 +1,7 @@
-﻿namespace Taurus.Synchronizers
+﻿/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
+namespace Taurus.Synchronizers
 {
     /// <summary>
     /// Used to invoke when peer is an user

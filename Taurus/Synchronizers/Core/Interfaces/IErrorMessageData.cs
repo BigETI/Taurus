@@ -1,6 +1,12 @@
-﻿namespace Taurus.Synchronizers
+﻿/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
+namespace Taurus.Synchronizers
 {
-    public interface IErrorMessageData
+    /// <summary>
+    /// An interface that reprsents error message data
+    /// </summary>
+    public interface IErrorMessageData : IBaseMessageData
     {
         /// <summary>
         /// Error type

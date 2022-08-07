@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 
+/// <summary>
+/// Taurus synchronizers data messages namespace
+/// </summary>
 namespace Taurus.Synchronizers.Data.Messages
 {
     /// <summary>

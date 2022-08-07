@@ -6,8 +6,15 @@ using Taurus.Connectors;
 using Taurus.Serializers;
 using Taurus.Synchronizers.Data.Messages;
 
+/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
 namespace Taurus.Synchronizers
 {
+    /// <summary>
+    /// A class that describes a synchronizer
+    /// </summary>
+    /// <typeparam name="TAuthenticationMessageData"></typeparam>
     public abstract class ASynchronizer<TAuthenticationMessageData> : ISynchronizer where TAuthenticationMessageData : IBaseMessageData
     {
         /// <summary>
@@ -51,34 +58,34 @@ namespace Taurus.Synchronizers
         public ISerializer Serializer { get; }
 
         /// <summary>
-        /// This event will be invoked when a peer has attempted to connect to any of the available connectors.
+        /// Gets invoked when a peer connection has been attempted
         /// </summary>
         public event PeerConnectionAttemptedDelegate? OnPeerConnectionAttempted;
 
         /// <summary>
-        /// This event will be invoked when a peer has successfully connected to any of the available connectors.
+        /// Gets invoked when a peer has been connected
         /// </summary>
         public event PeerConnectedDelegate? OnPeerConnected;
 
         /// <summary>
-        /// This event will be invoked when a peer has been disconnected from any of the available connectors.
+        /// Gets invoked when a peer has been disconnected
         /// </summary>
         public event PeerDisconnectedDelegate? OnPeerDisconnected;
 
         /// <summary>
-        /// This event will be invoked when a message has been received from a peer.
+        /// Gets invoked when a peer message has been received
         /// </summary>
         public event PeerMessageReceivedDelegate? OnPeerMessageReceived;
 
         /// <summary>
-        /// This event will be invoked when a non-meaningful message has been received from a peer.
+        /// Gets invoked when an unknown peer message has been received
         /// </summary>
-        public event UnknownMessageReceivedDelegate? OnUnknownMessageReceived;
+        public event UnknownPeerMessageReceivedDelegate? OnUnknownPeerMessageReceived;
 
         /// <summary>
-        /// This event will be invoked when an error has been received.
+        /// Gets invoked when an peer error message has been received
         /// </summary>
-        public event ErrorMessageReceivedDelegate? OnErrorMessageReceived;
+        public event PeerErrorMessageReceivedDelegate? OnPeerErrorMessageReceived;
 
         /// <summary>
         /// Gets invoked when an user has been authenticated
@@ -101,8 +108,9 @@ namespace Taurus.Synchronizers
             (
                 (_, message, __) =>
                 {
-                    OnErrorMessageReceived?.Invoke(message.ErrorType, message.Message ?? string.Empty);
-                    Console.Error.WriteLine($"[{ message.ErrorType }] { message.Message ?? string.Empty }");
+                    string error_message = message.Message ?? string.Empty;
+                    OnPeerErrorMessageReceived?.Invoke(message.ErrorType, message.IssuingMessageType ?? string.Empty, error_message);
+                    Console.Error.WriteLine($"[{ message.ErrorType }]{ ((message.IssuingMessageType == null) ? $"[{ message.IssuingMessageType }] " : string.Empty) }{ error_message }");
                     return Task.CompletedTask;
                 },
                 async (peer, message, _) =>
@@ -136,9 +144,33 @@ namespace Taurus.Synchronizers
                         userAuthenticatedEvents.Enqueue(user);
                     }
                 },
-                FatalMessageValidationFailedEvent<TAuthenticationMessageData>,
+                FatalPeerMessageValidationFailedEvent<TAuthenticationMessageData>,
                 FatalMessageParseFailedEvent<TAuthenticationMessageData>
             );
+        }
+
+        /// <summary>
+        /// Parses peer message
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="bytes">Bytes</param>
+        private void ParsePeerMessage(IPeer peer, ReadOnlySpan<byte> bytes)
+        {
+            BaseMessageData base_network_message_data = Serializer.Deserialize<BaseMessageData>(bytes);
+            if ((base_network_message_data != null) && base_network_message_data.IsValid)
+            {
+                if (messageParsers.TryGetValue(base_network_message_data.MessageType!, out List<IBaseMessageParser> message_parsers))
+                {
+                    foreach (IBaseMessageParser message_parser in message_parsers)
+                    {
+                        message_parser.ParseMessage(peer, bytes);
+                    }
+                }
+                else
+                {
+                    OnUnknownPeerMessageReceived?.Invoke(peer, base_network_message_data, bytes);
+                }
+            }
         }
 
         /// <summary>
@@ -198,46 +230,46 @@ namespace Taurus.Synchronizers
         /// <param name="message">Received message</param>
         /// <param name="bytes">Message bytes</param>
         /// <returns>Task</returns>
-        protected Task FatalMessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, true);
+        protected Task FatalPeerMessageValidationFailedEvent<T>(IPeer peer, T message, ReadOnlyMemory<byte> bytes) where T : IBaseMessageData => MessageValidationFailedEvent(peer, message, bytes, true);
 
         /// <summary>
         /// Adds an automatic message parser
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="onMessageParsed">On message parsed</param>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
         /// <param name="isFatal">Is validation fail or error fatal</param>
         /// <returns>Message parser</returns>
-        protected IMessageParser<T> AddAutomaticMessageParser<T>(MessageParsedDelegate<T> onMessageParsed, bool isFatal) where T : IBaseMessageData => AddMessageParser(onMessageParsed, isFatal ? (MessageValidationFailedDelegate<T>)FatalMessageValidationFailedEvent : MessageValidationFailedEvent, isFatal ? (MessageParseFailedDelegate)FatalMessageParseFailedEvent<T> : MessageParseFailedEvent<T>);
+        protected IPeerMessageParser<T> AddAutomaticMessageParser<T>(PeerMessageParsedDelegate<T> onPeerMessageParsed, bool isFatal) where T : IBaseMessageData => AddMessageParser(onPeerMessageParsed, isFatal ? (PeerMessageValidationFailedDelegate<T>)FatalPeerMessageValidationFailedEvent : MessageValidationFailedEvent, isFatal ? (PeerMessageParseFailedDelegate)FatalMessageParseFailedEvent<T> : MessageParseFailedEvent<T>);
 
         /// <summary>
         /// Adds an automatic message parser
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="onMessageParsed">On message parsed</param>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
         /// <returns>Message parser</returns>
-        protected IMessageParser<T> AddAutomaticMessageParser<T>(MessageParsedDelegate<T> onMessageParsed) where T : IBaseMessageData => AddAutomaticMessageParser(onMessageParsed, false);
+        protected IPeerMessageParser<T> AddAutomaticMessageParser<T>(PeerMessageParsedDelegate<T> onPeerMessageParsed) where T : IBaseMessageData => AddAutomaticMessageParser(onPeerMessageParsed, false);
 
         /// <summary>
         /// Adds an automatic message parser that is fatal on validation fail or error
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="onMessageParsed">On message parsed</param>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
         /// <returns>Message parser</returns>
-        protected IMessageParser<T> AddAutomaticMessageParserWithFatality<T>(MessageParsedDelegate<T> onMessageParsed) where T : IBaseMessageData => AddAutomaticMessageParser(onMessageParsed, false);
+        protected IPeerMessageParser<T> AddAutomaticMessageParserWithFatality<T>(PeerMessageParsedDelegate<T> onPeerMessageParsed) where T : IBaseMessageData => AddAutomaticMessageParser(onPeerMessageParsed, false);
 
         /// <summary>
         /// Handles peer authentication asynchronously
         /// </summary>
         /// <param name="peer">Peer</param>
-        /// <param name="authenticationMessageData">Autjentication message data</param>
+        /// <param name="authenticationMessageData">Authentication message data</param>
         /// <returns>"true" if authentication was successful, otherwise "false"</returns>
         protected abstract Task<IUser> HandlePeerAuthenticationAsync(IPeer peer, TAuthenticationMessageData authenticationMessageData);
 
         /// <summary>
-        /// Add connector
+        /// Adds the specified connector
         /// </summary>
         /// <param name="connector">Connector</param>
-        /// <returns>"true" if connector was successfully added, otherwise "false"</returns>
+        /// <returns>"true" if the specified connector was successfully added, otherwise "false"</returns>
         public bool AddConnector(IConnector connector)
         {
             bool ret = !connectors.Contains(connector);
@@ -259,17 +291,17 @@ namespace Taurus.Synchronizers
                 connector.OnPeerMessageReceived += (peer, message) =>
                 {
                     OnPeerMessageReceived?.Invoke(peer, message);
-                    ParseMessage(peer, message);
+                    ParsePeerMessage(peer, message);
                 };
             }
             return ret;
         }
 
         /// <summary>
-        /// Remove connector
+        /// Removes the specified connector
         /// </summary>
         /// <param name="connector">Connector</param>
-        /// <returns>"true" if connector was successfully removed, otherwise "false"</returns>
+        /// <returns>"true" if the specified connector was successfully removed, otherwise "false"</returns>
         public bool RemoveConnector(IConnector connector) => connectors.Remove(connector);
 
         /// <summary>
@@ -329,13 +361,13 @@ namespace Taurus.Synchronizers
         /// Adds a message parser
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
-        /// <param name="onMessageParsed">On message parsed</param>
-        /// <param name="onMessageValidationFailed">On message validation failed</param>
-        /// <param name="onMessageParseFailed">On message parse failed</param>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="onPeerMessageValidationFailed">Gets invoked when validating a peer message has failed</param>
+        /// <param name="onPeerMessageParseFailed">Gets invoked when parsing a peer message has failed</param>
         /// <returns>Message parser</returns>
-        public IMessageParser<T> AddMessageParser<T>(MessageParsedDelegate<T> onMessageParsed, MessageValidationFailedDelegate<T>? onMessageValidationFailed = null, MessageParseFailedDelegate? onMessageParseFailed = null) where T : IBaseMessageData
+        public IPeerMessageParser<T> AddMessageParser<T>(PeerMessageParsedDelegate<T> onPeerMessageParsed, PeerMessageValidationFailedDelegate<T>? onPeerMessageValidationFailed = null, PeerMessageParseFailedDelegate? onPeerMessageParseFailed = null) where T : IBaseMessageData
         {
-            IMessageParser<T> ret = new MessageParser<T>(Serializer, onMessageParsed, onMessageValidationFailed, onMessageParseFailed);
+            IPeerMessageParser<T> ret = new PeerMessageParser<T>(Serializer, onPeerMessageParsed, onPeerMessageValidationFailed, onPeerMessageParseFailed);
             if (!messageParsers.TryGetValue(ret.MessageType, out List<IBaseMessageParser> message_parsers))
             {
                 message_parsers = new List<IBaseMessageParser>();
@@ -350,7 +382,7 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <typeparam name="T">Message type</typeparam>
         /// <returns>Message parsers if successful, otherwise "null"</returns>
-        public IEnumerable<IMessageParser<T>> GetMessageParsersForType<T>() where T : IBaseMessageData => TryGetMessageParsersForType(out IEnumerable<IMessageParser<T>>? ret) ? ret! : Array.Empty<IMessageParser<T>>();
+        public IEnumerable<IPeerMessageParser<T>> GetMessageParsersForType<T>() where T : IBaseMessageData => TryGetMessageParsersForType(out IEnumerable<IPeerMessageParser<T>>? ret) ? ret! : Array.Empty<IPeerMessageParser<T>>();
 
         /// <summary>
         /// Tries to get message parsers for the specified type
@@ -358,16 +390,16 @@ namespace Taurus.Synchronizers
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="messageParsers">Message parsers</param>
         /// <returns>"true" if message parsers are available, otherwise "false"</returns>
-        public bool TryGetMessageParsersForType<T>(out IEnumerable<IMessageParser<T>>? messageParsers) where T : IBaseMessageData
+        public bool TryGetMessageParsersForType<T>(out IEnumerable<IPeerMessageParser<T>>? messageParsers) where T : IBaseMessageData
         {
             string key = Naming.GetMessageTypeNameFromMessageDataType<T>();
             bool ret = this.messageParsers.TryGetValue(key, out List<IBaseMessageParser> message_parsers);
             if (ret)
             {
-                List<IMessageParser<T>> message_parser_list = new List<IMessageParser<T>>();
+                List<IPeerMessageParser<T>> message_parser_list = new List<IPeerMessageParser<T>>();
                 foreach (IBaseMessageParser base_message_parser in message_parsers)
                 {
-                    if (base_message_parser is IMessageParser<T> message_parser)
+                    if (base_message_parser is IPeerMessageParser<T> message_parser)
                     {
                         message_parser_list.Add(message_parser);
                     }
@@ -387,7 +419,7 @@ namespace Taurus.Synchronizers
         /// <typeparam name="T">Message type</typeparam>
         /// <param name="messageParser">Message parser</param>
         /// <returns>"true" if message parser was successfully removed, otherwise "false"</returns>
-        public bool RemoveMessageParser<T>(IMessageParser<T> messageParser) where T : IBaseMessageData
+        public bool RemoveMessageParser<T>(IPeerMessageParser<T> messageParser) where T : IBaseMessageData
         {
             if (messageParser == null)
             {
@@ -403,30 +435,6 @@ namespace Taurus.Synchronizers
                 }
             }
             return ret;
-        }
-
-        /// <summary>
-        /// Parses incoming message
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <param name="bytes">Bytes</param>
-        public void ParseMessage(IPeer peer, ReadOnlySpan<byte> bytes)
-        {
-            BaseMessageData base_network_message_data = Serializer.Deserialize<BaseMessageData>(bytes);
-            if ((base_network_message_data != null) && base_network_message_data.IsValid)
-            {
-                if (messageParsers.TryGetValue(base_network_message_data.MessageType!, out List<IBaseMessageParser> message_parsers))
-                {
-                    foreach (IBaseMessageParser message_parser in message_parsers)
-                    {
-                        message_parser.ParseMessage(peer, bytes);
-                    }
-                }
-                else
-                {
-                    OnUnknownMessageReceived?.Invoke(base_network_message_data, bytes);
-                }
-            }
         }
 
         /// <summary>

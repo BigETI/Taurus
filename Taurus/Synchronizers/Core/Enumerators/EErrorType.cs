@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Taurus.JSONConverters;
 
+/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>

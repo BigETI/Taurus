@@ -1,9 +1,12 @@
 ﻿using System;
 
+/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>
-    /// A class used to determine names using naming conventions
+    /// A class that contains functionalities for naming
     /// </summary>
     public static class Naming
     {

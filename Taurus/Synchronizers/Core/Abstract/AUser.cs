@@ -1,6 +1,9 @@
 ﻿using System;
 using Taurus.Connectors;
 
+/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>
@@ -19,7 +22,7 @@ namespace Taurus.Synchronizers
         public IPeer Peer { get; }
 
         /// <summary>
-        /// COnstructs a new user
+        /// Constructs a new user
         /// </summary>
         /// <param name="guid">User GUID</param>
         /// <param name="peer">Peer</param>

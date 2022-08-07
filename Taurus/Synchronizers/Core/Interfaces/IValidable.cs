@@ -1,4 +1,7 @@
-﻿namespace Taurus.Synchronizers
+﻿/// <summary>
+/// Taurus synchronizers namespace
+/// </summary>
+namespace Taurus.Synchronizers
 {
     /// <summary>
     /// An interface that represents an object that can be validated
