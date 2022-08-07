@@ -1,14 +1,34 @@
 ﻿using System;
 using System.IO;
 
+/// <summary>
+/// Taurus fragmenters namespace
+/// </summary>
 namespace Taurus.Fragmenters
 {
+    /// <summary>
+    /// A class that describes a fragmenter
+    /// </summary>
     public interface IFragmenter
     {
-        ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> bytes);
+        /// <summary>
+        /// Fragments the specified message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>Fragmented message</returns>
+        ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> message);
 
-        void Fragment(ReadOnlySpan<byte> bytes, Stream outputStream);
+        /// <summary>
+        /// Fragments the specified message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="outputStream">Output stream</param>
+        void Fragment(ReadOnlySpan<byte> message, Stream outputStream);
 
+        /// <summary>
+        /// Creates a new defragmenter stream
+        /// </summary>
+        /// <returns>Defragmenter stream</returns>
         IDefragmenterStream CreateDefragmenterStream();
     }
 }

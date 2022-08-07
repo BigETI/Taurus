@@ -1,21 +1,41 @@
 ﻿using System;
 using System.IO;
 
+/// <summary>
+/// Taurus fragmenters namespace
+/// </summary>
 namespace Taurus.Fragmenters
 {
+    /// <summary>
+    /// A class that describes a no fragmentation fragmenter
+    /// </summary>
     internal class NoFragmentationFragmenter : AFragmenter, INoFragmentationFragmenter
     {
-        public override ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> bytes) => bytes;
+        /// <summary>
+        /// Fragments the specified message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>Fragmented message</returns>
+        public override ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> message) => message;
 
-        public override void Fragment(ReadOnlySpan<byte> bytes, Stream outputStream)
+        /// <summary>
+        /// Fragments the specified message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="outputStream">Output stream</param>
+        public override void Fragment(ReadOnlySpan<byte> message, Stream outputStream)
         {
             if (!outputStream.CanWrite)
             {
                 throw new ArgumentException("Can not write contents to output stream.", nameof(outputStream));
             }
-            outputStream.Write(bytes);
+            outputStream.Write(message);
         }
 
-        public override IDefragmenterStream CreateDefragmenterStream() => new NoDefragmenterStream();
+        /// <summary>
+        /// Creates a new defragmenter stream
+        /// </summary>
+        /// <returns>Defragmenter stream</returns>
+        public override IDefragmenterStream CreateDefragmenterStream() => new NoDefragmentationDefragmenterStream();
     }
 }

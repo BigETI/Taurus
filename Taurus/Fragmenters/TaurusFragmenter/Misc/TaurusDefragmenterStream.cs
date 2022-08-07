@@ -3,20 +3,44 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
+/// <summary>
+/// Taurus fragmenters Taurus fragmenter namespace
+/// </summary>
 namespace Taurus.Fragmenters.TaurusFragmenter
 {
+    /// <summary>
+    /// A class that describes a Taurus defragmenter stream
+    /// </summary>
     internal class TaurusDefragmenterStream : ADefragmenterStream, ITaurusDefragmenterStream
     {
+        /// <summary>
+        /// Parsed header
+        /// </summary>
         private long parsedHeader;
 
+        /// <summary>
+        /// Is message length parsed
+        /// </summary>
         private bool isMessageLengthParsed;
 
+        /// <summary>
+        /// Messages memory stream
+        /// </summary>
         private readonly MemoryStream messagesMemoryStream = new MemoryStream();
 
+        /// <summary>
+        /// Messages binary reader
+        /// </summary>
         private readonly BinaryReader messagesBinaryReader;
 
+        /// <summary>
+        /// Message memory streams
+        /// </summary>
         private readonly List<TaurusMessageMemoryStream> messageMemoryStreams = new List<TaurusMessageMemoryStream>();
 
+        /// <summary>
+        /// Is message pending
+        /// </summary>
         public override bool IsMessagePending
         {
             get
@@ -31,11 +55,20 @@ namespace Taurus.Fragmenters.TaurusFragmenter
             }
         }
 
+        /// <summary>
+        /// Available message count
+        /// </summary>
         public override uint AvailableMessageCount => throw new NotImplementedException();
 
+        /// <summary>
+        /// Constructs a new Taurus defragmenter stream
+        /// </summary>
         public TaurusDefragmenterStream() => messagesBinaryReader = new BinaryReader(messagesMemoryStream, Encoding.UTF8, true);
 
-        public void ProcessMessages()
+        /// <summary>
+        /// Proceses messages
+        /// </summary>
+        private void ProcessMessages()
         {
             while (messagesMemoryStream.Position < messagesMemoryStream.Length)
             {
@@ -85,12 +118,20 @@ namespace Taurus.Fragmenters.TaurusFragmenter
             messagesMemoryStream.SetLength(0L);
         }
 
+        /// <summary>
+        /// Flushes this stream
+        /// </summary>
         public override void Flush()
         {
             ProcessMessages();
             messagesMemoryStream.Flush();
         }
 
+        /// <summary>
+        /// Tries to dequeue a message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>"true" is message has been successfully dequeued, otherwise "false"</returns>
         public override bool TryDequeuingMessage(out ReadOnlySpan<byte> message)
         {
             bool ret = false;
@@ -112,6 +153,11 @@ namespace Taurus.Fragmenters.TaurusFragmenter
             return ret;
         }
 
+        /// <summary>
+        /// Tries to dequeue a message
+        /// </summary>
+        /// <param name="outputStream">Output stream</param>
+        /// <returns>"true" is message has been successfully dequeued, otherwise "false"</returns>
         public override bool TryDequeuingMessage(Stream outputStream)
         {
             if (!outputStream.CanWrite)
@@ -126,12 +172,22 @@ namespace Taurus.Fragmenters.TaurusFragmenter
             return ret;
         }
 
+        /// <summary>
+        /// Writes data into this stream
+        /// </summary>
+        /// <param name="buffer">Buffer</param>
+        /// <param name="offset">Offset</param>
+        /// <param name="count">Count</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
             messagesMemoryStream.Write(buffer, offset, count);
             ProcessMessages();
         }
 
+        /// <summary>
+        /// Disposes this object
+        /// </summary>
+        /// <param name="disposing">Is disposing this object</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

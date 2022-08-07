@@ -1,5 +1,11 @@
-﻿namespace Taurus.Fragmenters
+﻿/// <summary>
+/// Taurus fragmenters namespace
+/// </summary>
+namespace Taurus.Fragmenters
 {
+    /// <summary>
+    /// A class that contains functionalities for fragmentation
+    /// </summary>
     public static class Fragmentation
     {
         /// <summary>

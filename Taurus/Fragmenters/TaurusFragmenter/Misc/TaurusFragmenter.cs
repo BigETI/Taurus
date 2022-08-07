@@ -2,8 +2,14 @@
 using System.IO;
 using System.Text;
 
+/// <summary>
+/// Taurus fragmenters Taurus fragmenter namespace
+/// </summary>
 namespace Taurus.Fragmenters.TaurusFragmenter
 {
+    /// <summary>
+    /// A class that describes a Taurus fragmenter
+    /// </summary>
     internal class TaurusFragmenter : AFragmenter, ITaurusFragmenter
     {
         /// <summary>
@@ -11,15 +17,25 @@ namespace Taurus.Fragmenters.TaurusFragmenter
         /// </summary>
         public static long Header { get; } = 0x0A0D535552554174;
 
-        public override ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> bytes)
+        /// <summary>
+        /// Fragments the specified message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>Fragmented message</returns>
+        public override ReadOnlySpan<byte> Fragment(ReadOnlySpan<byte> message)
         {
             using MemoryStream memory_stream = new MemoryStream();
-            Fragment(bytes, memory_stream);
+            Fragment(message, memory_stream);
             memory_stream.Seek(0L, SeekOrigin.Begin);
             return memory_stream.ToArray();
         }
 
-        public override void Fragment(ReadOnlySpan<byte> bytes, Stream outputStream)
+        /// <summary>
+        /// Fragments the specified message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="outputStream">Output stream</param>
+        public override void Fragment(ReadOnlySpan<byte> message, Stream outputStream)
         {
             if (!outputStream.CanWrite)
             {
@@ -27,11 +43,15 @@ namespace Taurus.Fragmenters.TaurusFragmenter
             }
             using BinaryWriter binary_writer = new BinaryWriter(outputStream, Encoding.UTF8, true);
             binary_writer.Write(Header);
-            binary_writer.Write(bytes.Length);
-            binary_writer.Write(bytes);
+            binary_writer.Write(message.Length);
+            binary_writer.Write(message);
             binary_writer.Flush();
         }
 
+        /// <summary>
+        /// Creates a new defragmenter stream
+        /// </summary>
+        /// <returns>Defragmenter stream</returns>
         public override IDefragmenterStream CreateDefragmenterStream() => new TaurusDefragmenterStream();
     }
 }

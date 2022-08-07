@@ -4,9 +4,9 @@
 namespace Taurus.Fragmenters
 {
     /// <summary>
-    /// An interface that represents a no fragmentation fragmenter
+    /// An interface that represents a no defragmentation defragmenter stream
     /// </summary>
-    public interface INoFragmentationFragmenter : IFragmenter
+    public interface INoDefragmentationDefragmenterStream : IDefragmenterStream
     {
         // ...
     }
