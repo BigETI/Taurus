@@ -265,7 +265,15 @@ namespace Taurus.Connectors
                         peerConnectionHandledEvents.Enqueue(peer_connection_handled_event);
                         break;
                     case TaskStatus.RanToCompletion:
-                        OnPeerConnected?.Invoke(peer_connection_handled_event.Peer);
+                        if (peer_connection_handled_event.IsPeerConnectionSuccessfulTask.Result)
+                        {
+                            OnPeerConnected?.Invoke(peer_connection_handled_event.Peer);
+                        }
+                        else
+                        {
+                            DisconnectPeer(peer_connection_handled_event.Peer, EDisconnectionReason.Denied);
+                            OnPeerConnectionDenied?.Invoke(peer_connection_handled_event.Peer, EDisconnectionReason.Denied);
+                        }
                         break;
                     default:
                         throw new NotSupportedException($"Task status { task_status } is not supported yet.");
