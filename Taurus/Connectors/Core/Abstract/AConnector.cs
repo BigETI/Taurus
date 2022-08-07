@@ -255,7 +255,7 @@ namespace Taurus.Connectors
                     case TaskStatus.Canceled:
                     case TaskStatus.Faulted:
                         DisconnectPeer(peer_connection_handled_event.Peer, EDisconnectionReason.Error);
-                        OnPeerConnectionDenied?.Invoke(peer_connection_handled_event.Peer, EDisconnectionReason.Denied);
+                        OnPeerConnectionDenied?.Invoke(peer_connection_handled_event.Peer, EDisconnectionReason.Error);
                         break;
                     case TaskStatus.Created:
                     case TaskStatus.Running:
