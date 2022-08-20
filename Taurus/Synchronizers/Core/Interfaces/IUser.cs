@@ -1,5 +1,4 @@
-﻿using System;
-using Taurus.Connectors;
+﻿using Taurus.Connectors;
 
 /// <summary>
 /// Taurus synchronizers namespace
@@ -14,7 +13,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// User GUID
         /// </summary>
-        Guid GUID { get; }
+        UserGUID UserGUID { get; }
 
         /// <summary>
         /// Peer

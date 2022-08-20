@@ -1,5 +1,6 @@
 ﻿using System;
 using Taurus.Connectors;
+using Taurus.Validators;
 
 /// <summary>
 /// Taurus synchronizers namespace
@@ -14,7 +15,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// User GUID
         /// </summary>
-        public Guid GUID { get; }
+        public UserGUID UserGUID { get; }
 
         /// <summary>
         /// Peer
@@ -24,16 +25,13 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Constructs a new user
         /// </summary>
-        /// <param name="guid">User GUID</param>
+        /// <param name="userGUID">User GUID</param>
         /// <param name="peer">Peer</param>
         /// <exception cref="ArgumentException"></exception>
-        public AUser(Guid guid, IPeer peer)
+        public AUser(UserGUID userGUID, IPeer peer)
         {
-            if (guid == Guid.Empty)
-            {
-                throw new ArgumentException("User GUID can not be empty.", nameof(guid));
-            }
-            GUID = guid;
+            GUIDValidator.ValidateGUID(userGUID, nameof(userGUID));
+            UserGUID = userGUID;
             Peer = peer;
         }
     }

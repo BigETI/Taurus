@@ -18,29 +18,24 @@ namespace Taurus.Synchronizers
         Invalid,
 
         /// <summary>
-        /// Unknown message
+        /// Received message is unknown
         /// </summary>
         UnknownMessage,
 
         /// <summary>
-        /// Malformed message
+        /// Received message is malformed
         /// </summary>
         MalformedMessage,
 
         /// <summary>
-        /// Not supported message
+        /// Received message is not supported
         /// </summary>
         NotSupportedMessage,
 
         /// <summary>
-        /// Invalid message parameter
+        /// Specified parameters of a received message are invalid
         /// </summary>
         InvalidMessageParameters,
-
-        /// <summary>
-        /// Message comes from an invalid context
-        /// </summary>
-        InvalidMessageContext,
 
         /// <summary>
         /// Received error type is invalid
@@ -61,6 +56,11 @@ namespace Taurus.Synchronizers
         /// Received message is null
         /// </summary>
         MessageIsNull,
+
+        /// <summary>
+        /// Message sender is not authenticated
+        /// </summary>
+        MessageSenderIsNotAuthenticated,
 
         /// <summary>
         /// Unknown reason

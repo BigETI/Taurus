@@ -14,7 +14,7 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peer GUID
         /// </summary>
-        Guid GUID { get; }
+        PeerGUID PeerGUID { get; }
 
         /// <summary>
         /// Connector

@@ -58,7 +58,12 @@ namespace Taurus.Connectors.WebSocket
         /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer connection attempt needs to be handled</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
-        public WebSocketConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor = null) : base(onHandlePeerConnectionAttempt, fragmenter ?? DefaultFragmenter, compressor)
+        public WebSocketConnector
+        (
+            HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
+            IFragmenter? fragmenter = null,
+            ICompressor? compressor = null
+        ) : base(onHandlePeerConnectionAttempt, fragmenter ?? DefaultFragmenter, compressor)
         {
             connectorThread = new Thread(() =>
             {
@@ -107,13 +112,21 @@ namespace Taurus.Connectors.WebSocket
                     {
                         while (tcp_listener.Pending())
                         {
-                            EnqueuePeerConnectionAttemptedEvent(new WebSocketPeer(Guid.NewGuid(), this, tcp_listener.AcceptTcpClient()));
+                            EnqueuePeerConnectionAttemptedEvent(new WebSocketPeer(new PeerGUID(Guid.NewGuid()), this, tcp_listener.AcceptTcpClient()));
                         }
                     }
                     ProcessRequests();
                     while (connectToHostAndPortEvents.TryDequeue(out WebSocketConnection connect_to_host_and_port_event))
                     {
-                        EnqueuePeerConnectionAttemptedEvent(new WebSocketPeer(Guid.NewGuid(), this, new TcpClient(connect_to_host_and_port_event.Host, connect_to_host_and_port_event.Port)));
+                        EnqueuePeerConnectionAttemptedEvent
+                        (
+                            new WebSocketPeer
+                            (
+                                new PeerGUID(Guid.NewGuid()),
+                                this,
+                                new TcpClient(connect_to_host_and_port_event.Host, connect_to_host_and_port_event.Port)
+                            )
+                        );
                     }
                     foreach (IPeer peer in Peers.Values)
                     {
@@ -125,7 +138,11 @@ namespace Taurus.Connectors.WebSocket
                             {
                                 if (buffer.Length < available_bytes_count)
                                 {
-                                    buffer = new byte[available_bytes_count / buffer.Length * (((available_bytes_count % buffer.Length) == 0) ? 1 : 2) * buffer.Length];
+                                    buffer =
+                                        new byte
+                                        [
+                                            available_bytes_count / buffer.Length * (((available_bytes_count % buffer.Length) == 0) ? 1 : 2) * buffer.Length
+                                        ];
                                 }
                                 int read_bytes_count = web_socket_peer.TCPClient.GetStream().Read(buffer, 0, available_bytes_count);
                                 if (read_bytes_count > 0)
@@ -151,7 +168,7 @@ namespace Taurus.Connectors.WebSocket
         private bool TryGettingWebSocketPeer(IPeer peer, out IWebSocketPeer? webSocketPeer)
         {
             bool ret = false;
-            if ((peer is IWebSocketPeer web_socket_peer) && Peers.TryGetValue(peer.GUID, out IPeer current_peer) && (peer == current_peer))
+            if ((peer is IWebSocketPeer web_socket_peer) && Peers.TryGetValue(peer.PeerGUID, out IPeer current_peer) && (peer == current_peer))
             {
                 ret = true;
                 webSocketPeer = web_socket_peer;

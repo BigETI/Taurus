@@ -10,7 +10,7 @@ namespace Taurus.JSONConverters
     /// A class used for converting enumerator values to JSON or BSON and vice versa
     /// </summary>
     /// <typeparam name="T">Enum type</typeparam>
-    internal class EnumeratorValueJSONConverter<T> : JsonConverter where T : struct
+    public class EnumeratorValueJSONConverter<T> : JsonConverter where T : struct
     {
         /// <summary>
         /// Default enumerator value
@@ -45,7 +45,10 @@ namespace Taurus.JSONConverters
         /// <param name="existingValue">Existing value</param>
         /// <param name="serializer">JSON serializer</param>
         /// <returns>Read object</returns>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => ((reader.TokenType == JsonToken.String) && Enum.TryParse(reader.Value.ToString(), out T enumerator_value)) ? enumerator_value : defaultEnumeratorValue;
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
+            ((reader.TokenType == JsonToken.String) && Enum.TryParse(reader.Value.ToString(), out T enumerator_value)) ?
+                enumerator_value :
+                defaultEnumeratorValue;
 
         /// <summary>
         /// Writes JSON

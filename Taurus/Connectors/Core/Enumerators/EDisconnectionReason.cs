@@ -9,7 +9,7 @@ namespace Taurus.Connectors
     /// <summary>
     /// Disconnection reason enumerator
     /// </summary>
-[JsonConverter(typeof(DisconnectionReasonJSONConverter))]
+    [JsonConverter(typeof(DisconnectionReasonJSONConverter))]
     public enum EDisconnectionReason
     {
         /// <summary>

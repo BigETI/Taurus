@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 
 /// <summary>
 /// Taurus connectors WebSocket namespace
@@ -19,8 +18,8 @@ namespace Taurus.Connectors.WebSocket
         /// <summary>
         /// Constructs a new WebSocket peer
         /// </summary>
-        /// <param name="guid">GUID</param>
+        /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
-        public WebSocketPeer(Guid guid, IConnector connector, TcpClient tcpClient) : base(guid, connector) => TCPClient = tcpClient;
+        public WebSocketPeer(PeerGUID peerGUID, IConnector connector, TcpClient tcpClient) : base(peerGUID, connector) => TCPClient = tcpClient;
     }
 }

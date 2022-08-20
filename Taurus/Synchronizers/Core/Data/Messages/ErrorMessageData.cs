@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using Taurus.Validators;
 
 /// <summary>
 /// Taurus synchronizers data messages namespace
@@ -35,36 +36,28 @@ namespace Taurus.Synchronizers.Data.Messages
         /// </summary>
         public override bool IsValid =>
             base.IsValid &&
-            (ErrorType != EErrorType.Invalid) &&
-            !string.IsNullOrWhiteSpace(IssuingMessageType) &&
-            (Message != null);
+            EnumeratorValidator.IsEnumeratorValid(ErrorType, EErrorType.Invalid) &&
+            StringValidator.IsStringNotEmptyOrHasNoWhitespaces(IssuingMessageType) &&
+            Validator.IsNotNull(Message);
 
         /// <summary>
-        /// Constructs an error message for deserializers
+        /// Constructs a new error message for deserializers
         /// </summary>
-        /// <param name="info">Serialization information</param>
-        /// <param name="context">Streaming context</param>
         public ErrorMessageData()
         {
             // ...
         }
 
         /// <summary>
-        /// Constructs an error message
+        /// Constructs a new error message
         /// </summary>
         /// <param name="errorType">Error type</param>
-        /// <param name="errorMessageType">Error message</param>
+        /// <param name="errorMessageType">Error message type</param>
         /// <param name="message">Error message</param>
         public ErrorMessageData(EErrorType errorType, string errorMessageType, string message)
         {
-            if (errorType == EErrorType.Invalid)
-            {
-                throw new ArgumentException("Error type can't be invalid.", nameof(errorType));
-            }
-            if (string.IsNullOrWhiteSpace(errorMessageType))
-            {
-                throw new ArgumentNullException(nameof(errorMessageType));
-            }
+            EnumeratorValidator.ValidateEnumerator(errorType, EErrorType.Invalid, nameof(errorType));
+            StringValidator.ValidateStringIsNotEmptyOrHasNoWhitespaces(errorMessageType, nameof(errorMessageType));
             ErrorType = errorType;
             IssuingMessageType = errorMessageType;
             Message = message ?? throw new ArgumentNullException(nameof(message));

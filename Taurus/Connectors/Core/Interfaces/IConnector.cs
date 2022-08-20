@@ -17,7 +17,7 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peers
         /// </summary>
-        IReadOnlyDictionary<Guid, IPeer> Peers { get; }
+        IReadOnlyDictionary<PeerGUID, IPeer> Peers { get; }
 
         /// <summary>
         /// Fragmenter

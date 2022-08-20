@@ -19,10 +19,10 @@ namespace Taurus.Connectors.ENet
         /// <summary>
         /// Constructs a new ENet peer
         /// </summary>
-        /// <param name="guid">Peer GUID</param>
+        /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
         /// <param name="peer">ENet Peer</param>
-        public ENetPeer(Guid guid, IConnector connector, Peer peer) : base(guid, connector)
+        public ENetPeer(PeerGUID peerGUID, IConnector connector, Peer peer) : base(peerGUID, connector)
         {
             if (!peer.IsSet)
             {

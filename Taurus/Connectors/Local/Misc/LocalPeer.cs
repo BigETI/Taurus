@@ -18,10 +18,10 @@ namespace Taurus.Connectors.Local
         /// <summary>
         /// Constructs a new local peer
         /// </summary>
-        /// <param name="guid">Peer GUID</param>
+        /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
         /// <param name="targetLocalConnector">Target local connector</param>
-        public LocalPeer(Guid guid, IConnector connector, ILocalConnector targetLocalConnector) : base(guid, connector)
+        public LocalPeer(PeerGUID peerGUID, IConnector connector, ILocalConnector targetLocalConnector) : base(peerGUID, connector)
         {
             if (targetLocalConnector == connector)
             {

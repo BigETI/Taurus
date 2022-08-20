@@ -55,16 +55,6 @@ namespace Taurus.Synchronizers
         event PeerErrorMessageReceivedDelegate OnPeerErrorMessageReceived;
 
         /// <summary>
-        /// Gets invoked when an user has been authenticated
-        /// </summary>
-        event UserAuthenticatedDelegate? OnUserAuthenticated;
-
-        /// <summary>
-        /// Gets invoked when an user has been disconnected
-        /// </summary>
-        event UserDisconnectedDelegate? OnUserDisconnected;
-
-        /// <summary>
         /// Adds the specified connector
         /// </summary>
         /// <param name="connector">Connector</param>
@@ -81,86 +71,107 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Gets a connector with the specified type
         /// </summary>
-        /// <typeparam name="T">Connector type</typeparam>
+        /// <typeparam name="TConnector">Connector type</typeparam>
         /// <returns>Connector of specified type if successful, otherwise "null"</returns>
-        T GetConnectorOfType<T>() where T : IConnector?;
+        TConnector GetConnectorOfType<TConnector>() where TConnector : IConnector?;
 
         /// <summary>
         /// Tries to get a connector of the specified type
         /// </summary>
-        /// <typeparam name="T">Connector type</typeparam>
+        /// <typeparam name="TConnector">Connector type</typeparam>
         /// <param name="connector">Connector</param>
         /// <returns>"true" if connector of the specified type is available, otherwise "false"</returns>
-        bool TryGetConnectorOfType<T>(out T connector) where T : IConnector?;
+        bool TryGetConnectorOfType<TConnector>(out TConnector connector) where TConnector : IConnector?;
 
         /// <summary>
         /// Sends a message to peer asynchronously
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="message">Message</param>
         /// <returns>Task</returns>
-        Task SendMessageToPeerAsync<T>(IPeer peer, T message) where T : IBaseMessageData;
+        Task SendMessageToPeerAsync<TMessageData>(IPeer peer, TMessageData message) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Adds a message parser
+        /// Adds a peer message parser
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="onPeerMessageParsed">On peer message parsed</param>
         /// <param name="onPeerMessageValidationFailed">On message validation failed</param>
         /// <param name="onMessageParseFailed">On message parse failed</param>
         /// <returns>Message parser</returns>
-        IPeerMessageParser<T> AddMessageParser<T>(PeerMessageParsedDelegate<T> onPeerMessageParsed, PeerMessageValidationFailedDelegate<T>? onPeerMessageValidationFailed = null, PeerMessageParseFailedDelegate? onMessageParseFailed = null) where T : IBaseMessageData;
+        IPeerMessageParser<TMessageData> AddPeerMessageParser<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed, PeerMessageValidationFailedDelegate<TMessageData> onPeerMessageValidationFailed, PeerMessageParseFailedDelegate onMessageParseFailed)
+            where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Adds an automatic peer message parser
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="isFatal">Is validation fail or error fatal</param>
+        /// <returns>Message parser</returns>
+        IPeerMessageParser<TMessageData> AddAutomaticPeerMessageParser<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed, bool isFatal)
+            where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Adds an automatic peer message parser
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <returns>Message parser</returns>
+        IPeerMessageParser<TMessageData> AddAutomaticPeerMessageParser<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed)
+            where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Adds an automatic peer message parser that is fatal on validation fail or error
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
+        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <returns>Message parser</returns>
+        IPeerMessageParser<TMessageData> AddAutomaticPeerMessageParserWithFatality<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed)
+            where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Gets message parsers for the specified type
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <returns>Message parsers if successful, otherwise "null"</returns>
-        IEnumerable<IPeerMessageParser<T>> GetMessageParsersForType<T>() where T : IBaseMessageData;
+        IEnumerable<IPeerMessageParser<TMessageData>> GetPeerMessageParsersForType<TMessageData>() where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Tries to get message parsers for the specified type
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="messageParsers">Message parsers</param>
         /// <returns>"true" if message parsers are available, otherwise "false"</returns>
-        bool TryGetMessageParsersForType<T>(out IEnumerable<IPeerMessageParser<T>>? messageParsers) where T : IBaseMessageData;
+        bool TryGetMessageParsersForType<TMessageData>(out IEnumerable<IPeerMessageParser<TMessageData>>? messageParsers)
+            where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Removes the specified message parser
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="messageParser">Message parser</param>
         /// <returns>"true" if message parser was successfully removed, otherwise "false"</returns>
-        bool RemoveMessageParser<T>(IPeerMessageParser<T> messageParser) where T : IBaseMessageData;
+        bool RemoveMessageParser<TMessageData>(IPeerMessageParser<TMessageData> messageParser) where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Sends an invalid message parameters error message to peer asynchronously
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
         /// <returns>TAsk</returns>
-        Task SendInvalidMessageParametersErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
-
-        /// <summary>
-        /// Sends an invalid message context error message to peer asynchronously
-        /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
-        /// <param name="peer">Peer</param>
-        /// <param name="errorMessage">Error message</param>
-        /// <returns>Task</returns>
-        Task SendInvalidMessageContextErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
+        Task SendInvalidMessageParametersErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Sends an unknown error message to peer
         /// </summary>
-        /// <typeparam name="T">Message type</typeparam>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
         /// <param name="errorMessage">Error message</param>
         /// <returns>Task</returns>
-        Task SendUnknownErrorMessageToPeerAsync<T>(IPeer peer, string errorMessage) where T : IBaseMessageData;
+        Task SendUnknownErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Closes connections to all peers

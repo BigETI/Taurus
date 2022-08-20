@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Taurus.Validators;
 
 /// <summary>
 /// Taurus synchronizers data messages namespace
@@ -20,7 +21,7 @@ namespace Taurus.Synchronizers.Data.Messages
         /// <summary>
         /// Is object in a valid state
         /// </summary>
-        public virtual bool IsValid => MessageType != null;
+        public virtual bool IsValid => StringValidator.IsStringNotEmptyOrHasNoWhitespaces(MessageType);
 
         /// <summary>
         /// Constructs a base message data with the correct message type

@@ -65,7 +65,14 @@ namespace Taurus.Connectors.ENet
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
-        public ENetConnector(Host host, uint timeoutTime, HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
+        public ENetConnector
+        (
+            Host host,
+            uint timeoutTime,
+            HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
+            IFragmenter? fragmenter,
+            ICompressor? compressor
+        ) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
             Host = host;
             TimeoutTime = timeoutTime;
@@ -91,7 +98,7 @@ namespace Taurus.Connectors.ENet
                                 case EventType.Connect:
                                     if (!peerIDToPeerLookup.ContainsKey(network_event.Peer.ID))
                                     {
-                                        peer = new ENetPeer(Guid.NewGuid(), this, network_event.Peer);
+                                        peer = new ENetPeer(new PeerGUID(Guid.NewGuid()), this, network_event.Peer);
                                         peerIDToPeerLookup.Add(network_event.Peer.ID, peer);
                                         EnqueuePeerConnectionAttemptedEvent(peer);
                                     }
@@ -99,7 +106,13 @@ namespace Taurus.Connectors.ENet
                                 case EventType.Disconnect:
                                     if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
                                     {
-                                        EnqueuePeerDisconnectedEvent(peer, Enum.IsDefined(typeof(EDisconnectionReason), network_event.Data) ? (EDisconnectionReason)network_event.Data : EDisconnectionReason.Invalid);
+                                        EnqueuePeerDisconnectedEvent
+                                        (
+                                            peer,
+                                            Enum.IsDefined(typeof(EDisconnectionReason), network_event.Data) ?
+                                                (EDisconnectionReason)network_event.Data :
+                                                EDisconnectionReason.Invalid
+                                        );
                                     }
                                     break;
                                 case EventType.Receive:
@@ -108,7 +121,8 @@ namespace Taurus.Connectors.ENet
                                         Packet packet = network_event.Packet;
                                         if (buffer.Length < packet.Length)
                                         {
-                                            buffer = new byte[packet.Length / buffer.Length * (((packet.Length % buffer.Length) == 0) ? 1 : 2) * buffer.Length];
+                                            buffer =
+                                                new byte[packet.Length / buffer.Length * (((packet.Length % buffer.Length) == 0) ? 1 : 2) * buffer.Length];
                                         }
                                         packet.CopyTo(buffer);
                                         Marshal.Copy(packet.Data, buffer, 0, packet.Length);
@@ -153,7 +167,12 @@ namespace Taurus.Connectors.ENet
         private bool TryGettingENetPeer(IPeer peer, out IENetPeer? eNetPeer)
         {
             bool ret = false;
-            if ((peer is IENetPeer e_net_peer) && peerIDToPeerLookup.TryGetValue(e_net_peer.Peer.ID, out IPeer current_peer) && (e_net_peer == current_peer))
+            if
+            (
+                (peer is IENetPeer e_net_peer) &&
+                peerIDToPeerLookup.TryGetValue(e_net_peer.Peer.ID, out IPeer current_peer) &&
+                (e_net_peer == current_peer)
+            )
             {
                 ret = true;
                 eNetPeer = e_net_peer;

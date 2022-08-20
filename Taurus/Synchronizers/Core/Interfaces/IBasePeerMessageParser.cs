@@ -10,7 +10,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An interface that represents a base message parser
     /// </summary>
-    public interface IBaseMessageParser
+    public interface IBasePeerMessageParser
     {
         /// <summary>
         /// Message type

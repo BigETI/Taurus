@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Taurus.Validators;
 
 /// <summary>
 /// Taurus connectors namespace
@@ -14,7 +15,7 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peer GUID
         /// </summary>
-        public Guid GUID { get; }
+        public PeerGUID PeerGUID { get; }
 
         /// <summary>
         /// Connector
@@ -24,16 +25,13 @@ namespace Taurus.Connectors
         /// <summary>
         /// Constructs a new peer
         /// </summary>
-        /// <param name="guid">Peer GUID</param>
+        /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
         /// <exception cref="ArgumentException">When "guid" is empty</exception>
-        public APeer(Guid guid, IConnector connector)
+        public APeer(PeerGUID peerGUID, IConnector connector)
         {
-            if (guid == Guid.Empty)
-            {
-                throw new ArgumentException("Peer GUID can not be empty.", nameof(guid));
-            }
-            GUID = guid;
+            GUIDValidator.ValidateGUID(peerGUID, nameof(peerGUID));
+            PeerGUID = peerGUID;
             Connector = connector;
         }
 

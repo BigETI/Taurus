@@ -20,6 +20,11 @@ namespace Taurus.Connectors
         /// </summary>
         public Task<bool> IsPeerConnectionSuccessfulTask { get; }
 
+        /// <summary>
+        /// COnstructs a new peer connection
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="isPeerConnectionSuccessfulTask">Is connection successful task</param>
         public PeerConnection(IPeer peer, Task<bool> isPeerConnectionSuccessfulTask)
         {
             Peer = peer;

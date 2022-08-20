@@ -63,7 +63,7 @@ namespace Taurus.Fragmenters
         /// <param name="state">State</param>
         /// <returns>Read from this stream asynchronous result</returns>
         IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state);
-        
+
         /// <summary>
         /// Begins to write into this stream
         /// </summary>

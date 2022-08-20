@@ -23,12 +23,12 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peers
         /// </summary>
-        private readonly Dictionary<Guid, IPeer> peers = new Dictionary<Guid, IPeer>();
+        private readonly Dictionary<PeerGUID, IPeer> peers = new Dictionary<PeerGUID, IPeer>();
 
         /// <summary>
         /// Peer GUID to defragmenter stream lookup
         /// </summary>
-        private readonly Dictionary<Guid, IDefragmenterStream> peerGUIDToDefragmenterStreamLookup = new Dictionary<Guid, IDefragmenterStream>();
+        private readonly Dictionary<PeerGUID, IDefragmenterStream> peerGUIDToDefragmenterStreamLookup = new Dictionary<PeerGUID, IDefragmenterStream>();
 
         /// <summary>
         /// Peer connection attempted events
@@ -39,7 +39,7 @@ namespace Taurus.Connectors
         /// Peer connection handled events
         /// </summary>
         private readonly ConcurrentQueue<PeerConnection> peerConnectionHandledEvents = new ConcurrentQueue<PeerConnection>();
-        
+
         /// <summary>
         /// Peer disconnection requested events
         /// </summary>
@@ -73,7 +73,7 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peers
         /// </summary>
-        public IReadOnlyDictionary<Guid, IPeer> Peers => peers;
+        public IReadOnlyDictionary<PeerGUID, IPeer> Peers => peers;
 
         /// <summary>
         /// Fragmenter
@@ -187,7 +187,7 @@ namespace Taurus.Connectors
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <returns>"true" if peer is contained, otherwise "false"</returns>
-        public bool IsPeerContained(IPeer peer) => peers.TryGetValue(peer.GUID, out IPeer current_peer) && (peer == current_peer);
+        public bool IsPeerContained(IPeer peer) => peers.TryGetValue(peer.PeerGUID, out IPeer current_peer) && (peer == current_peer);
 
         /// <summary>
         /// Disconnects the specified peer
@@ -231,7 +231,7 @@ namespace Taurus.Connectors
         {
             while (peerConnectionAttemptedEvents.TryDequeue(out IPeer peer))
             {
-                if (peers.TryAdd(peer.GUID, peer))
+                if (peers.TryAdd(peer.PeerGUID, peer))
                 {
                     peerConnectionHandledEvents.Enqueue(new PeerConnection(peer, onHandlePeerConnectionAttempt(peer)));
                     OnPeerConnectionAttempted?.Invoke(peer);
@@ -290,7 +290,7 @@ namespace Taurus.Connectors
             {
                 if (IsPeerContained(peer_disconnected_event.Peer))
                 {
-                    peers.Remove(peer_disconnected_event.Peer.GUID);
+                    peers.Remove(peer_disconnected_event.Peer.PeerGUID);
                     OnPeerDisconnected?.Invoke(peer_disconnected_event.Peer, peer_disconnected_event.DisconnectionReason);
                 }
             }
@@ -305,10 +305,17 @@ namespace Taurus.Connectors
             {
                 if (IsPeerContained(peer_message_received_event.Peer))
                 {
-                    if (!peerGUIDToDefragmenterStreamLookup.TryGetValue(peer_message_received_event.Peer.GUID, out IDefragmenterStream defragmenter_stream))
+                    if
+                    (
+                        !peerGUIDToDefragmenterStreamLookup.TryGetValue
+                        (
+                            peer_message_received_event.Peer.PeerGUID,
+                            out IDefragmenterStream defragmenter_stream
+                        )
+                    )
                     {
                         defragmenter_stream = Fragmenter.CreateDefragmenterStream();
-                        peerGUIDToDefragmenterStreamLookup.Add(peer_message_received_event.Peer.GUID, defragmenter_stream);
+                        peerGUIDToDefragmenterStreamLookup.Add(peer_message_received_event.Peer.PeerGUID, defragmenter_stream);
                     }
                     defragmenter_stream.Write(peer_message_received_event.Message.Span);
                     while (defragmenter_stream.TryDequeuingMessage(out ReadOnlySpan<byte> message))

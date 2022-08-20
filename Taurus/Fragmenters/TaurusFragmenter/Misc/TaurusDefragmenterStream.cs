@@ -88,7 +88,10 @@ namespace Taurus.Fragmenters.TaurusFragmenter
                     if (isMessageLengthParsed)
                     {
                         TaurusMessageMemoryStream message_memory_stream = messageMemoryStreams[^1];
-                        long read_byte_count = (message_memory_stream.ExpectedLength < remaining_messages_length) ? message_memory_stream.ExpectedLength : remaining_messages_length;
+                        long read_byte_count =
+                            (message_memory_stream.ExpectedLength < remaining_messages_length) ?
+                                message_memory_stream.ExpectedLength :
+                                remaining_messages_length;
                         message_memory_stream.Write(messagesBinaryReader.ReadBytes((int)read_byte_count));
                         if (message_memory_stream.Length >= message_memory_stream.ExpectedLength)
                         {
