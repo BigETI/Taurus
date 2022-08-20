@@ -2,9 +2,9 @@
 using Taurus.Connectors;
 
 /// <summary>
-/// Taurus synchronizers namespace
+/// Taurus synchronizers authenticated users namespace
 /// </summary>
-namespace Taurus.Synchronizers
+namespace Taurus.Synchronizers.AuthenticatedUsers
 {
     /// <summary>
     /// An interface that represents an authenticated users synchronizer
@@ -45,7 +45,7 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="onPeerIsAnUserAsserted">Gets invoked when the specified peer is an user</param>
-        void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate onPeerIsAnUserAsserted);
+        void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate<TUser> onPeerIsAnUserAsserted);
 
         /// <summary>
         /// Adds an authenticated user message parser

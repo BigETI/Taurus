@@ -1,9 +1,9 @@
 ﻿using Taurus.Validators;
 
 /// <summary>
-/// Taurus synchronizers namespace
+/// Taurus synchronizers authenticated users namespace
 /// </summary>
-namespace Taurus.Synchronizers
+namespace Taurus.Synchronizers.AuthenticatedUsers
 {
     /// <summary>
     /// A class that describes an user authentication result

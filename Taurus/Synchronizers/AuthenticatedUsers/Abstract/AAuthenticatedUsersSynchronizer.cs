@@ -6,9 +6,9 @@ using Taurus.Connectors;
 using Taurus.Serializers;
 
 /// <summary>
-/// Taurus synchronizers namespace
+/// Taurus synchronizers authenticated users namespace
 /// </summary>
-namespace Taurus.Synchronizers
+namespace Taurus.Synchronizers.AuthenticatedUsers
 {
     /// <summary>
     /// An abstract class that describes 
@@ -277,7 +277,7 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="onPeerIsAnUserAsserted">Gets invoked when the specified peer is an user</param>
-        public void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate onPeerIsAnUserAsserted)
+        public void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate<TUser> onPeerIsAnUserAsserted)
         {
             if (TryGettingUserFromPeer(peer, out TUser user))
             {

@@ -2,9 +2,9 @@
 using Taurus.Connectors;
 
 /// <summary>
-/// Taurus synchronizers namespace
+/// Taurus synchronizers authenticated users namespace
 /// </summary>
-namespace Taurus.Synchronizers
+namespace Taurus.Synchronizers.AuthenticatedUsers
 {
     /// <summary>
     /// Used to invoke when peer is not authenticated
