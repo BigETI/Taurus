@@ -132,7 +132,6 @@ namespace Taurus.Connectors.WebSocket
                     {
                         if (peer is IWebSocketPeer web_socket_peer)
                         {
-                            // TODO: Implement message splitting
                             int available_bytes_count = web_socket_peer.TCPClient.Available;
                             if (available_bytes_count > 0)
                             {

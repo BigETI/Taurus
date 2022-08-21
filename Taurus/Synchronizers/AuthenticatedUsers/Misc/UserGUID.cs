@@ -28,7 +28,7 @@ namespace Taurus.Synchronizers.AuthenticatedUsers
         public override bool Equals(object obj) => base.Equals(obj);
 
         /// <summary>
-        /// Gets the has code of this object
+        /// Gets the hash code of this object
         /// </summary>
         /// <returns>Hash code of this object</returns>
         public override int GetHashCode() => base.GetHashCode();

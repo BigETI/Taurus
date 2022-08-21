@@ -12,7 +12,7 @@ namespace Taurus.Connectors
     /// <summary>
     /// An interface that represents any connector
     /// </summary>
-    public interface IConnector : ISynchronizedEvents, IDisposable
+    public interface IConnector : IProcessableEvents, IDisposable
     {
         /// <summary>
         /// Peers

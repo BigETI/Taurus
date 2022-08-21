@@ -9,8 +9,8 @@ namespace Taurus.Synchronizers.AuthenticatedUsers
     /// <summary>
     /// An interface that represents an authenticated users synchronizer
     /// </summary>
-    /// <typeparam name="TUser"></typeparam>
-    public interface IAuthenticatedUsersSynchronizer<TUser> where TUser : IUser
+    /// <typeparam name="TUser">User type</typeparam>
+    public interface IAuthenticatedUsersSynchronizer<TUser> : ISynchronizer where TUser : IUser
     {
         /// <summary>
         /// Users

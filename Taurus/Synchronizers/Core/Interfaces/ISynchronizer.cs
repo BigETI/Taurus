@@ -12,7 +12,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An interface that represents a synchronizer
     /// </summary>
-    public interface ISynchronizer : ISynchronizedEvents, IDisposable
+    public interface ISynchronizer : IProcessableEvents, IDisposable
     {
         /// <summary>
         /// Available connectors

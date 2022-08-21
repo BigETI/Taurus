@@ -1,12 +1,12 @@
 ﻿/// <summary>
-/// Taurus connectors namespace
+/// Taurus namespace
 /// </summary>
-namespace Taurus.Connectors
+namespace Taurus
 {
     /// <summary>
-    /// An interface that represents synchronized events
+    /// An interface that represents processable events
     /// </summary>
-    public interface ISynchronizedEvents
+    public interface IProcessableEvents
     {
         /// <summary>
         /// Processes all events appeared since last call
