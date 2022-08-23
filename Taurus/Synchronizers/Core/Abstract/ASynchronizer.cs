@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Taurus.Connectors;
@@ -25,6 +26,11 @@ namespace Taurus.Synchronizers
         /// Available message parsers
         /// </summary>
         private readonly Dictionary<string, List<IBasePeerMessageParser>> messageParsers = new Dictionary<string, List<IBasePeerMessageParser>>();
+
+        /// <summary>
+        /// Awaiting pong requests
+        /// </summary>
+        private readonly ConcurrentDictionary<int, IPing> awaitingPongRequests = new ConcurrentDictionary<int, IPing>();
 
         /// <summary>
         /// Available connectors
@@ -65,6 +71,16 @@ namespace Taurus.Synchronizers
         /// Gets invoked when an peer error message has been received
         /// </summary>
         public event PeerErrorMessageReceivedDelegate? OnPeerErrorMessageReceived;
+
+        /// <summary>
+        /// Gets invoked when a peer ping message has been received
+        /// </summary>
+        public event PeerPingMessageReceivedDelegate? OnPeerPingMessageReceived;
+
+        /// <summary>
+        /// Gets invoked when a peer pong message has been received
+        /// </summary>
+        public event PeerPongMessageReceivedDelegate? OnPeerPongMessageReceived;
 
         /// <summary>
         /// Constructs a generalised synchronizer object
@@ -117,6 +133,32 @@ namespace Taurus.Synchronizers
                     }
                 },
                 PeerMessageParseFailedEvent<ErrorMessageData>
+            );
+            AddAutomaticPeerMessageParser<PingMessageData>
+            (
+                (peer, message, _) =>
+                {
+                    int key = message.Key!.Value;
+                    OnPeerPingMessageReceived?.Invoke(peer, key);
+                    return SendMessageToPeerAsync(peer, new PongMessageData(key));
+                }
+            );
+            AddAutomaticPeerMessageParser<PongMessageData>
+            (
+                (peer, message, _) =>
+                {
+                    Task ret = Task.CompletedTask;
+                    int key = message.Key!.Value;
+                    if (awaitingPongRequests.TryGetValue(key, out IPing ping) && (ping.Peer == peer) && awaitingPongRequests.TryRemove(key, out ping))
+                    {
+                        OnPeerPongMessageReceived?.Invoke(peer, ping.Key, DateTimeOffset.Now - ping.BeginDateTimeOffset);
+                    }
+                    else
+                    {
+                        ret = SendErrorMessageToPeerAsync<PongMessageData>(peer, EErrorType.InvalidMessageContext, "No ping message has been sent yet.");
+                    }
+                    return ret;
+                }
             );
         }
 
@@ -491,6 +533,23 @@ namespace Taurus.Synchronizers
         /// <returns>Task</returns>
         public Task SendUnknownErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData =>
             SendErrorMessageToPeerAsync<TMessageData>(peer, EErrorType.Unknown, errorMessage);
+
+        /// <summary>
+        /// Send a ping message to the specified peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <returns>Task</returns>
+        public Task SendPingMessage(IPeer peer)
+        {
+            Random random = new Random();
+            int key;
+            do
+            {
+                key = random.Next();
+            }
+            while (!awaitingPongRequests.TryAdd(key, new Ping(key, peer, DateTimeOffset.Now)));
+            return SendMessageToPeerAsync(peer, new PingMessageData(key));
+        }
 
         /// <summary>
         /// Closes connections to all peers

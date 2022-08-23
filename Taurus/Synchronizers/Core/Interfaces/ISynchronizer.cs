@@ -55,6 +55,16 @@ namespace Taurus.Synchronizers
         event PeerErrorMessageReceivedDelegate OnPeerErrorMessageReceived;
 
         /// <summary>
+        /// Gets invoked when a peer ping message has been received
+        /// </summary>
+        event PeerPingMessageReceivedDelegate? OnPeerPingMessageReceived;
+
+        /// <summary>
+        /// Gets invoked when a peer pong message has been received
+        /// </summary>
+        event PeerPongMessageReceivedDelegate? OnPeerPongMessageReceived;
+
+        /// <summary>
         /// Adds the specified connector
         /// </summary>
         /// <param name="connector">Connector</param>
@@ -172,6 +182,13 @@ namespace Taurus.Synchronizers
         /// <param name="errorMessage">Error message</param>
         /// <returns>Task</returns>
         Task SendUnknownErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Send a ping message to the specified peer
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <returns>Task</returns>
+        Task SendPingMessage(IPeer peer);
 
         /// <summary>
         /// Closes connections to all peers
