@@ -58,6 +58,11 @@ namespace Taurus.Synchronizers
         MessageIsNull,
 
         /// <summary>
+        /// A message has been received in an invalid context
+        /// </summary>
+        InvalidMessageContext,
+
+        /// <summary>
         /// Message sender is not authenticated
         /// </summary>
         MessageSenderIsNotAuthenticated,
