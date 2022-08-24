@@ -16,5 +16,10 @@ namespace Taurus.GUIDs
         /// GUID
         /// </summary>
         Guid GUID { get; }
+
+        /// <summary>
+        /// Is GUID empty
+        /// </summary>
+        bool IsEmpty { get; }
     }
 }

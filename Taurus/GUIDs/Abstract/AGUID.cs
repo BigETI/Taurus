@@ -18,6 +18,11 @@ namespace Taurus.GUIDs
         public Guid GUID { get; }
 
         /// <summary>
+        /// Is GUID empty
+        /// </summary>
+        public bool IsEmpty => GUID == Guid.Empty;
+
+        /// <summary>
         /// Is this object valid
         /// </summary>
         public virtual bool IsValid => GUIDValidator.IsGUIDValid(GUID);
