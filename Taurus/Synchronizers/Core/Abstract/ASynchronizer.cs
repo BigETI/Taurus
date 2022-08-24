@@ -515,7 +515,7 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
-        /// Sends an invalid message parameters error message to peer asynchronously
+        /// Sends an invalid message parameters error message to the specified peer asynchronously
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
@@ -525,7 +525,7 @@ namespace Taurus.Synchronizers
             SendErrorMessageToPeerAsync<TMessageData>(peer, EErrorType.InvalidMessageParameters, errorMessage);
 
         /// <summary>
-        /// Sends an unknown error message to peer asynchronously
+        /// Sends an unknown error message to the specified peer asynchronously
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
@@ -535,11 +535,11 @@ namespace Taurus.Synchronizers
             SendErrorMessageToPeerAsync<TMessageData>(peer, EErrorType.Unknown, errorMessage);
 
         /// <summary>
-        /// Send a ping message to the specified peer
+        /// Send a ping message to the specified peer asynchronously
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <returns>Task</returns>
-        public Task SendPingMessage(IPeer peer)
+        public Task SendPeerPingMessageAsync(IPeer peer)
         {
             Random random = new Random();
             int key;

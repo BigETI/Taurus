@@ -166,7 +166,7 @@ namespace Taurus.Synchronizers
         bool RemoveMessageParser<TMessageData>(IPeerMessageParser<TMessageData> messageParser) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Sends an invalid message parameters error message to peer asynchronously
+        /// Sends an invalid message parameters error message to the specified peer asynchronously
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
@@ -175,7 +175,7 @@ namespace Taurus.Synchronizers
         Task SendInvalidMessageParametersErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Sends an unknown error message to peer
+        /// Sends an unknown error message to the specified peer
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
@@ -188,7 +188,7 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <returns>Task</returns>
-        Task SendPingMessage(IPeer peer);
+        Task SendPeerPingMessageAsync(IPeer peer);
 
         /// <summary>
         /// Closes connections to all peers
