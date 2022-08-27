@@ -30,7 +30,7 @@ namespace Taurus.Connectors
             IFragmenter? fragmenter,
             ICompressor? compressor
         ) => new ENetConnector(host, timeoutTime, onHandlePeerConnectionAttempt, fragmenter, compressor);
-        
+
         /// <summary>
         /// Creates a new ENet connector
         /// </summary>

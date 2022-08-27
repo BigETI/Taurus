@@ -4,7 +4,7 @@
 namespace Taurus.Synchronizers
 {
     /// <summary>
-    /// An interface that reprsents error message data
+    /// An interface that reprwsents error message data
     /// </summary>
     public interface IErrorMessageData : IBaseMessageData
     {

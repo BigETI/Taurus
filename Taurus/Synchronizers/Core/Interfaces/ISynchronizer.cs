@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Taurus.Connectors;
 using Taurus.Serializers;
 
@@ -12,7 +11,13 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An interface that represents a synchronizer
     /// </summary>
-    public interface ISynchronizer : IProcessableEvents, IDisposable
+    /// <typeparam name="TSynchronizer">Synchronizer type</typeparam>
+    /// <typeparam name="TUser">User type</typeparam>
+    public interface ISynchronizer<TSynchronizer, TUser> :
+        IProcessableEvents,
+        IDisposable
+        where TSynchronizer : ISynchronizer<TSynchronizer, TUser>
+        where TUser : IUser<TUser, TSynchronizer>
     {
         /// <summary>
         /// Available connectors
@@ -25,44 +30,59 @@ namespace Taurus.Synchronizers
         ISerializer Serializer { get; }
 
         /// <summary>
+        /// Users
+        /// </summary>
+        IReadOnlyDictionary<UserGUID, TUser> Users { get; }
+
+        /// <summary>
         /// Gets invoked when a peer connection has been attempted
         /// </summary>
-        event PeerConnectionAttemptedDelegate OnPeerConnectionAttempted;
+        event PeerConnectionAttemptedDelegate? OnPeerConnectionAttempted;
 
         /// <summary>
         /// Gets invoked when a peer has been connected
         /// </summary>
-        event PeerConnectedDelegate OnPeerConnected;
+        event PeerConnectedDelegate? OnPeerConnected;
 
         /// <summary>
         /// Gets invoked when a peer has been disconnected
         /// </summary>
-        event PeerDisconnectedDelegate OnPeerDisconnected;
+        event PeerDisconnectedDelegate? OnPeerDisconnected;
 
         /// <summary>
         /// Gets invoked when a peer message has been received
         /// </summary>
-        event PeerMessageReceivedDelegate OnPeerMessageReceived;
+        event PeerMessageReceivedDelegate? OnPeerMessageReceived;
 
         /// <summary>
-        /// Gets invoked when an unknown peer message has been received
+        /// Gets invoked when an user has been connected
         /// </summary>
-        event UnknownPeerMessageReceivedDelegate OnUnknownPeerMessageReceived;
+        event UserConnectedDelegate<TSynchronizer, TUser>? OnUserConnected;
 
         /// <summary>
-        /// Gets invoked when an peer error message has been received
+        /// Gets invoked when an user has been disconnected
         /// </summary>
-        event PeerErrorMessageReceivedDelegate OnPeerErrorMessageReceived;
+        event UserDisconnectedDelegate<TSynchronizer, TUser>? OnUserDisconnected;
 
         /// <summary>
-        /// Gets invoked when a peer ping message has been received
+        /// Gets invoked when an unknown user message has been received
         /// </summary>
-        event PeerPingMessageReceivedDelegate? OnPeerPingMessageReceived;
+        event UnknownUserMessageReceivedDelegate<TUser, TSynchronizer>? OnUnknownUserMessageReceived;
 
         /// <summary>
-        /// Gets invoked when a peer pong message has been received
+        /// Gets invoked when an user error message has been received
         /// </summary>
-        event PeerPongMessageReceivedDelegate? OnPeerPongMessageReceived;
+        event UserErrorMessageReceivedDelegate<TUser, TSynchronizer>? OnUserErrorMessageReceived;
+
+        /// <summary>
+        /// Gets invoked when an user ping message has been received
+        /// </summary>
+        event UserPingMessageReceivedDelegate<TUser, TSynchronizer>? OnUserPingMessageReceived;
+
+        /// <summary>
+        /// Gets invoked when an user pong message has been received
+        /// </summary>
+        event UserPongMessageReceivedDelegate<TUser, TSynchronizer>? OnUserPongMessageReceived;
 
         /// <summary>
         /// Adds the specified connector
@@ -91,104 +111,100 @@ namespace Taurus.Synchronizers
         /// <typeparam name="TConnector">Connector type</typeparam>
         /// <param name="connector">Connector</param>
         /// <returns>"true" if connector of the specified type is available, otherwise "false"</returns>
-        bool TryGetConnectorOfType<TConnector>(out TConnector connector) where TConnector : IConnector?;
+        bool TryGettingConnectorOfType<TConnector>(out TConnector connector) where TConnector : IConnector?;
 
         /// <summary>
-        /// Sends a message to peer asynchronously
+        /// Tries to get user from the specified peer
         /// </summary>
-        /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="peer">Peer</param>
-        /// <param name="message">Message</param>
-        /// <returns>Task</returns>
-        Task SendMessageToPeerAsync<TMessageData>(IPeer peer, TMessageData message) where TMessageData : IBaseMessageData;
+        /// <param name="user">User</param>
+        /// <returns>"true" if peer is an user, otherwise "false"</returns>
+        bool TryGettingUserFromPeer(IPeer peer, out TUser user);
 
         /// <summary>
-        /// Adds a peer message parser
+        /// Asserts that the specified peer is an user
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="onPeerIsAnUserAsserted">Gets invoked when the specified peer is an user</param>
+        void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate<TUser, TSynchronizer> onPeerIsAnUserAsserted);
+
+        /// <summary>
+        /// Adds a new user message parser
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="onPeerMessageParsed">On peer message parsed</param>
-        /// <param name="onPeerMessageValidationFailed">On message validation failed</param>
-        /// <param name="onMessageParseFailed">On message parse failed</param>
+        /// <param name="onUserMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="onUserMessageValidationFailed">Gets invoked when validating a peer message has failed</param>
+        /// <param name="onUserMessageParseFailed">Gets invoked when parsing a peer message has failed</param>
         /// <returns>Message parser</returns>
-        IPeerMessageParser<TMessageData> AddPeerMessageParser<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed, PeerMessageValidationFailedDelegate<TMessageData> onPeerMessageValidationFailed, PeerMessageParseFailedDelegate onMessageParseFailed)
-            where TMessageData : IBaseMessageData;
+        IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewUserMessageParser<TMessageData>
+        (
+            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed,
+            UserMessageValidationFailedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageValidationFailed,
+            UserMessageParseFailedDelegate<TUser, TSynchronizer> onUserMessageParseFailed
+        ) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Adds an automatic peer message parser
+        /// Adds a new automatic user message parser
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="onUserMessageParsed">Gets invoked when an user message has been parsed</param>
         /// <param name="isFatal">Is validation fail or error fatal</param>
         /// <returns>Message parser</returns>
-        IPeerMessageParser<TMessageData> AddAutomaticPeerMessageParser<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed, bool isFatal)
-            where TMessageData : IBaseMessageData;
+        IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewAutomaticUserMessageParser<TMessageData>
+        (
+            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed,
+            bool isFatal
+        ) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Adds an automatic peer message parser
+        /// Adds a new automatic user message parser
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="onUserMessageParsed">Gets invoked when an user message has been parsed</param>
         /// <returns>Message parser</returns>
-        IPeerMessageParser<TMessageData> AddAutomaticPeerMessageParser<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed)
-            where TMessageData : IBaseMessageData;
+        IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewAutomaticUserMessageParser<TMessageData>
+        (
+            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed
+        ) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Adds an automatic peer message parser that is fatal on validation fail or error
+        /// Adds a new automatic user message parser that is fatal on validation fail or error
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="onUserMessageParsed">Gets invoked when an user message has been parsed</param>
         /// <returns>Message parser</returns>
-        IPeerMessageParser<TMessageData> AddAutomaticPeerMessageParserWithFatality<TMessageData>(PeerMessageParsedDelegate<TMessageData> onPeerMessageParsed)
-            where TMessageData : IBaseMessageData;
+        IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewAutomaticUserMessageParserWithFatality<TMessageData>
+        (
+            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed
+        ) where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Gets message parsers for the specified type
+        /// Gets user message parsers for the specified type
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <returns>Message parsers if successful, otherwise "null"</returns>
-        IEnumerable<IPeerMessageParser<TMessageData>> GetPeerMessageParsersForType<TMessageData>() where TMessageData : IBaseMessageData;
-
-        /// <summary>
-        /// Tries to get message parsers for the specified type
-        /// </summary>
-        /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="messageParsers">Message parsers</param>
-        /// <returns>"true" if message parsers are available, otherwise "false"</returns>
-        bool TryGetMessageParsersForType<TMessageData>(out IEnumerable<IPeerMessageParser<TMessageData>>? messageParsers)
+        IEnumerable<IUserMessageParser<TUser, TSynchronizer, TMessageData>> GetUserMessageParsersForType<TMessageData>()
             where TMessageData : IBaseMessageData;
 
         /// <summary>
-        /// Removes the specified message parser
+        /// Tries to get user message parsers for the specified type
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="messageParser">Message parser</param>
+        /// <param name="userMessageParsers">User message parsers</param>
+        /// <returns>"true" if message parsers are available, otherwise "false"</returns>
+        bool TryGettingUserMessageParsersForType<TMessageData>
+        (
+            out IEnumerable<IUserMessageParser<TUser, TSynchronizer, TMessageData>>? userMessageParsers
+        ) where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Removes the specified user message parser
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
+        /// <param name="userMessageParser">User message parser</param>
         /// <returns>"true" if message parser was successfully removed, otherwise "false"</returns>
-        bool RemoveMessageParser<TMessageData>(IPeerMessageParser<TMessageData> messageParser) where TMessageData : IBaseMessageData;
-
-        /// <summary>
-        /// Sends an invalid message parameters error message to the specified peer asynchronously
-        /// </summary>
-        /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="peer">Peer</param>
-        /// <param name="errorMessage">Error message</param>
-        /// <returns>TAsk</returns>
-        Task SendInvalidMessageParametersErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData;
-
-        /// <summary>
-        /// Sends an unknown error message to the specified peer
-        /// </summary>
-        /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="peer">Peer</param>
-        /// <param name="errorMessage">Error message</param>
-        /// <returns>Task</returns>
-        Task SendUnknownErrorMessageToPeerAsync<TMessageData>(IPeer peer, string errorMessage) where TMessageData : IBaseMessageData;
-
-        /// <summary>
-        /// Send a ping message to the specified peer
-        /// </summary>
-        /// <param name="peer">Peer</param>
-        /// <returns>Task</returns>
-        Task SendPeerPingMessageAsync(IPeer peer);
+        bool RemoveUserMessageParser<TMessageData>(IUserMessageParser<TUser, TSynchronizer, TMessageData> userMessageParser)
+            where TMessageData : IBaseMessageData;
 
         /// <summary>
         /// Closes connections to all peers
