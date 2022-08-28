@@ -34,8 +34,8 @@ namespace Taurus.Synchronizers.AuthenticableUsers
                 TAuthenticationSuccessfulMessageData,
                 TAuthenticationFailedMessageData
             >
-        where TAuthenticableUser : class, IAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>
-        where TAuthenticateMessageData : class, IBaseMessageData
+        where TAuthenticableUser : IAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>
+        where TAuthenticateMessageData : IBaseMessageData
         where TAuthenticationSuccessfulMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
     {
