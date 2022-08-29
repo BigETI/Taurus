@@ -48,7 +48,7 @@ namespace Taurus.Synchronizers
         /// <param name="peer">Peer</param>
         /// <param name="serializer">Serializer</param>
         /// <exception cref="ArgumentException"></exception>
-        public AUser(UserGUID userGUID, IPeer peer, ISerializer serializer)
+        protected AUser(UserGUID userGUID, IPeer peer, ISerializer serializer)
         {
             GUIDValidator.ValidateGUID(userGUID, nameof(userGUID));
             UserGUID = userGUID;

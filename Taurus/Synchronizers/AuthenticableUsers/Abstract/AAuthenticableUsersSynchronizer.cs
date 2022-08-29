@@ -52,7 +52,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// Constructs a new authenticated users synchronizer
         /// </summary>
         /// <param name="serializer">Serializer</param>
-        public AAuthenticableUsersSynchronizer(ISerializer serializer) : base(serializer)
+        protected AAuthenticableUsersSynchronizer(ISerializer serializer) : base(serializer)
         {
             AddNewAutomaticUserMessageParserWithFatality<TAuthenticateMessageData>
             (

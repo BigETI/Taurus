@@ -113,7 +113,7 @@ namespace Taurus.Synchronizers
         /// Constructs a generalised synchronizer object
         /// </summary>
         /// <param name="serializer">Serializer</param>
-        public ASynchronizer(ISerializer serializer)
+        protected ASynchronizer(ISerializer serializer)
         {
             Serializer = serializer;
             AddNewUserMessageParser<ErrorMessageData>

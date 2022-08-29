@@ -31,7 +31,7 @@ namespace Taurus.GUIDs
         /// COnstcuts a new GUID
         /// </summary>
         /// <param name="guid">GUID</param>
-        public AGUID(Guid guid)
+        protected AGUID(Guid guid)
         {
             GUIDValidator.ValidateGUID(guid, nameof(guid));
             GUID = guid;

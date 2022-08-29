@@ -28,7 +28,7 @@ namespace Taurus.Connectors
         /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
         /// <exception cref="ArgumentException">When "guid" is empty</exception>
-        public APeer(PeerGUID peerGUID, IConnector connector)
+        protected APeer(PeerGUID peerGUID, IConnector connector)
         {
             GUIDValidator.ValidateGUID(peerGUID, nameof(peerGUID));
             PeerGUID = peerGUID;

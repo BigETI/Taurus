@@ -121,7 +121,7 @@ namespace Taurus.Connectors
         /// <param name="onHandlePeerConnectionAttempt">Gets invoked when peer connection attempt needs to be handled</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
-        public AConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor)
+        protected AConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, IFragmenter? fragmenter, ICompressor? compressor)
         {
             Fragmenter = fragmenter ?? Fragmentation.NoFragmentationFragmenter;
             Compressor = compressor ?? Compression.NoCompressionCompressor;
