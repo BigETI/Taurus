@@ -585,6 +585,40 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
+        /// Broadcasts the specified message
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data</typeparam>
+        /// <param name="message">Message</param>
+        /// <returns>Task</returns>
+        public Task BroadcastMessageAsync<TMessageData>(TMessageData message) where TMessageData : IBaseMessageData =>
+            BroadcastMessageAsync(message, (_) => true);
+
+        /// <summary>
+        /// Broadcasts the specified message
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
+        /// <param name="message">Message</param>
+        /// <param name="onSendMessageToUser">Gets invoked when a message needs to be sent to an user</param>
+        /// <returns>Task</returns>
+        public Task BroadcastMessageAsync<TMessageData>(TMessageData message, SendMessageToUserDelegate<TUser> onSendMessageToUser)
+            where TMessageData : IBaseMessageData
+        {
+            List<Task> send_message_tasks = new List<Task>();
+            ReadOnlyMemory<byte>? message_bytes = null;
+            foreach (TUser user in users.Values)
+            {
+                if (onSendMessageToUser(user))
+                {
+                    message_bytes ??= Serializer.Serialize(message).ToArray();
+                    send_message_tasks.Add(user.Peer.SendMessageAsync(message_bytes.Value));
+                }
+            }
+            Task ret = Task.WhenAll(send_message_tasks.ToArray());
+            send_message_tasks.Clear();
+            return ret;
+        }
+
+        /// <summary>
         /// Closes connections to all peers
         /// </summary>
         /// <param name="reason">Disconnection reason</param>

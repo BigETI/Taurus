@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Taurus.Connectors;
 using Taurus.Serializers;
 
@@ -202,6 +203,24 @@ namespace Taurus.Synchronizers
         /// <param name="userMessageParser">User message parser</param>
         /// <returns>"true" if message parser was successfully removed, otherwise "false"</returns>
         bool RemoveUserMessageParser<TMessageData>(IUserMessageParser<TUser, TMessageData> userMessageParser)
+            where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Broadcasts the specified message
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data</typeparam>
+        /// <param name="message">Message</param>
+        /// <returns>Task</returns>
+        Task BroadcastMessageAsync<TMessageData>(TMessageData message) where TMessageData : IBaseMessageData;
+
+        /// <summary>
+        /// Broadcasts the specified message
+        /// </summary>
+        /// <typeparam name="TMessageData">Message data type</typeparam>
+        /// <param name="message">Message</param>
+        /// <param name="onSendMessageToUser">Gets invoked when a message needs to be sent to an user</param>
+        /// <returns>Task</returns>
+        Task BroadcastMessageAsync<TMessageData>(TMessageData message, SendMessageToUserDelegate<TUser> onSendMessageToUser)
             where TMessageData : IBaseMessageData;
 
         /// <summary>
