@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Taurus.Connectors;
+using Taurus.Serializers;
 using Taurus.Synchronizers.Data.Messages;
 using Taurus.Validators;
 
@@ -13,11 +14,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An abstract class that describes an user
     /// </summary>
-    /// <typeparam name="TUser">User type</typeparam>
-    /// <typeparam name="TSynchronizer">Synchronizer type</typeparam>
-    public abstract class AUser<TUser, TSynchronizer> : IUser<TUser, TSynchronizer>
-        where TUser : AUser<TUser, TSynchronizer>
-        where TSynchronizer : ISynchronizer<TSynchronizer, TUser>
+    public abstract class AUser : IUser
     {
         /// <summary>
         /// Awaiting pong message keys
@@ -35,9 +32,9 @@ namespace Taurus.Synchronizers
         public IPeer Peer { get; }
 
         /// <summary>
-        /// Synchronizer
+        /// Serializer
         /// </summary>
-        public TSynchronizer Synchronizer { get; }
+        public ISerializer Serializer { get; }
 
         /// <summary>
         /// Latency
@@ -49,14 +46,14 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="userGUID">User GUID</param>
         /// <param name="peer">Peer</param>
-        /// <param name="synchronizer">Synchronizer</param>
+        /// <param name="serializer">Serializer</param>
         /// <exception cref="ArgumentException"></exception>
-        public AUser(UserGUID userGUID, IPeer peer, TSynchronizer synchronizer)
+        public AUser(UserGUID userGUID, IPeer peer, ISerializer serializer)
         {
             GUIDValidator.ValidateGUID(userGUID, nameof(userGUID));
             UserGUID = userGUID;
             Peer = peer;
-            Synchronizer = synchronizer;
+            Serializer = serializer;
         }
 
         /// <summary>
@@ -66,7 +63,7 @@ namespace Taurus.Synchronizers
         /// <param name="message">Message</param>
         /// <returns>Task</returns>
         public Task SendMessageAsync<TMessageData>(TMessageData message) where TMessageData : IBaseMessageData =>
-            Peer.SendMessageAsync(Synchronizer.Serializer.Serialize(message).ToArray());
+            Peer.SendMessageAsync(Serializer.Serialize(message).ToArray());
 
         /// <summary>
         /// Sends an error message to this user asynchronously

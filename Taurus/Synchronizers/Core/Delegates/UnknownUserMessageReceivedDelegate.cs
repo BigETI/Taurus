@@ -11,7 +11,5 @@ namespace Taurus.Synchronizers
     /// <param name="user">Sending user</param>
     /// <param name="message">Message</param>
     /// <param name="bytes">Message bytes</param>
-    public delegate void UnknownUserMessageReceivedDelegate<TUser, TSynchronizer>(TUser user, IBaseMessageData message, ReadOnlySpan<byte> bytes)
-        where TUser : IUser<TUser, TSynchronizer>
-        where TSynchronizer : ISynchronizer<TSynchronizer, TUser>;
+    public delegate void UnknownUserMessageReceivedDelegate<TUser>(TUser user, IBaseMessageData message, ReadOnlySpan<byte> bytes) where TUser : IUser;
 }

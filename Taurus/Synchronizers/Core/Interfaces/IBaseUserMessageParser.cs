@@ -1,4 +1,5 @@
 ﻿using System;
+using Taurus.Serializers;
 
 /// <summary>
 /// Taurus synchronizers namespace
@@ -8,9 +9,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An interface that represents a base user message parser
     /// </summary>
-    public interface IBaseUserMessageParser<TUser, TSynchronizer>
-        where TUser : IUser<TUser, TSynchronizer>
-        where TSynchronizer : ISynchronizer<TSynchronizer, TUser>
+    public interface IBaseUserMessageParser<TUser> where TUser : IUser
     {
         /// <summary>
         /// Message type
@@ -18,9 +17,9 @@ namespace Taurus.Synchronizers
         string MessageType { get; }
 
         /// <summary>
-        /// Synchronizer
+        /// Serializer
         /// </summary>
-        TSynchronizer Synchronizer { get; }
+        ISerializer Serializer { get; }
 
         /// <summary>
         /// Parses incoming user message

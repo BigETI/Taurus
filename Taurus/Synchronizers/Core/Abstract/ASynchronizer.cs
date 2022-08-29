@@ -16,12 +16,8 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// An abstract class that describes a synchronizer
     /// </summary>
-    /// <typeparam name="TSynchronizer">Synchronizer type</typeparam>
     /// <typeparam name="TUser">User type</typeparam>
-    public abstract class ASynchronizer<TSynchronizer, TUser> :
-        ISynchronizer<TSynchronizer, TUser>
-        where TSynchronizer : ASynchronizer<TSynchronizer, TUser>
-        where TUser : IUser<TUser, TSynchronizer>
+    public abstract class ASynchronizer<TUser> : ISynchronizer<TUser> where TUser : IUser
     {
         /// <summary>
         /// Available connectors
@@ -46,7 +42,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Available message parsers
         /// </summary>
-        private readonly Dictionary<string, List<IBaseUserMessageParser<TUser, TSynchronizer>>> userMessageParsers = new Dictionary<string, List<IBaseUserMessageParser<TUser, TSynchronizer>>>();
+        private readonly Dictionary<string, List<IBaseUserMessageParser<TUser>>> userMessageParsers = new Dictionary<string, List<IBaseUserMessageParser<TUser>>>();
 
         /// <summary>
         /// Available connectors
@@ -86,32 +82,32 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Gets invoked when an user has been connected
         /// </summary>
-        public event UserConnectedDelegate<TSynchronizer, TUser>? OnUserConnected;
+        public event UserConnectedDelegate<TUser>? OnUserConnected;
 
         /// <summary>
         /// Gets invoked when an user has been disconnected
         /// </summary>
-        public event UserDisconnectedDelegate<TSynchronizer, TUser>? OnUserDisconnected;
+        public event UserDisconnectedDelegate<TUser>? OnUserDisconnected;
 
         /// <summary>
         /// Gets invoked when an unknown user message has been received
         /// </summary>
-        public event UnknownUserMessageReceivedDelegate<TUser, TSynchronizer>? OnUnknownUserMessageReceived;
+        public event UnknownUserMessageReceivedDelegate<TUser>? OnUnknownUserMessageReceived;
 
         /// <summary>
         /// Gets invoked when an user error message has been received
         /// </summary>
-        public event UserErrorMessageReceivedDelegate<TUser, TSynchronizer>? OnUserErrorMessageReceived;
+        public event UserErrorMessageReceivedDelegate<TUser>? OnUserErrorMessageReceived;
 
         /// <summary>
         /// Gets invoked when an user ping message has been received
         /// </summary>
-        public event UserPingMessageReceivedDelegate<TUser, TSynchronizer>? OnUserPingMessageReceived;
+        public event UserPingMessageReceivedDelegate<TUser>? OnUserPingMessageReceived;
 
         /// <summary>
         /// Gets invoked when an user pong message has been received
         /// </summary>
-        public event UserPongMessageReceivedDelegate<TUser, TSynchronizer>? OnUserPongMessageReceived;
+        public event UserPongMessageReceivedDelegate<TUser>? OnUserPongMessageReceived;
 
         /// <summary>
         /// Constructs a generalised synchronizer object
@@ -354,11 +350,11 @@ namespace Taurus.Synchronizers
                                 userMessageParsers.TryGetValue
                                 (
                                     base_network_message_data!.MessageType!,
-                                    out List<IBaseUserMessageParser<TUser, TSynchronizer>> user_message_parsers
+                                    out List<IBaseUserMessageParser<TUser>> user_message_parsers
                                 )
                             )
                             {
-                                foreach (IBaseUserMessageParser<TUser, TSynchronizer> user_message_parser in user_message_parsers)
+                                foreach (IBaseUserMessageParser<TUser> user_message_parser in user_message_parsers)
                                 {
                                     user_message_parser.ParseUserMessage(user, message);
                                 }
@@ -437,15 +433,14 @@ namespace Taurus.Synchronizers
         /// <param name="peer">Peer</param>
         /// <param name="user">User</param>
         /// <returns>"true" if peer is an user, otherwise "false"</returns>
-        public bool TryGettingUserFromPeer(IPeer peer, out TUser user) =>
-            peerGUIDToUserLookup.TryGetValue(peer.PeerGUID, out user) && (user.Peer == peer);
+        public bool TryGettingUserFromPeer(IPeer peer, out TUser user) => peerGUIDToUserLookup.TryGetValue(peer.PeerGUID, out user) && (user.Peer == peer);
 
         /// <summary>
         /// Asserts that the specified peer is an user
         /// </summary>
         /// <param name="peer">Peer</param>
         /// <param name="onPeerIsAnUserAsserted">Gets invoked when the specified peer is an user</param>
-        public void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate<TUser, TSynchronizer> onPeerIsAnUserAsserted)
+        public void AssertPeerIsAnUser(IPeer peer, PeerIsAnUserAssertedDelegate<TUser> onPeerIsAnUserAsserted)
         {
             if (TryGettingUserFromPeer(peer, out TUser user))
             {
@@ -461,17 +456,17 @@ namespace Taurus.Synchronizers
         /// <param name="onUserMessageValidationFailed">Gets invoked when validating a peer message has failed</param>
         /// <param name="onUserMessageParseFailed">Gets invoked when parsing a peer message has failed</param>
         /// <returns>Message parser</returns>
-        public IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewUserMessageParser<TMessageData>
+        public IUserMessageParser<TUser, TMessageData> AddNewUserMessageParser<TMessageData>
         (
-            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed,
-            UserMessageValidationFailedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageValidationFailed,
-            UserMessageParseFailedDelegate<TUser, TSynchronizer> onUserMessageParseFailed
+            UserMessageParsedDelegate<TUser, TMessageData> onUserMessageParsed,
+            UserMessageValidationFailedDelegate<TUser, TMessageData> onUserMessageValidationFailed,
+            UserMessageParseFailedDelegate<TUser> onUserMessageParseFailed
         ) where TMessageData : IBaseMessageData
         {
-            IUserMessageParser<TUser, TSynchronizer, TMessageData> ret = new UserMessageParser<TUser, TSynchronizer, TMessageData>((TSynchronizer)this, onUserMessageParsed, onUserMessageValidationFailed, onUserMessageParseFailed);
-            if (!userMessageParsers.TryGetValue(ret.MessageType, out List<IBaseUserMessageParser<TUser, TSynchronizer>> message_parsers))
+            IUserMessageParser<TUser, TMessageData> ret = new UserMessageParser<TUser, TMessageData>(Serializer, onUserMessageParsed, onUserMessageValidationFailed, onUserMessageParseFailed);
+            if (!userMessageParsers.TryGetValue(ret.MessageType, out List<IBaseUserMessageParser<TUser>> message_parsers))
             {
-                message_parsers = new List<IBaseUserMessageParser<TUser, TSynchronizer>>();
+                message_parsers = new List<IBaseUserMessageParser<TUser>>();
                 userMessageParsers.Add(ret.MessageType, message_parsers);
             }
             message_parsers.Add(ret);
@@ -485,19 +480,19 @@ namespace Taurus.Synchronizers
         /// <param name="onUserMessageParsed">Gets invoked when an user message has been parsed</param>
         /// <param name="isFatal">Is validation fail or error fatal</param>
         /// <returns>Message parser</returns>
-        public IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewAutomaticUserMessageParser<TMessageData>
+        public IUserMessageParser<TUser, TMessageData> AddNewAutomaticUserMessageParser<TMessageData>
         (
-            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed,
+            UserMessageParsedDelegate<TUser, TMessageData> onUserMessageParsed,
             bool isFatal
         ) where TMessageData : IBaseMessageData =>
             AddNewUserMessageParser
             (
                 onUserMessageParsed,
                 isFatal ?
-                    (UserMessageValidationFailedDelegate<TUser, TSynchronizer, TMessageData>)FatalUserMessageValidationFailedEvent :
+                    (UserMessageValidationFailedDelegate<TUser, TMessageData>)FatalUserMessageValidationFailedEvent :
                     UserMessageValidationFailedEvent,
                 isFatal ?
-                    (UserMessageParseFailedDelegate<TUser, TSynchronizer>)FatalUserMessageParseFailedEvent<TMessageData> :
+                    (UserMessageParseFailedDelegate<TUser>)FatalUserMessageParseFailedEvent<TMessageData> :
                     UserMessageParseFailedEvent<TMessageData>
             );
 
@@ -507,11 +502,10 @@ namespace Taurus.Synchronizers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="onUserMessageParsed">Gets invoked when an user message has been parsed</param>
         /// <returns>Message parser</returns>
-        public IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewAutomaticUserMessageParser<TMessageData>
+        public IUserMessageParser<TUser, TMessageData> AddNewAutomaticUserMessageParser<TMessageData>
         (
-            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed
-        )
-            where TMessageData : IBaseMessageData =>
+            UserMessageParsedDelegate<TUser, TMessageData> onUserMessageParsed
+        ) where TMessageData : IBaseMessageData =>
             AddNewAutomaticUserMessageParser(onUserMessageParsed, false);
 
         /// <summary>
@@ -520,9 +514,9 @@ namespace Taurus.Synchronizers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="onUserMessageParsed">Gets invoked when an user message has been parsed</param>
         /// <returns>Message parser</returns>
-        public IUserMessageParser<TUser, TSynchronizer, TMessageData> AddNewAutomaticUserMessageParserWithFatality<TMessageData>
+        public IUserMessageParser<TUser, TMessageData> AddNewAutomaticUserMessageParserWithFatality<TMessageData>
         (
-            UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> onUserMessageParsed
+            UserMessageParsedDelegate<TUser, TMessageData> onUserMessageParsed
         ) where TMessageData : IBaseMessageData =>
             AddNewAutomaticUserMessageParser(onUserMessageParsed, true);
 
@@ -531,11 +525,10 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <returns>Message parsers if successful, otherwise "null"</returns>
-        public IEnumerable<IUserMessageParser<TUser, TSynchronizer, TMessageData>> GetUserMessageParsersForType<TMessageData>()
-            where TMessageData : IBaseMessageData =>
-            TryGettingUserMessageParsersForType(out IEnumerable<IUserMessageParser<TUser, TSynchronizer, TMessageData>>? ret) ?
+        public IEnumerable<IUserMessageParser<TUser, TMessageData>> GetUserMessageParsersForType<TMessageData>() where TMessageData : IBaseMessageData =>
+            TryGettingUserMessageParsersForType(out IEnumerable<IUserMessageParser<TUser, TMessageData>>? ret) ?
                 ret! :
-                Array.Empty<IUserMessageParser<TUser, TSynchronizer, TMessageData>>();
+                Array.Empty<IUserMessageParser<TUser, TMessageData>>();
 
         /// <summary>
         /// Tries to get user message parsers for the specified type
@@ -543,19 +536,17 @@ namespace Taurus.Synchronizers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="userMessageParsers">User message parsers</param>
         /// <returns>"true" if message parsers are available, otherwise "false"</returns>
-        public bool TryGettingUserMessageParsersForType<TMessageData>
-        (
-            out IEnumerable<IUserMessageParser<TUser, TSynchronizer, TMessageData>>? userMessageParsers
-        ) where TMessageData : IBaseMessageData
+        public bool TryGettingUserMessageParsersForType<TMessageData>(out IEnumerable<IUserMessageParser<TUser, TMessageData>>? userMessageParsers)
+            where TMessageData : IBaseMessageData
         {
             string key = Naming.GetMessageTypeNameFromMessageDataType<TMessageData>();
-            bool ret = this.userMessageParsers.TryGetValue(key, out List<IBaseUserMessageParser<TUser, TSynchronizer>> message_parsers);
+            bool ret = this.userMessageParsers.TryGetValue(key, out List<IBaseUserMessageParser<TUser>> message_parsers);
             if (ret)
             {
-                List<IUserMessageParser<TUser, TSynchronizer, TMessageData>> message_parser_list = new List<IUserMessageParser<TUser, TSynchronizer, TMessageData>>();
-                foreach (IBaseUserMessageParser<TUser, TSynchronizer> base_message_parser in message_parsers)
+                List<IUserMessageParser<TUser, TMessageData>> message_parser_list = new List<IUserMessageParser<TUser, TMessageData>>();
+                foreach (IBaseUserMessageParser<TUser> base_message_parser in message_parsers)
                 {
-                    if (base_message_parser is IUserMessageParser<TUser, TSynchronizer, TMessageData> message_parser)
+                    if (base_message_parser is IUserMessageParser<TUser, TMessageData> message_parser)
                     {
                         message_parser_list.Add(message_parser);
                     }
@@ -575,15 +566,14 @@ namespace Taurus.Synchronizers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="userMessageParser">User message parser</param>
         /// <returns>"true" if message parser was successfully removed, otherwise "false"</returns>
-        public bool RemoveUserMessageParser<TMessageData>(IUserMessageParser<TUser, TSynchronizer, TMessageData> userMessageParser)
-            where TMessageData : IBaseMessageData
+        public bool RemoveUserMessageParser<TMessageData>(IUserMessageParser<TUser, TMessageData> userMessageParser) where TMessageData : IBaseMessageData
         {
             if (userMessageParser == null)
             {
                 throw new ArgumentNullException(nameof(userMessageParser));
             }
             bool ret = false;
-            if (userMessageParsers.TryGetValue(userMessageParser.MessageType, out List<IBaseUserMessageParser<TUser, TSynchronizer>> message_parsers))
+            if (userMessageParsers.TryGetValue(userMessageParser.MessageType, out List<IBaseUserMessageParser<TUser>> message_parsers))
             {
                 ret = message_parsers.Remove(userMessageParser);
                 if (ret && (message_parsers.Count <= 0))

@@ -7,26 +7,22 @@ namespace Taurus.Synchronizers
     /// An interface that represents a peer message parser
     /// </summary>
     /// <typeparam name="TUser">User type</typeparam>
-    /// <typeparam name="TSynchronizer">Synchronizer type</typeparam>
     /// <typeparam name="TMessageData">Message data type</typeparam>
-    public interface IUserMessageParser<TUser, TSynchronizer, TMessageData> : IBaseUserMessageParser<TUser, TSynchronizer>
-        where TUser : IUser<TUser, TSynchronizer>
-        where TSynchronizer : ISynchronizer<TSynchronizer, TUser>
-        where TMessageData : IBaseMessageData
+    public interface IUserMessageParser<TUser, TMessageData> : IBaseUserMessageParser<TUser> where TUser : IUser where TMessageData : IBaseMessageData
     {
         /// <summary>
         /// Gets invoked when a peer message has been parsed
         /// </summary>
-        event UserMessageParsedDelegate<TUser, TSynchronizer, TMessageData> OnUserMessageParsed;
+        event UserMessageParsedDelegate<TUser, TMessageData> OnUserMessageParsed;
 
         /// <summary>
         /// Gets invoked when validating a peer message has failed
         /// </summary>
-        event UserMessageValidationFailedDelegate<TUser, TSynchronizer, TMessageData> OnUserMessageValidationFailed;
+        event UserMessageValidationFailedDelegate<TUser, TMessageData> OnUserMessageValidationFailed;
 
         /// <summary>
         /// Gets invoked when parsing a peer message has failed
         /// </summary>
-        event UserMessageParseFailedDelegate<TUser, TSynchronizer> OnUserMessageParseFailed;
+        event UserMessageParseFailedDelegate<TUser> OnUserMessageParseFailed;
     }
 }

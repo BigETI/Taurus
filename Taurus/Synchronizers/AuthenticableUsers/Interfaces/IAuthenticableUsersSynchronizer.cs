@@ -6,22 +6,18 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// <summary>
     /// An interface that represents an authenticated users synchronizer
     /// </summary>
-    /// <typeparam name="TAuthenticableUsersSynchronizer">Authenticable users synchronizer type</typeparam>
     /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
-    public interface IAuthenticableUsersSynchronizer<TAuthenticableUsersSynchronizer, TAuthenticableUser> :
-        ISynchronizer<TAuthenticableUsersSynchronizer, TAuthenticableUser>
-        where TAuthenticableUsersSynchronizer : IAuthenticableUsersSynchronizer<TAuthenticableUsersSynchronizer, TAuthenticableUser>
-        where TAuthenticableUser : IAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>
+    public interface IAuthenticableUsersSynchronizer<TAuthenticableUser> : ISynchronizer<TAuthenticableUser> where TAuthenticableUser : IAuthenticableUser
     {
         /// <summary>
         /// Gets invoked when an user has been authenticated
         /// </summary>
-        event UserAuthenticatedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer>? OnUserAuthenticated;
+        event UserAuthenticatedDelegate<TAuthenticableUser>? OnUserAuthenticated;
 
         /// <summary>
         /// Gets invoked when a peer user has been authenticated
         /// </summary>
-        event UserAuthenticationFailedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer>? OnUserAuthenticationFailed;
+        event UserAuthenticationFailedDelegate<TAuthenticableUser>? OnUserAuthenticationFailed;
 
         /// <summary>
         /// Adds an authenticated user message parser
@@ -32,12 +28,12 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <param name="onAuthenticatedUserMessageValidationFailed">Gets invoked when authenticated user message validation has failed</param>
         /// <param name="onAuthenticatedUserMessageParseFailed">Gets invoked when parsing an authenticated user message has failed</param>
         /// <returns>Peer message parser</returns>
-        IUserMessageParser<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> AddNewAuthenticatedUserMessageParser<TMessageData>
+        IUserMessageParser<TAuthenticableUser, TMessageData> AddNewAuthenticatedUserMessageParser<TMessageData>
         (
-            UserMessageParsedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> onAuthenticatedUserMessageParsed,
-            UserMessageValidationFailedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> onAuthenticatedUserMessageValidationFailed,
-            UserMessageParseFailedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer> onAuthenticatedUserMessageParseFailed,
-            UserIsNotAuthenticatedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer> onPeerIsNotAuthenticated
+            UserMessageParsedDelegate<TAuthenticableUser, TMessageData> onAuthenticatedUserMessageParsed,
+            UserMessageValidationFailedDelegate<TAuthenticableUser, TMessageData> onAuthenticatedUserMessageValidationFailed,
+            UserMessageParseFailedDelegate<TAuthenticableUser> onAuthenticatedUserMessageParseFailed,
+            UserIsNotAuthenticatedDelegate<TAuthenticableUser> onPeerIsNotAuthenticated
         ) where TMessageData : IBaseMessageData;
 
         /// <summary>
@@ -47,9 +43,9 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <param name="onAuthenticatedUserMessageParsed">Gets invoked when an authenticated user message has been parsed</param>
         /// <param name="isFatal">Is validation fail or error fatal</param>
         /// <returns>Message parser</returns>
-        IUserMessageParser<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> AddNewAutomaticAuthenticatedUserMessageParser<TMessageData>
+        IUserMessageParser<TAuthenticableUser, TMessageData> AddNewAutomaticAuthenticatedUserMessageParser<TMessageData>
         (
-            UserMessageParsedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> onAuthenticatedUserMessageParsed,
+            UserMessageParsedDelegate<TAuthenticableUser, TMessageData> onAuthenticatedUserMessageParsed,
             bool isFatal
         ) where TMessageData : IBaseMessageData;
 
@@ -59,10 +55,10 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="onAuthenticatedUserMessageParsed">Gets invoked when an authenticated user message has been parsed</param>
         /// <returns>Message parser</returns>
-        IUserMessageParser<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData>
+        IUserMessageParser<TAuthenticableUser, TMessageData>
             AddNewAutomaticAuthenticatedUserMessageParser<TMessageData>
         (
-            UserMessageParsedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> onAuthenticatedUserMessageParsed
+            UserMessageParsedDelegate<TAuthenticableUser, TMessageData> onAuthenticatedUserMessageParsed
         ) where TMessageData : IBaseMessageData;
 
         /// <summary>
@@ -71,10 +67,10 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
         /// <returns>Message parser</returns>
-        IUserMessageParser<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData>
+        IUserMessageParser<TAuthenticableUser, TMessageData>
             AddNewAutomaticAuthenticatedUserMessageParserWithFatality<TMessageData>
         (
-            UserMessageParsedDelegate<TAuthenticableUser, TAuthenticableUsersSynchronizer, TMessageData> onPeerMessageParsed
+            UserMessageParsedDelegate<TAuthenticableUser, TMessageData> onPeerMessageParsed
         ) where TMessageData : IBaseMessageData;
     }
 }

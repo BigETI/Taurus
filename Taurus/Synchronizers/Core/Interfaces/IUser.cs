@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Taurus.Connectors;
+using Taurus.Serializers;
 
 /// <summary>
 /// Taurus synchronizers namespace
@@ -8,11 +9,9 @@ using Taurus.Connectors;
 namespace Taurus.Synchronizers
 {
     /// <summary>
-    /// AN interface that represents an user
+    /// An interface that represents an user
     /// </summary>
-    /// <typeparam name="TUser">User type</typeparam>
-    /// <typeparam name="TSynchronizer"></typeparam>
-    public interface IUser<TUser, TSynchronizer> where TUser : IUser<TUser, TSynchronizer> where TSynchronizer : ISynchronizer<TSynchronizer, TUser>
+    public interface IUser
     {
         /// <summary>
         /// User GUID
@@ -25,9 +24,9 @@ namespace Taurus.Synchronizers
         IPeer Peer { get; }
 
         /// <summary>
-        /// Synchronizer
+        /// Serializer
         /// </summary>
-        TSynchronizer Synchronizer { get; }
+        ISerializer Serializer { get; }
 
         /// <summary>
         /// Latency

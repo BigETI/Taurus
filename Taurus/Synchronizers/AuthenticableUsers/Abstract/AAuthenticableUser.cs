@@ -1,4 +1,5 @@
 ﻿using Taurus.Connectors;
+using Taurus.Serializers;
 
 /// <summary>
 /// Taurus synchronizers authenticable users namespace
@@ -8,13 +9,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// <summary>
     /// An abstract class that describes an authenticable user
     /// </summary>
-    /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
-    /// <typeparam name="TAuthenticableUsersSynchronizer">Authenticable users synchronizer type</typeparam>
-    public abstract class AAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer> :
-        AUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>,
-        IAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>
-        where TAuthenticableUser : AAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>
-        where TAuthenticableUsersSynchronizer : IAuthenticableUsersSynchronizer<TAuthenticableUsersSynchronizer, TAuthenticableUser>
+    public abstract class AAuthenticableUser : AUser, IAuthenticableUser
     {
         /// <summary>
         /// Is user authenticated
@@ -26,9 +21,8 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// </summary>
         /// <param name="userGUID">User GUID</param>
         /// <param name="peer">Peer</param>
-        /// <param name="authenticableUsersSynchronizer">Authenticable users synchronizer</param>
-        protected AAuthenticableUser(UserGUID userGUID, IPeer peer, TAuthenticableUsersSynchronizer authenticableUsersSynchronizer) :
-            base(userGUID, peer, authenticableUsersSynchronizer)
+        protected AAuthenticableUser(UserGUID userGUID, IPeer peer, ISerializer serializer) :
+            base(userGUID, peer, serializer)
         {
             // ...
         }
@@ -36,6 +30,6 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// Flags this user as authenticated
         /// </summary>
-        void IAuthenticableUser<TAuthenticableUser, TAuthenticableUsersSynchronizer>.FlagAsAuthenticated() => IsAuthenticated = true;
+        void IAuthenticableUser.FlagAsAuthenticated() => IsAuthenticated = true;
     }
 }
