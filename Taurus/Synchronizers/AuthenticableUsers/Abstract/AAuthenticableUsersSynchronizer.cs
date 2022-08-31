@@ -156,7 +156,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="onAuthenticatedUserMessageParsed">Gets invoked when an authenticated user message has been parsed</param>
-        /// <param name="onPeerIsNotAuthenticated">Gets invoked when peer is not authenticated</param>
+        /// <param name="onUserIsNotAuthenticated">Gets invoked when user is not authenticated</param>
         /// <param name="onAuthenticatedUserMessageValidationFailed">Gets invoked when authenticated user message validation has failed</param>
         /// <param name="onAuthenticatedUserMessageParseFailed">Gets invoked when parsing an authenticated user message has failed</param>
         /// <returns>Peer message parser</returns>
@@ -166,15 +166,15 @@ namespace Taurus.Synchronizers.AuthenticableUsers
             UserMessageValidationFailedDelegate<TAuthenticableUser, TMessageData>
                 onAuthenticatedUserMessageValidationFailed,
             UserMessageParseFailedDelegate<TAuthenticableUser> onAuthenticatedUserMessageParseFailed,
-            UserIsNotAuthenticatedDelegate<TAuthenticableUser> onPeerIsNotAuthenticated
+            UserIsNotAuthenticatedDelegate<TAuthenticableUser> onUserIsNotAuthenticated
         ) where TMessageData : IBaseMessageData =>
             AddNewUserMessageParser<TMessageData>
             (
-                (user, message, bytes) => user.IsAuthenticated ? onAuthenticatedUserMessageParsed(user, message, bytes) : onPeerIsNotAuthenticated(user),
+                (user, message, bytes) => user.IsAuthenticated ? onAuthenticatedUserMessageParsed(user, message, bytes) : onUserIsNotAuthenticated(user),
                 (user, message, bytes) =>
-                    user.IsAuthenticated ? onAuthenticatedUserMessageValidationFailed(user, message, bytes) : onPeerIsNotAuthenticated(user),
+                    user.IsAuthenticated ? onAuthenticatedUserMessageValidationFailed(user, message, bytes) : onUserIsNotAuthenticated(user),
                 (user, expectedMessageType, bytes) =>
-                    user.IsAuthenticated ? onAuthenticatedUserMessageParseFailed(user, expectedMessageType, bytes) : onPeerIsNotAuthenticated(user)
+                    user.IsAuthenticated ? onAuthenticatedUserMessageParseFailed(user, expectedMessageType, bytes) : onUserIsNotAuthenticated(user)
             );
 
         /// <summary>
