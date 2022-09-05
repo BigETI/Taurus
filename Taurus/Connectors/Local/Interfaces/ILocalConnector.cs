@@ -12,6 +12,6 @@ namespace Taurus.Connectors.Local
         /// Connects to the specified target local connector
         /// </summary>
         /// <param name="targetLocalConnector">Target local connector</param>
-        void ConnectToLocalConnector(ILocalConnector targetConnector);
+        void ConnectToLocalConnector(ILocalConnector targetLocalConnector);
     }
 }
