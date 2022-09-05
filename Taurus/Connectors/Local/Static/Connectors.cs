@@ -35,7 +35,7 @@ namespace Taurus.Connectors
         /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer conection attempt needs to be handled</param>
         /// <param name="compressor">Compressor</param>
         /// <returns>New local connector</returns>
-        public static ILocalConnector CreateNewLocalConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, ICompressor? compressor) =>
+        public static ILocalConnector CreateNewLocalConnector(HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt, ICompressor compressor) =>
             CreateNewLocalConnector(onHandlePeerConnectionAttempt, null, compressor);
 
         /// <summary>

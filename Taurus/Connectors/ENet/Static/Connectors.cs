@@ -49,7 +49,7 @@ namespace Taurus.Connectors
         (
             uint timeoutTime,
             HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
-            ICompressor? compressor
+            ICompressor compressor
         ) => CreateNewENetConnector(timeoutTime, onHandlePeerConnectionAttempt, null, compressor);
 
         /// <summary>
