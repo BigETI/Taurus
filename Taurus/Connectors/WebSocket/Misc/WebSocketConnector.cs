@@ -240,15 +240,16 @@ namespace Taurus.Connectors.WebSocket
         /// Listens to the specified port
         /// </summary>
         /// <param name="port">Port</param>
+        /// <param name="maximalPendingConnectionCount">Maximal pending connection count</param>
         /// <exception cref="ArgumentException">When "port" is zero</exception>
-        public void ListenToPort(ushort port, int backlog)
+        public void ListenToPort(ushort port, int maximalPendingConnectionCount)
         {
             if (port == 0)
             {
                 throw new ArgumentException("Listening port can not be zero.", nameof(port));
             }
             listeningToPort = port;
-            listenerBacklog = backlog;
+            listenerBacklog = maximalPendingConnectionCount;
         }
 
         /// <summary>

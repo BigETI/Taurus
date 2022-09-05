@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
+using Taurus.Validators;
 
 /// <summary>
 /// Taurus connectors ENet namespace
@@ -43,116 +44,149 @@ namespace Taurus.Connectors.ENet
         private volatile bool isConnectorThreadRunning = true;
 
         /// <summary>
+        /// Listening to port
+        /// </summary>
+        private volatile ushort listeningToPort;
+
+        /// <summary>
         /// Buffer
         /// </summary>
         private byte[] buffer = new byte[2048];
 
         /// <summary>
-        /// Host
-        /// </summary>
-        public Host Host { get; }
-
-        /// <summary>
-        /// Timeout time in seconds
+        /// Timeout time in milliseconds
         /// </summary>
         public uint TimeoutTime { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="host">Host</param>
-        /// <param name="timeoutTime">Timeout time in seconds</param>
+        /// <param name="timeoutTime">Timeout time in milliseconds</param>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
         public ENetConnector
         (
-            Host host,
             uint timeoutTime,
             HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
             IFragmenter? fragmenter,
             ICompressor? compressor
         ) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
-            Host = host;
             TimeoutTime = timeoutTime;
             connectorThread = new Thread
             (
                 () =>
                 {
-                    while (isConnectorThreadRunning)
+                    Host host = new Host();
+                    try
                     {
-                        bool has_network_event = true;
-                        if (Host.CheckEvents(out Event network_event) <= 0)
+                        ushort listened_to_port = 0;
+                        while (isConnectorThreadRunning)
                         {
-                            if (Host.Service((int)TimeoutTime, out network_event) <= 0)
+                            ushort listening_to_port = listeningToPort;
+                            if (listened_to_port != listening_to_port)
                             {
-                                has_network_event = false;
-                            }
-                        }
-                        if (has_network_event)
-                        {
-                            IPeer peer;
-                            switch (network_event.Type)
-                            {
-                                case EventType.Connect:
-                                    if (!peerIDToPeerLookup.ContainsKey(network_event.Peer.ID))
-                                    {
-                                        peer = new ENetPeer(new PeerGUID(Guid.NewGuid()), this, network_event.Peer);
-                                        peerIDToPeerLookup.Add(network_event.Peer.ID, peer);
-                                        EnqueuePeerConnectionAttemptedEvent(peer);
-                                    }
-                                    break;
-                                case EventType.Disconnect:
-                                    if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
-                                    {
-                                        EnqueuePeerDisconnectedEvent
-                                        (
-                                            peer,
-                                            Enum.IsDefined(typeof(EDisconnectionReason), network_event.Data) ?
-                                                (EDisconnectionReason)network_event.Data :
-                                                EDisconnectionReason.Invalid
-                                        );
-                                    }
-                                    break;
-                                case EventType.Receive:
-                                    if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
-                                    {
-                                        Packet packet = network_event.Packet;
-                                        if (buffer.Length < packet.Length)
+                                listened_to_port = listening_to_port;
+                                host.Dispose();
+                                host = new Host();
+                                if (listening_to_port == 0)
+                                {
+                                    host.Create(1, 0);
+                                }
+                                else
+                                {
+                                    host.Create
+                                    (
+                                        new Address
                                         {
-                                            buffer =
-                                                new byte[packet.Length / buffer.Length * (((packet.Length % buffer.Length) == 0) ? 1 : 2) * buffer.Length];
-                                        }
-                                        packet.CopyTo(buffer);
-                                        Marshal.Copy(packet.Data, buffer, 0, packet.Length);
-                                        EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, packet.Length));
-                                    }
-                                    break;
-                                case EventType.Timeout:
-                                    if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
-                                    {
-                                        EnqueuePeerDisconnectedEvent(peer, EDisconnectionReason.TimedOut);
-                                    }
-                                    break;
+                                            Port = listening_to_port
+                                        },
+                                        (int)Library.maxPeers,
+                                        0
+                                    );
+                                }
                             }
-                        }
-                        ProcessRequests();
-                        while (connectToENetAddresses.TryDequeue(out Address connect_to_e_net_address))
-                        {
-                            Host.Connect(connect_to_e_net_address);
-                        }
-                        if (disposePackets.Count > 0)
-                        {
-                            Host.Flush();
-                            foreach (Packet packet in disposePackets)
+                            bool has_network_event = true;
+                            if (host.CheckEvents(out Event network_event) <= 0)
                             {
-                                packet.Dispose();
+                                if (host.Service((int)TimeoutTime, out network_event) <= 0)
+                                {
+                                    has_network_event = false;
+                                }
                             }
-                            disposePackets.Clear();
+                            if (has_network_event)
+                            {
+                                IPeer peer;
+                                switch (network_event.Type)
+                                {
+                                    case EventType.Connect:
+                                        if (!peerIDToPeerLookup.ContainsKey(network_event.Peer.ID))
+                                        {
+                                            peer = new ENetPeer(new PeerGUID(Guid.NewGuid()), this, network_event.Peer);
+                                            peerIDToPeerLookup.Add(network_event.Peer.ID, peer);
+                                            EnqueuePeerConnectionAttemptedEvent(peer);
+                                        }
+                                        break;
+                                    case EventType.Disconnect:
+                                        if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
+                                        {
+                                            EnqueuePeerDisconnectedEvent
+                                            (
+                                                peer,
+                                                Enum.IsDefined(typeof(EDisconnectionReason), network_event.Data) ?
+                                                    (EDisconnectionReason)network_event.Data :
+                                                    EDisconnectionReason.Invalid
+                                            );
+                                        }
+                                        break;
+                                    case EventType.Receive:
+                                        if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
+                                        {
+                                            Packet packet = network_event.Packet;
+                                            if (buffer.Length < packet.Length)
+                                            {
+                                                buffer =
+                                                    new byte[packet.Length / buffer.Length * (((packet.Length % buffer.Length) == 0) ? 1 : 2) * buffer.Length];
+                                            }
+                                            packet.CopyTo(buffer);
+                                            Marshal.Copy(packet.Data, buffer, 0, packet.Length);
+                                            EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, packet.Length));
+                                        }
+                                        break;
+                                    case EventType.Timeout:
+                                        if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
+                                        {
+                                            EnqueuePeerDisconnectedEvent(peer, EDisconnectionReason.TimedOut);
+                                        }
+                                        break;
+                                }
+                            }
+                            ProcessRequests();
+                            while (connectToENetAddresses.TryDequeue(out Address connect_to_e_net_address))
+                            {
+                                host.Connect(connect_to_e_net_address);
+                            }
+                            if (disposePackets.Count > 0)
+                            {
+                                host.Flush();
+                                foreach (Packet packet in disposePackets)
+                                {
+                                    packet.Dispose();
+                                }
+                                disposePackets.Clear();
+                            }
                         }
                     }
-                    peerIDToPeerLookup.Clear();
+                    catch
+                    {
+                        throw;
+                    }
+                    finally
+                    {
+                        host.Dispose();
+                        peerIDToPeerLookup.Clear();
+                    }
                 }
             );
             connectorThread.Start();
@@ -232,11 +266,41 @@ namespace Taurus.Connectors.ENet
         }
 
         /// <summary>
+        /// Listens to the specified port
+        /// </summary>
+        /// <param name="port">Port</param>
+        /// <exception cref="ArgumentException">When "port" is zero</exception>
+        public void ListenToPort(ushort port)
+        {
+            if (port == 0)
+            {
+                throw new ArgumentException("Listening port can not be zero.", nameof(port));
+            }
+            listeningToPort = port;
+        }
+
+        /// <summary>
+        /// Stops listening to port
+        /// </summary>
+        public void StopListening() =>
+            listeningToPort = 0;
+
+        /// <summary>
         /// Connects to the specified network
         /// </summary>
-        /// <param name="address">Network address</param>
-        public void ConnectToNetwork(Address address) =>
+        /// <param name="host">Host</param>
+        /// <param name="port">Port</param>
+        public void ConnectToENet(string host, ushort port)
+        {
+            StringValidator.ValidateStringIsNotEmptyOrHasNoWhitespaces(host, nameof(host));
+            Validator.Validate(port, nameof(port), (input) => input > 0);
+            Address address = new Address
+            {
+                Port = port
+            };
+            address.SetHost(host);
             connectToENetAddresses.Enqueue(address);
+        }
 
         /// <summary>
         /// Closes connection to all connected peers in this connector

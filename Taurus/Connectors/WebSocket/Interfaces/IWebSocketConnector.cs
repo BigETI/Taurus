@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿using System;
+
+/// <summary>
 /// Taurus connectors WebSocket namespace
 /// </summary>
 namespace Taurus.Connectors.WebSocket
@@ -8,6 +10,19 @@ namespace Taurus.Connectors.WebSocket
     /// </summary>
     public interface IWebSocketConnector : IConnector
     {
+        /// <summary>
+        /// Listens to the specified port
+        /// </summary>
+        /// <param name="port">Port</param>
+        /// <param name="maximalPendingConnectionCount">Maximal pending connection count</param>
+        /// <exception cref="ArgumentException">When "port" is zero</exception>
+        void ListenToPort(ushort port, int maximalPendingConnectionCount);
+
+        /// <summary>
+        /// Stops listening to port
+        /// </summary>
+        void StopListening();
+
         /// <summary>
         /// Connects to the specified WebSocket
         /// </summary>
