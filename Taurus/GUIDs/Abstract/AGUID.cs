@@ -28,12 +28,26 @@ namespace Taurus.GUIDs
         public virtual bool IsValid => GUIDValidator.IsGUIDValid(GUID);
 
         /// <summary>
-        /// COnstcuts a new GUID
+        /// Constructs a new GUID
         /// </summary>
         /// <param name="guid">GUID</param>
         protected AGUID(Guid guid)
         {
             GUIDValidator.ValidateGUID(guid, nameof(guid));
+            GUID = guid;
+        }
+
+        /// <summary>
+        /// Constructs a new GUID
+        /// </summary>
+        /// <param name="guid">GUID</param>
+        /// <param name="isValidatingGUID">Is validating GUID</param>
+        protected AGUID(Guid guid, bool isValidatingGUID)
+        {
+            if (isValidatingGUID)
+            {
+                GUIDValidator.ValidateGUID(guid, nameof(guid));
+            }
             GUID = guid;
         }
 
