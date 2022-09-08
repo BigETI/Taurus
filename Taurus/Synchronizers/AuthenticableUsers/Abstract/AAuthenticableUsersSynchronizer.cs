@@ -12,20 +12,20 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// </summary>
     /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
     /// <typeparam name="TAuthenticateMessageData">Authenticate message data type</typeparam>
-    /// <typeparam name="TAuthenticationSuccessfulMessageData">Authentication succesful message data type</typeparam>
+    /// <typeparam name="TAuthenticationSucceededMessageData">Authentication succeeded message data type</typeparam>
     /// <typeparam name="TAuthenticationFailedMessageData">Authentication failed message data type</typeparam>
     public abstract class AAuthenticableUsersSynchronizer
     <
         TAuthenticableUser,
         TAuthenticateMessageData,
-        TAuthenticationSuccessfulMessageData,
+        TAuthenticationSucceededMessageData,
         TAuthenticationFailedMessageData
     > :
         ASynchronizer<TAuthenticableUser>,
         IAuthenticableUsersSynchronizer<TAuthenticableUser>
         where TAuthenticableUser : IAuthenticableUser
         where TAuthenticateMessageData : IBaseMessageData
-        where TAuthenticationSuccessfulMessageData : class, IBaseMessageData
+        where TAuthenticationSucceededMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
     {
         /// <summary>
@@ -58,7 +58,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
             (
                 async (authenticableUser, message, _) =>
                 {
-                    IUserAuthenticationResult<TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData> user_authentication_result =
+                    IUserAuthenticationResult<TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData> user_authentication_result =
                         await HandlePeerUserAuthenticationAsync(authenticableUser, message);
                     if (user_authentication_result.IsSuccessful)
                     {
@@ -80,18 +80,18 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <param name="authenticableUser">Authenticable user</param>
         /// <param name="authenticationMessageData">Authentication message data</param>
         /// <returns>User authentication result as a task</returns>
-        protected abstract Task<IUserAuthenticationResult<TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData>>
+        protected abstract Task<IUserAuthenticationResult<TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData>>
             HandlePeerUserAuthenticationAsync(TAuthenticableUser authenticableUser, TAuthenticateMessageData authenticationMessageData);
 
         /// <summary>
         /// Updates the specified authenticated user
         /// </summary>
         /// <param name="authenticatedUser">Authenticated user</param>
-        /// <param name="authenticationSuccessfulMessageData">Authentication successful message data</param>
+        /// <param name="authenticationSucceededMessageData">Authentication succeeded message data</param>
         protected abstract void UpdateAuthenticatedUser
         (
             TAuthenticableUser authenticatedUser,
-            TAuthenticationSuccessfulMessageData authenticationSuccessfulMessageData
+            TAuthenticationSucceededMessageData authenticationSucceededMessageData
         );
 
         /// <summary>
