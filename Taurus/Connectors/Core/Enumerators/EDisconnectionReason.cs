@@ -55,6 +55,11 @@ namespace Taurus.Connectors
         /// <summary>
         /// Lobby has been closed
         /// </summary>
-        LobbyClosed
+        LobbyClosed,
+
+        /// <summary>
+        /// User has been deleted
+        /// </summary>
+        Deleted
     }
 }
