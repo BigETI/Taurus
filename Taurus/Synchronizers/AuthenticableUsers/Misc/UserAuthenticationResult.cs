@@ -10,7 +10,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// </summary>
     /// <typeparam name="TAuthenticationSuccessfulMessageData">Authentication successful message data type</typeparam>
     /// <typeparam name="TAuthenticationFailedMessageData">Authentication failed message data type</typeparam>
-    public class UserAuthenticationResult<TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData> :
+    public sealed class UserAuthenticationResult<TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData> :
         IUserAuthenticationResult<TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData>
         where TAuthenticationSuccessfulMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
@@ -35,7 +35,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// </summary>
         /// <param name="authenticationSuccessfulMessageData">Authentication successful message data</param>
         /// <param name="authenticationFailedMessageData">Authentication failed message data</param>
-        protected UserAuthenticationResult
+        private UserAuthenticationResult
         (
             TAuthenticationSuccessfulMessageData? authenticationSuccessfulMessageData,
             TAuthenticationFailedMessageData? authenticationFailedMessageData

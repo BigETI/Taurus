@@ -9,7 +9,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// A class that describes an user GUID
     /// </summary>
-    public class UserGUID : AGUID<UserGUID>
+    public sealed class UserGUID : AGUID<UserGUID>
     {
         /// <summary>
         /// Constructs a new user GUID

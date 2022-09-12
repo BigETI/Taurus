@@ -8,7 +8,7 @@ namespace Taurus.Connectors.WebSocket
     /// <summary>
     /// A class that describes a WebSocket peer
     /// </summary>
-    internal class WebSocketPeer : APeer, IWebSocketPeer
+    internal sealed class WebSocketPeer : APeer, IWebSocketPeer
     {
         /// <summary>
         /// TCP client

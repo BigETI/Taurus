@@ -12,7 +12,7 @@ namespace Taurus.Promises
     /// A class that describes a promise
     /// </summary>
     /// <typeparam name="TValue">Value type</typeparam>
-    public class Promise<TValue> : IPromise<TValue>
+    public sealed class Promise<TValue> : IPromise<TValue>
     {
         /// <summary>
         /// Is setting promised value unlocked
@@ -72,6 +72,25 @@ namespace Taurus.Promises
         /// Awaited value
         /// </summary>
         public TValue AwaitedValue => AwaitValueTask.GetAwaiter().GetResult();
+
+        /// <summary>
+        /// Constructs a new promise
+        /// </summary>
+        public Promise()
+        {
+            // ...
+        }
+
+        /// <summary>
+        /// Constructs a promise with the specified promised value
+        /// </summary>
+        /// <param name="value">Value</param>
+        public Promise(TValue value)
+        {
+            isSettingValueUnlocked = false;
+            isValueSet = true;
+            this.value = value;
+        }
 
         /// <summary>
         /// Gets an awaited value task

@@ -11,7 +11,7 @@ namespace Taurus.Fragmenters.TaurusFragmenter
     /// <summary>
     /// A class that describes a Taurus defragmenter stream
     /// </summary>
-    internal class TaurusDefragmenterStream : ADefragmenterStream, ITaurusDefragmenterStream
+    internal sealed class TaurusDefragmenterStream : ADefragmenterStream, ITaurusDefragmenterStream
     {
         /// <summary>
         /// Parsed header

@@ -10,7 +10,7 @@ namespace Taurus.Compressors.GZIP
     /// <summary>
     /// A class that describes a Gzip compressor
     /// </summary>
-    internal class GZIPCompressor : ACompressor, IGZIPCompressor
+    internal sealed class GZIPCompressor : ACompressor, IGZIPCompressor
     {
         /// <summary>
         /// Compression level

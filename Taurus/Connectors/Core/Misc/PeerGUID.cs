@@ -9,7 +9,7 @@ namespace Taurus.Connectors
     /// <summary>
     /// A class that describes a peer GUID
     /// </summary>
-    public class PeerGUID : AGUID<PeerGUID>
+    public sealed class PeerGUID : AGUID<PeerGUID>
     {
         /// <summary>
         /// Constructs a new peer GUID

@@ -8,7 +8,7 @@ namespace Taurus.JSONConverters
     /// <summary>
     /// A class used for converting error types to JSON and vice versa
     /// </summary>
-    internal class ErrorTypeJSONConverter : EnumeratorValueJSONConverter<EErrorType>
+    internal sealed class ErrorTypeJSONConverter : AEnumeratorValueJSONConverter<EErrorType>
     {
         /// <summary>
         /// Constructs a new error type JSON converter

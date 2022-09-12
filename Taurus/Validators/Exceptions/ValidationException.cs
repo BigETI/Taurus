@@ -9,7 +9,7 @@ namespace Taurus.Validators
     /// A class that describes a validation exception
     /// </summary>
     /// <typeparam name="TInput">Input type</typeparam>
-    internal class ValidationException<TInput> : Exception
+    public sealed class ValidationException<TInput> : Exception
     {
         /// <summary>
         /// Input

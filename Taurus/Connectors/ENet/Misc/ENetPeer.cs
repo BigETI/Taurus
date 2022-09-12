@@ -9,7 +9,7 @@ namespace Taurus.Connectors.ENet
     /// <summary>
     /// A structure that describes an ENet peer
     /// </summary>
-    internal class ENetPeer : APeer, IENetPeer
+    internal sealed class ENetPeer : APeer, IENetPeer
     {
         /// <summary>
         /// ENet peer

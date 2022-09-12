@@ -9,7 +9,7 @@ namespace Taurus.Compressors
     /// <summary>
     /// A class that describes a no compression compressor
     /// </summary>
-    internal class NoCompressionCompressor : ACompressor, INoCompressionCompressor
+    internal sealed class NoCompressionCompressor : ACompressor, INoCompressionCompressor
     {
         /// <summary>
         /// Copies the specified input stream to the specified output stream

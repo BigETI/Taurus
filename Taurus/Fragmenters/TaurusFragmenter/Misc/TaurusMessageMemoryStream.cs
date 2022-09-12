@@ -8,7 +8,7 @@ namespace Taurus.Fragmenters.TaurusFragmenter
     /// <summary>
     /// A class that describes a Taurus message memory stream
     /// </summary>
-    internal class TaurusMessageMemoryStream : MemoryStream
+    internal sealed class TaurusMessageMemoryStream : MemoryStream
     {
         /// <summary>
         /// Expected length of this stream

@@ -9,7 +9,7 @@ namespace Taurus.Fragmenters
     /// <summary>
     /// A class that describes a no fragmentation fragmenter
     /// </summary>
-    internal class NoFragmentationFragmenter : AFragmenter, INoFragmentationFragmenter
+    internal sealed class NoFragmentationFragmenter : AFragmenter, INoFragmentationFragmenter
     {
         /// <summary>
         /// Fragments the specified message

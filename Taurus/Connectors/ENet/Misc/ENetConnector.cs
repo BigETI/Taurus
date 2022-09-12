@@ -16,7 +16,7 @@ namespace Taurus.Connectors.ENet
     /// <summary>
     /// A class that describes an ENet connector
     /// </summary>
-    internal class ENetConnector : AConnector, IENetConnector
+    internal sealed class ENetConnector : AConnector, IENetConnector
     {
         /// <summary>
         /// Connect to ENet addresses

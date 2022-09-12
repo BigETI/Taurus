@@ -12,7 +12,7 @@ namespace Taurus.Connectors.Local
     /// <summary>
     /// A class that describes a local connector
     /// </summary>
-    internal class LocalConnector : AConnector, ILocalConnector
+    internal sealed class LocalConnector : AConnector, ILocalConnector
     {
         /// <summary>
         /// Connect to local connectors

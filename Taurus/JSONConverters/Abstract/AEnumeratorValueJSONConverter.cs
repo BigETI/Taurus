@@ -9,19 +9,19 @@ namespace Taurus.JSONConverters
     /// <summary>
     /// A class used for converting enumerator values to JSON or BSON and vice versa
     /// </summary>
-    /// <typeparam name="T">Enum type</typeparam>
-    public class EnumeratorValueJSONConverter<T> : JsonConverter where T : struct
+    /// <typeparam name="TEnumerator">Enum type</typeparam>
+    public abstract class AEnumeratorValueJSONConverter<TEnumerator> : JsonConverter where TEnumerator : struct, Enum
     {
         /// <summary>
         /// Default enumerator value
         /// </summary>
-        private readonly T defaultEnumeratorValue;
+        private readonly TEnumerator defaultEnumeratorValue;
 
         /// <summary>
         /// Constructs a new JSON converter for enumerator values
         /// </summary>
         /// <param name="defaultEnumeratorValue">Default enumerator value</param>
-        public EnumeratorValueJSONConverter(T defaultEnumeratorValue) : base() => this.defaultEnumeratorValue = defaultEnumeratorValue;
+        public AEnumeratorValueJSONConverter(TEnumerator defaultEnumeratorValue) : base() => this.defaultEnumeratorValue = defaultEnumeratorValue;
 
         /// <summary>
         /// Is type nullable
@@ -46,7 +46,7 @@ namespace Taurus.JSONConverters
         /// <param name="serializer">JSON serializer</param>
         /// <returns>Read object</returns>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
-            ((reader.TokenType == JsonToken.String) && Enum.TryParse(reader.Value.ToString(), out T enumerator_value)) ?
+            ((reader.TokenType == JsonToken.String) && Enum.TryParse(reader.Value.ToString(), out TEnumerator enumerator_value)) ?
                 enumerator_value :
                 defaultEnumeratorValue;
 

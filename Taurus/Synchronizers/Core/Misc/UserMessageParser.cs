@@ -12,7 +12,7 @@ namespace Taurus.Synchronizers
     /// <typeparam name="TUser">User type</typeparam>
     /// <typeparam name="TSynchronizer">Synchronizer type</typeparam>
     /// <typeparam name="TMessageData">Message data type</typeparam>
-    internal class UserMessageParser<TUser, TMessageData> : IUserMessageParser<TUser, TMessageData>
+    internal sealed class UserMessageParser<TUser, TMessageData> : IUserMessageParser<TUser, TMessageData>
         where TUser : IUser
         where TMessageData : IBaseMessageData
     {

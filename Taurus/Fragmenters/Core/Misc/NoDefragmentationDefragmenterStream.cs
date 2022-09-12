@@ -9,7 +9,7 @@ namespace Taurus.Fragmenters
     /// <summary>
     /// A class that describes a no defragmentation defragmenter
     /// </summary>
-    internal class NoDefragmentationDefragmenterStream : ADefragmenterStream, INoDefragmentationDefragmenterStream
+    internal sealed class NoDefragmentationDefragmenterStream : ADefragmenterStream, INoDefragmentationDefragmenterStream
     {
         /// <summary>
         /// Memory stream

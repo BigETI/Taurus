@@ -8,7 +8,7 @@ namespace Taurus.Connectors.Local
     /// <summary>
     /// A structure that describes a local peer
     /// </summary>
-    internal class LocalPeer : APeer, ILocalPeer
+    internal sealed class LocalPeer : APeer, ILocalPeer
     {
         /// <summary>
         /// Target local connector

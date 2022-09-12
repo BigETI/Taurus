@@ -9,7 +9,7 @@ namespace Taurus.Promises
     /// <summary>
     /// A class that describes an early promised value access exception
     /// </summary>
-    public class EarlyPromisedValueAccessException : Exception
+    public sealed class EarlyPromisedValueAccessException : Exception
     {
         /// <summary>
         /// Constructs a new early promised value access exception
@@ -34,16 +34,6 @@ namespace Taurus.Promises
         /// <param name="message">Message</param>
         /// <param name="innerException">Inner exception</param>
         public EarlyPromisedValueAccessException(string message, Exception innerException) : base(message, innerException)
-        {
-            // ...
-        }
-
-        /// <summary>
-        /// Constructs a new early promised value access exception
-        /// </summary>
-        /// <param name="info">Serialization information</param>
-        /// <param name="context">Streaming context</param>
-        protected EarlyPromisedValueAccessException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
             // ...
         }

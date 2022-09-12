@@ -15,7 +15,7 @@ namespace Taurus.Connectors.WebSocket
     /// <summary>
     /// A class that describes a WebSocket connector
     /// </summary>
-    internal class WebSocketConnector : AConnector, IWebSocketConnector
+    internal sealed class WebSocketConnector : AConnector, IWebSocketConnector
     {
         /// <summary>
         /// Default fragmenter

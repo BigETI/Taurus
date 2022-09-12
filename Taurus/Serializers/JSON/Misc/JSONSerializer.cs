@@ -10,7 +10,7 @@ namespace Taurus.Serializers.JSON
     /// <summary>
     /// A class that describes a JSON serializer
     /// </summary>
-    public class JSONSerializer : ASerializer, IJSONSerializer
+    internal sealed class JSONSerializer : ASerializer, IJSONSerializer
     {
         /// <summary>
         /// JSON serializer

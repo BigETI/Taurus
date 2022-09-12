@@ -10,7 +10,7 @@ namespace Taurus.Fragmenters.TaurusFragmenter
     /// <summary>
     /// A class that describes a Taurus fragmenter
     /// </summary>
-    internal class TaurusFragmenter : AFragmenter, ITaurusFragmenter
+    internal sealed class TaurusFragmenter : AFragmenter, ITaurusFragmenter
     {
         /// <summary>
         /// Header "tAURUS\r\n"
