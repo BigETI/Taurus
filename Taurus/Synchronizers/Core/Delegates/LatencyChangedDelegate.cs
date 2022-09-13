@@ -10,5 +10,5 @@ namespace Taurus.Synchronizers
     /// </summary>
     /// <param name="oldLatency">Old latency</param>
     /// <param name="newLatency">New latency</param>
-    public delegate void LatencyChangedDelegate(TimeSpan oldLatency, TimeSpan newLatency);
+    public delegate void LatencyChangedDelegate(ILatency oldLatency, ILatency newLatency);
 }

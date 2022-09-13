@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Taurus.Connectors;
 using Taurus.Serializers;
@@ -17,6 +18,11 @@ namespace Taurus.Synchronizers
     public abstract class AUser : IUser
     {
         /// <summary>
+        /// Maximal measured latency time sample count
+        /// </summary>
+        private static readonly uint maximalMeasuredLatencyTimeSampleCount = 8U;
+
+        /// <summary>
         /// Awaiting pong message keys
         /// </summary>
         private readonly ConcurrentDictionary<int, DateTimeOffset> awaitingPongMessageKeys = new ConcurrentDictionary<int, DateTimeOffset>();
@@ -24,7 +30,12 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Latency
         /// </summary>
-        private TimeSpan latency = TimeSpan.MaxValue;
+        private ILatency latency = Synchronizers.Latency.MaximalLatency;
+
+        /// <summary>
+        /// Measured latency time samples
+        /// </summary>
+        private List<TimeSpan> measuredLatencyTimeSamples = new List<TimeSpan>();
 
         /// <summary>
         /// User GUID
@@ -44,14 +55,14 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Latency
         /// </summary>
-        public TimeSpan Latency
+        public ILatency Latency
         {
             get => latency;
             set
             {
                 if (latency != value)
                 {
-                    TimeSpan old_latency = latency;
+                    ILatency old_latency = latency;
                     latency = value;
                     OnLatencyChanged?.Invoke(old_latency, latency);
                 }
@@ -164,7 +175,37 @@ namespace Taurus.Synchronizers
             bool ret = awaitingPongMessageKeys.TryRemove(key, out DateTimeOffset ping_date_time_offset);
             if (ret)
             {
-                Latency = DateTimeOffset.Now - ping_date_time_offset;
+                // TODO: Calculate latency jitter using latency time samples
+                TimeSpan latency_time = DateTimeOffset.Now - ping_date_time_offset;
+                TimeSpan latency_times_jitter;
+                while (measuredLatencyTimeSamples.Count >= maximalMeasuredLatencyTimeSampleCount)
+                {
+                    measuredLatencyTimeSamples.RemoveAt(0);
+                }
+                measuredLatencyTimeSamples.Add(latency_time);
+                if (measuredLatencyTimeSamples.Count > 1)
+                {
+                    TimeSpan minimal_latency_time = measuredLatencyTimeSamples[0];
+                    TimeSpan maximal_latency_time = minimal_latency_time;
+                    for (int measured_latency_time_sample_index = 1; measured_latency_time_sample_index < measuredLatencyTimeSamples.Count; measured_latency_time_sample_index++)
+                    {
+                        TimeSpan measured_latency_time_sample = measuredLatencyTimeSamples[measured_latency_time_sample_index];
+                        if (minimal_latency_time > measured_latency_time_sample)
+                        {
+                            minimal_latency_time = measured_latency_time_sample;
+                        }
+                        if (maximal_latency_time < measured_latency_time_sample)
+                        {
+                            maximal_latency_time = measured_latency_time_sample;
+                        }
+                    }
+                    latency_times_jitter = maximal_latency_time - minimal_latency_time;
+                }
+                else
+                {
+                    latency_times_jitter = latency_time;
+                }
+                Latency = new Latency(latency_time, latency_times_jitter);
             }
             return ret;
         }

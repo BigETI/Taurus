@@ -31,7 +31,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Latency
         /// </summary>
-        TimeSpan Latency { get; }
+        ILatency Latency { get; }
 
         /// <summary>
         /// Gets invoked when latency has changed

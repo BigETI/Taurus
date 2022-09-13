@@ -1,6 +1,4 @@
-﻿using System;
-
-/// <summary>
+﻿/// <summary>
 /// Taurus synchronizers namespace
 /// </summary>
 namespace Taurus.Synchronizers
@@ -12,5 +10,5 @@ namespace Taurus.Synchronizers
     /// <param name="user">Sending user</param>
     /// <param name="key">Key</param>
     /// <param name="latency">Latency</param>
-    public delegate void UserPongMessageReceivedDelegate<TUser>(TUser user, int key, TimeSpan latency) where TUser : IUser;
+    public delegate void UserPongMessageReceivedDelegate<TUser>(TUser user, int key, ILatency latency) where TUser : IUser;
 }
