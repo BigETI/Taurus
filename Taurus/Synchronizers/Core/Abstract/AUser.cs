@@ -175,9 +175,9 @@ namespace Taurus.Synchronizers
             bool ret = awaitingPongMessageKeys.TryRemove(key, out DateTimeOffset ping_date_time_offset);
             if (ret)
             {
-                // TODO: Calculate latency jitter using latency time samples
                 TimeSpan latency_time = DateTimeOffset.Now - ping_date_time_offset;
-                TimeSpan latency_times_jitter;
+                TimeSpan average_latency_time;
+                TimeSpan measured_latency_time_samples_jitter;
                 while (measuredLatencyTimeSamples.Count >= maximalMeasuredLatencyTimeSampleCount)
                 {
                     measuredLatencyTimeSamples.RemoveAt(0);
@@ -187,6 +187,7 @@ namespace Taurus.Synchronizers
                 {
                     TimeSpan minimal_latency_time = measuredLatencyTimeSamples[0];
                     TimeSpan maximal_latency_time = minimal_latency_time;
+                    average_latency_time = minimal_latency_time;
                     for (int measured_latency_time_sample_index = 1; measured_latency_time_sample_index < measuredLatencyTimeSamples.Count; measured_latency_time_sample_index++)
                     {
                         TimeSpan measured_latency_time_sample = measuredLatencyTimeSamples[measured_latency_time_sample_index];
@@ -198,14 +199,17 @@ namespace Taurus.Synchronizers
                         {
                             maximal_latency_time = measured_latency_time_sample;
                         }
+                        average_latency_time += measured_latency_time_sample;
                     }
-                    latency_times_jitter = maximal_latency_time - minimal_latency_time;
+                    average_latency_time /= measuredLatencyTimeSamples.Count;
+                    measured_latency_time_samples_jitter = (maximal_latency_time - minimal_latency_time) * 0.5;
                 }
                 else
                 {
-                    latency_times_jitter = latency_time;
+                    average_latency_time = latency_time;
+                    measured_latency_time_samples_jitter = latency_time;
                 }
-                Latency = new Latency(latency_time, latency_times_jitter);
+                Latency = new Latency(average_latency_time, measured_latency_time_samples_jitter);
             }
             return ret;
         }
