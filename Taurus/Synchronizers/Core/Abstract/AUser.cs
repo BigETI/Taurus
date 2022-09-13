@@ -22,6 +22,11 @@ namespace Taurus.Synchronizers
         private readonly ConcurrentDictionary<int, DateTimeOffset> awaitingPongMessageKeys = new ConcurrentDictionary<int, DateTimeOffset>();
 
         /// <summary>
+        /// Latency
+        /// </summary>
+        private TimeSpan latency = TimeSpan.MaxValue;
+
+        /// <summary>
         /// User GUID
         /// </summary>
         public UserGUID UserGUID { get; }
@@ -39,7 +44,24 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Latency
         /// </summary>
-        public TimeSpan Latency { get; private set; } = TimeSpan.MaxValue;
+        public TimeSpan Latency
+        {
+            get => latency;
+            set
+            {
+                if (latency != value)
+                {
+                    TimeSpan old_latency = latency;
+                    latency = value;
+                    OnLatencyChanged?.Invoke(old_latency, latency);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets invoked when latency has changed
+        /// </summary>
+        public event LatencyChangedDelegate? OnLatencyChanged;
 
         /// <summary>
         /// Constructs a new user

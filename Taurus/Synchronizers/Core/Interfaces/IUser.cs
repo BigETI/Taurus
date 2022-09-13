@@ -34,6 +34,11 @@ namespace Taurus.Synchronizers
         TimeSpan Latency { get; }
 
         /// <summary>
+        /// Gets invoked when latency has changed
+        /// </summary>
+        event LatencyChangedDelegate? OnLatencyChanged;
+
+        /// <summary>
         /// Sends a message to this user asynchronously
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>

@@ -6,9 +6,11 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// <summary>
     /// An interface that represents an user authentication result
     /// </summary>
+    /// <typeparam name="TAuthenticatedUserInformation">AUthenticated user information</typeparam>
     /// <typeparam name="TAuthenticationSuccessfulMessageData">Authentication successful message data type</typeparam>
     /// <typeparam name="TAuthenticationFailedMessageData">Authentication failed message data type</typeparam>
-    public interface IUserAuthenticationResult<TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData>
+    public interface IUserAuthenticationResult<TAuthenticatedUserInformation, TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData>
+        where TAuthenticatedUserInformation : class
         where TAuthenticationSuccessfulMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
     {
@@ -16,6 +18,11 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// Is user authentication successful
         /// </summary>
         bool IsSuccessful { get; }
+
+        /// <summary>
+        /// Authenticated user information
+        /// </summary>
+        public TAuthenticatedUserInformation? AuthenticatedUserInformation { get; }
 
         /// <summary>
         /// Authentication successful message data

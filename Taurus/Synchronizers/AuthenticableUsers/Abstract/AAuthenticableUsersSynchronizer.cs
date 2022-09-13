@@ -12,12 +12,14 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// </summary>
     /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
     /// <typeparam name="TAuthenticateMessageData">Authenticate message data type</typeparam>
+    /// <typeparam name="TAuthenticatedUserInformation">Authenticated user information type</typeparam>
     /// <typeparam name="TAuthenticationSucceededMessageData">Authentication succeeded message data type</typeparam>
     /// <typeparam name="TAuthenticationFailedMessageData">Authentication failed message data type</typeparam>
     public abstract class AAuthenticableUsersSynchronizer
     <
         TAuthenticableUser,
         TAuthenticateMessageData,
+        TAuthenticatedUserInformation,
         TAuthenticationSucceededMessageData,
         TAuthenticationFailedMessageData
     > :
@@ -25,13 +27,15 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         IAuthenticableUsersSynchronizer<TAuthenticableUser>
         where TAuthenticableUser : IAuthenticableUser
         where TAuthenticateMessageData : IBaseMessageData
+        where TAuthenticatedUserInformation : class
         where TAuthenticationSucceededMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
     {
         /// <summary>
         /// User authenticated events
         /// </summary>
-        private readonly ConcurrentQueue<TAuthenticableUser> userAuthenticatedEvents = new ConcurrentQueue<TAuthenticableUser>();
+        private readonly ConcurrentQueue<(TAuthenticableUser AuthenticableUser, TAuthenticatedUserInformation AuthenticatedUserInformation)> userAuthenticatedEvents =
+            new ConcurrentQueue<(TAuthenticableUser AuthenticableUser, TAuthenticatedUserInformation AuthenticatedUserInformation)>();
 
         /// <summary>
         /// User authentication failed events
@@ -58,11 +62,11 @@ namespace Taurus.Synchronizers.AuthenticableUsers
             (
                 async (authenticableUser, message, _) =>
                 {
-                    IUserAuthenticationResult<TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData> user_authentication_result =
+                    IUserAuthenticationResult<TAuthenticatedUserInformation, TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData> user_authentication_result =
                         await HandlePeerUserAuthenticationAsync(authenticableUser, message);
                     if (user_authentication_result.IsSuccessful)
                     {
-                        userAuthenticatedEvents.Enqueue(authenticableUser);
+                        userAuthenticatedEvents.Enqueue((authenticableUser, user_authentication_result.AuthenticatedUserInformation!));
                         await authenticableUser.SendMessageAsync(user_authentication_result.AuthenticationSuccessfulMessageData!);
                     }
                     else
@@ -78,20 +82,20 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// Handles peer user authentication asynchronously
         /// </summary>
         /// <param name="authenticableUser">Authenticable user</param>
-        /// <param name="authenticationMessageData">Authentication message data</param>
+        /// <param name="authenticateMessageData">Authenticate message data</param>
         /// <returns>User authentication result as a task</returns>
-        protected abstract Task<IUserAuthenticationResult<TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData>>
-            HandlePeerUserAuthenticationAsync(TAuthenticableUser authenticableUser, TAuthenticateMessageData authenticationMessageData);
+        protected abstract Task<IUserAuthenticationResult<TAuthenticatedUserInformation, TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData>>
+            HandlePeerUserAuthenticationAsync(TAuthenticableUser authenticableUser, TAuthenticateMessageData authenticateMessageData);
 
         /// <summary>
         /// Updates the specified authenticated user
         /// </summary>
         /// <param name="authenticatedUser">Authenticated user</param>
-        /// <param name="authenticationSucceededMessageData">Authentication succeeded message data</param>
+        /// <param name="authenticatedUserInformation">Authenticated user information</param>
         protected abstract void UpdateAuthenticatedUser
         (
             TAuthenticableUser authenticatedUser,
-            TAuthenticationSucceededMessageData authenticationSucceededMessageData
+            TAuthenticatedUserInformation authenticatedUserInformation
         );
 
         /// <summary>
@@ -130,12 +134,13 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         public override void ProcessEvents()
         {
             base.ProcessEvents();
-            while (userAuthenticatedEvents.TryDequeue(out TAuthenticableUser user))
+            while (userAuthenticatedEvents.TryDequeue(out (TAuthenticableUser AuthenticableUser, TAuthenticatedUserInformation AuthenticatedUserInformation) user))
             {
-                if (!user.IsAuthenticated)
+                if (!user.AuthenticableUser.IsAuthenticated)
                 {
-                    user.FlagAsAuthenticated();
-                    OnUserAuthenticated?.Invoke(user);
+                    user.AuthenticableUser.FlagAsAuthenticated();
+                    UpdateAuthenticatedUser(user.AuthenticableUser, user.AuthenticatedUserInformation);
+                    OnUserAuthenticated?.Invoke(user.AuthenticableUser);
                 }
             }
             if (OnUserAuthenticationFailed == null)
