@@ -15,7 +15,7 @@ namespace Taurus.Synchronizers
         /// Zero latency
         /// </summary>
         public static Latency Zero { get; } = new Latency(TimeSpan.Zero, TimeSpan.Zero);
-        
+
         /// <summary>
         /// Maximal latency
         /// </summary>

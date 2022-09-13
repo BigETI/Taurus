@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
 /// <summary>
 /// Taurus promises namespace

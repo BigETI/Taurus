@@ -1,6 +1,4 @@
-﻿using ENet;
-
-/// <summary>
+﻿/// <summary>
 /// Taurus connectors ENet namespace
 /// </summary>
 namespace Taurus.Connectors.ENet

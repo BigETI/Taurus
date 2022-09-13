@@ -1,6 +1,4 @@
-﻿using System;
-
-/// <summary>
+﻿/// <summary>
 /// Taurus synchronizers namespace
 /// </summary>
 namespace Taurus.Synchronizers

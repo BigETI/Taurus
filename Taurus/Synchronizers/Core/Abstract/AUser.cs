@@ -28,14 +28,14 @@ namespace Taurus.Synchronizers
         private readonly ConcurrentDictionary<int, DateTimeOffset> awaitingPongMessageKeys = new ConcurrentDictionary<int, DateTimeOffset>();
 
         /// <summary>
+        /// Measured latency time samples
+        /// </summary>
+        private readonly List<TimeSpan> measuredLatencyTimeSamples = new List<TimeSpan>();
+
+        /// <summary>
         /// Latency
         /// </summary>
         private ILatency latency = Synchronizers.Latency.MaximalLatency;
-
-        /// <summary>
-        /// Measured latency time samples
-        /// </summary>
-        private List<TimeSpan> measuredLatencyTimeSamples = new List<TimeSpan>();
 
         /// <summary>
         /// User GUID

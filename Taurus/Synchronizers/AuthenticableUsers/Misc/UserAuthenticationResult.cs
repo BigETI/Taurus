@@ -1,5 +1,4 @@
-﻿using System;
-using Taurus.Validators;
+﻿using Taurus.Validators;
 
 /// <summary>
 /// Taurus synchronizers authenticable users namespace
