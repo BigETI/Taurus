@@ -9,7 +9,7 @@ namespace Taurus.Synchronizers
     /// <summary>
     /// A class that describes a latency
     /// </summary>
-    public sealed class Latency : ILatency
+    public sealed class Latency
     {
         /// <summary>
         /// Zero latency
@@ -48,6 +48,35 @@ namespace Taurus.Synchronizers
         /// Gets the string representation of this object
         /// </summary>
         /// <returns>String representation of this object</returns>
-        public override string ToString() => $"{ Math.Round(Time.TotalMilliseconds) } ms ± { Math.Round(Jitter.TotalMilliseconds) } ms";
+        public override string ToString() => $"{ Math.Round(Time.TotalMilliseconds) } ms ±{ Math.Round(Jitter.TotalMilliseconds) } ms";
+
+        /// <summary>
+        /// Is the specified object equivalent to this object
+        /// </summary>
+        /// <param name="obj">Object</param>
+        /// <returns>"true" if the specified object is equivalent to this object</returns>
+        public override bool Equals(object? obj) => (obj is Latency latency) && (Time == latency.Time) && (Jitter == latency.Jitter);
+
+        /// <summary>
+        /// Gets the hash coe of this object
+        /// </summary>
+        /// <returns>Hash code of this object</returns>
+        public override int GetHashCode() => HashCode.Combine(Time, Jitter);
+
+        /// <summary>
+        /// Are the specified latencies equivalent
+        /// </summary>
+        /// <param name="left">Left latency</param>
+        /// <param name="right">Right latency</param>
+        /// <returns>"true" if the specified latencies are equivalent, otherwise "false"</returns>
+        public static bool operator ==(Latency left, Latency right) => (left.Time == right.Time) && (left.Jitter == right.Jitter);
+
+        /// <summary>
+        /// Are the specified latencies not equivalent
+        /// </summary>
+        /// <param name="left">Left latency</param>
+        /// <param name="right">Right latency</param>
+        /// <returns>"true" if the specified latencies are not equivalent, otherwise "false"</returns>
+        public static bool operator !=(Latency left, Latency right) => (left.Time != right.Time) || (left.Jitter != right.Jitter);
     }
 }

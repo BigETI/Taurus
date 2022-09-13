@@ -35,7 +35,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Latency
         /// </summary>
-        private ILatency latency = Synchronizers.Latency.MaximalLatency;
+        private Latency latency = Latency.MaximalLatency;
 
         /// <summary>
         /// User GUID
@@ -55,14 +55,14 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Latency
         /// </summary>
-        public ILatency Latency
+        public Latency Latency
         {
             get => latency;
             set
             {
                 if (latency != value)
                 {
-                    ILatency old_latency = latency;
+                    Latency old_latency = latency;
                     latency = value;
                     OnLatencyChanged?.Invoke(old_latency, latency);
                 }
