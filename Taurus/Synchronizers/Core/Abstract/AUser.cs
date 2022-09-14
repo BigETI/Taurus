@@ -209,7 +209,7 @@ namespace Taurus.Synchronizers
                     average_latency_time = latency_time;
                     measured_latency_time_samples_jitter = latency_time;
                 }
-                Latency = new Latency(average_latency_time, measured_latency_time_samples_jitter);
+                Latency = Latency.GetOrCreate(average_latency_time, measured_latency_time_samples_jitter);
             }
             return ret;
         }

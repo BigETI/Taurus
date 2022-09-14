@@ -36,13 +36,28 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="time">Time</param>
         /// <param name="jitter">Jitter</param>
-        public Latency(TimeSpan time, TimeSpan jitter)
+        private Latency(TimeSpan time, TimeSpan jitter)
         {
             Validator.Validate(time, nameof(time), (input) => input >= TimeSpan.Zero);
             Validator.Validate(jitter, nameof(jitter), (input) => input >= TimeSpan.Zero);
             Time = time;
             Jitter = jitter;
         }
+
+        /// <summary>
+        /// Gets or creates a latency from the specified time and jitter
+        /// </summary>
+        /// <param name="time">Time</param>
+        /// <param name="jitter">Jitter</param>
+        /// <returns>Latency</returns>
+        public static Latency GetOrCreate(TimeSpan time, TimeSpan jitter) =>
+            ((time == TimeSpan.Zero) && (jitter == TimeSpan.Zero)) ?
+                Zero :
+                (
+                    ((time == TimeSpan.MaxValue) && (jitter == TimeSpan.Zero)) ?
+                        MaximalLatency :
+                        new Latency(time, jitter)
+                );
 
         /// <summary>
         /// Gets the string representation of this object
