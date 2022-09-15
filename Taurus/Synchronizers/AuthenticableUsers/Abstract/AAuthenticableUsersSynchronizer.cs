@@ -225,12 +225,12 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// Adds a new automatic user message parser that is fatal on validation fail or error
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
-        /// <param name="onPeerMessageParsed">Gets invoked when a peer message has been parsed</param>
+        /// <param name="onAuthenticatedUserMessageParsed">Gets invoked when an authenticated user message has been parsed</param>
         /// <returns>Message parser</returns>
         public IUserMessageParser<TAuthenticableUser, TMessageData> AddNewAutomaticAuthenticatedUserMessageParserWithFatality<TMessageData>
         (
-            UserMessageParsedDelegate<TAuthenticableUser, TMessageData> onPeerMessageParsed
+            UserMessageParsedDelegate<TAuthenticableUser, TMessageData> onAuthenticatedUserMessageParsed
         ) where TMessageData : IBaseMessageData =>
-            AddNewAutomaticAuthenticatedUserMessageParser(onPeerMessageParsed, true);
+            AddNewAutomaticAuthenticatedUserMessageParser(onAuthenticatedUserMessageParsed, true);
     }
 }

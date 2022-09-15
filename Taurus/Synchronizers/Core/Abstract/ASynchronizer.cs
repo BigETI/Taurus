@@ -463,7 +463,8 @@ namespace Taurus.Synchronizers
             UserMessageParseFailedDelegate<TUser> onUserMessageParseFailed
         ) where TMessageData : IBaseMessageData
         {
-            IUserMessageParser<TUser, TMessageData> ret = new UserMessageParser<TUser, TMessageData>(Serializer, onUserMessageParsed, onUserMessageValidationFailed, onUserMessageParseFailed);
+            IUserMessageParser<TUser, TMessageData> ret =
+                new UserMessageParser<TUser, TMessageData>(Serializer, onUserMessageParsed, onUserMessageValidationFailed, onUserMessageParseFailed);
             if (!userMessageParsers.TryGetValue(ret.MessageType, out List<IBaseUserMessageParser<TUser>> message_parsers))
             {
                 message_parsers = new List<IBaseUserMessageParser<TUser>>();
