@@ -28,23 +28,8 @@ namespace Taurus.Validators
         /// <param name="enumerators">Enumerators</param>
         /// <param name="invalidEnumerator">Invalid enumerator</param>
         /// <returns>"true" if the specified enumerators are valid, otherwise "false"</returns>
-        public static bool AreEnumeratorsValid<TEnumerator>(IEnumerable<TEnumerator>? enumerators, TEnumerator invalidEnumerator) where TEnumerator : Enum
-        {
-            bool ret = false;
-            if (enumerators != null)
-            {
-                ret = true;
-                foreach (TEnumerator enumerator in enumerators)
-                {
-                    if (IsEnumeratorValid(enumerator, invalidEnumerator))
-                    {
-                        ret = false;
-                        break;
-                    }
-                }
-            }
-            return ret;
-        }
+        public static bool AreEnumeratorsValid<TEnumerator>(IEnumerable<TEnumerator>? enumerators, TEnumerator invalidEnumerator) where TEnumerator : Enum =>
+            Validator.IsCollectionValid(enumerators, (enumerator) => IsEnumeratorValid(enumerator, invalidEnumerator));
 
         /// <summary>
         /// Validates the specified enumerator
@@ -68,6 +53,6 @@ namespace Taurus.Validators
         /// <exception cref="ValidationException{IEnumerable{TEnumerator}?}">When the specified enumerator is not valid</exception>
         public static void ValidateEnumerators<TEnumerator>(IEnumerable<TEnumerator>? enumerators, TEnumerator invalidEnumerator, string parameterName)
             where TEnumerator : Enum =>
-            Validator.Validate(enumerators, parameterName, (input) => AreEnumeratorsValid(input, invalidEnumerator));
+            Validator.ValidateCollection(enumerators, parameterName, (enumerator) => IsEnumeratorValid(enumerator, invalidEnumerator));
     }
 }

@@ -39,18 +39,23 @@ namespace Taurus.Validators
         /// <summary>
         /// Is the spcified collection valid
         /// </summary>
-        /// <typeparam name="TValidable">Validable type</typeparam>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
         /// <param name="collection">Collection</param>
+        /// <param name="onValidateCollectionElement">Gets invoked when a collection element needs to be validated</param>
         /// <returns>"true" if the specified collection is valid, otherwise "false"</returns>
-        public static bool IsCollectionValid<TValidable>(IEnumerable<TValidable?>? collection) where TValidable : class, IValidable
+        public static bool IsCollectionValid<TCollectionElement>
+        (
+            IEnumerable<TCollectionElement>? collection,
+            ValidateDelegate<TCollectionElement> onValidateCollectionElement
+        )
         {
             bool ret = false;
             if (collection != null)
             {
                 ret = true;
-                foreach (TValidable? validable in collection)
+                foreach (TCollectionElement collection_element in collection)
                 {
-                    if (!IsValid(validable))
+                    if (!onValidateCollectionElement(collection_element))
                     {
                         ret = false;
                         break;
@@ -59,6 +64,24 @@ namespace Taurus.Validators
             }
             return ret;
         }
+
+        /// <summary>
+        /// Is the spcified collection not null
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Validable type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <returns>"true" if the specified collection is not null, otherwise "false"</returns>
+        public static bool IsCollectionNotNull<TCollectionElement>(IEnumerable<TCollectionElement>? collection) =>
+            IsCollectionValid(collection, (collectionElement) => collectionElement != null);
+        
+        /// <summary>
+        /// Is the spcified collection valid
+        /// </summary>
+        /// <typeparam name="TValidable">Validable type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <returns>"true" if the specified collection is valid, otherwise "false"</returns>
+        public static bool IsCollectionValid<TValidable>(IEnumerable<TValidable?>? collection) where TValidable : class, IValidable =>
+            IsCollectionValid(collection, (collectionElement) => IsValid(collectionElement));
 
         /// <summary>
         /// Validates the specified input
@@ -98,12 +121,45 @@ namespace Taurus.Validators
         /// <summary>
         /// Validates the specified collection
         /// </summary>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <param name="parameterName">Parameter name</param>
+        /// <param name="onValidateCollectionElement">GEts invoked when accollection element needs to be validated</param>
+        /// <exception cref="ValidationException{IEnumerable{Validable?}?}">When the specified collection is not valid</exception>
+        public static void ValidateCollection<TCollectionElement>
+        (
+            IEnumerable<TCollectionElement>? collection,
+            string parameterName,
+            ValidateDelegate<TCollectionElement> onValidateCollectionElement
+        )
+        {
+            ValidateIsNotNull(collection, parameterName);
+            foreach (TCollectionElement collection_element in collection!)
+            {
+                Validate(collection_element, parameterName, onValidateCollectionElement);
+            }
+        }
+
+        /// <summary>
+        /// Validates the specified collectionthat it is not null
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Validable type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <param name="parameterName">Parameter name</param>
+        /// <exception cref="ValidationException{IEnumerable{Validable?}?}">When the specified collection is not valid</exception>
+        public static void ValidateCollectionIsNotNull<TCollectionElement>(IEnumerable<TCollectionElement?>? collection, string parameterName)
+            where TCollectionElement : class, IValidable =>
+            ValidateCollection(collection, parameterName, IsNotNull);
+
+        /// <summary>
+        /// Validates the specified collection
+        /// </summary>
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <param name="parameterName">Parameter name</param>
         /// <exception cref="ValidationException{IEnumerable{Validable?}?}">When the specified collection is not valid</exception>
         public static void ValidateCollection<TValidable>(IEnumerable<TValidable?>? collection, string parameterName)
             where TValidable : class, IValidable =>
-            Validate(collection, parameterName, IsCollectionValid);
+            ValidateCollection(collection, parameterName, IsValid);
     }
 }

@@ -23,23 +23,8 @@ namespace Taurus.Validators
         /// </summary>
         /// <param name="strings">Strings</param>
         /// <returns>"true" if the specified strings are not empty or have no whitespaces, otherwise "false"</returns>
-        public static bool AreStringsNotEmptyOrHaveNoWhitespaces(IEnumerable<string?>? strings)
-        {
-            bool ret = false;
-            if (strings != null)
-            {
-                ret = true;
-                foreach (string? string_value in strings)
-                {
-                    if (IsStringNotEmptyOrHasNoWhitespaces(string_value))
-                    {
-                        ret = false;
-                        break;
-                    }
-                }
-            }
-            return ret;
-        }
+        public static bool AreStringsNotEmptyOrHaveNoWhitespaces(IEnumerable<string?>? strings) =>
+            Validator.IsCollectionValid(strings, IsStringNotEmptyOrHasNoWhitespaces);
 
         /// <summary>
         /// Validates that the specified string is not empty or has no whitespaces
@@ -57,6 +42,6 @@ namespace Taurus.Validators
         /// <param name="parameterName">Parameter name</param>
         /// <exception cref="ValidationException{IEnumerable{string?}?}">When the specified strings are not empty or have no whitespaces</exception>
         public static void ValidateStringsAreNotEmptyOrHaveNoWhitespaces(IEnumerable<string?>? strings, string parameterName) =>
-            Validator.Validate(strings, parameterName, AreStringsNotEmptyOrHaveNoWhitespaces);
+            Validator.ValidateCollection(strings, parameterName, IsStringNotEmptyOrHasNoWhitespaces);
     }
 }
