@@ -28,7 +28,7 @@ namespace Taurus.Validators
         public static bool IsValid<TInput>(TInput input, ValidateDelegate<TInput> onValidate) => onValidate(input);
 
         /// <summary>
-        /// Is the spcified validable valid
+        /// Is the specified validable valid
         /// </summary>
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="validable">Validable</param>
@@ -37,7 +37,7 @@ namespace Taurus.Validators
             (validable != null) && validable.IsValid;
 
         /// <summary>
-        /// Is the spcified collection valid
+        /// Is the specified collection valid
         /// </summary>
         /// <typeparam name="TCollectionElement">Collection element type</typeparam>
         /// <param name="collection">Collection</param>
@@ -66,22 +66,116 @@ namespace Taurus.Validators
         }
 
         /// <summary>
-        /// Is the spcified collection not null
+        /// Is the specified collection not null
         /// </summary>
         /// <typeparam name="TCollectionElement">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <returns>"true" if the specified collection is not null, otherwise "false"</returns>
         public static bool IsCollectionNotNull<TCollectionElement>(IEnumerable<TCollectionElement>? collection) =>
             IsCollectionValid(collection, (collectionElement) => collectionElement != null);
-        
+
         /// <summary>
-        /// Is the spcified collection valid
+        /// Is the specified collection valid
         /// </summary>
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <returns>"true" if the specified collection is valid, otherwise "false"</returns>
         public static bool IsCollectionValid<TValidable>(IEnumerable<TValidable?>? collection) where TValidable : class, IValidable =>
             IsCollectionValid(collection, (collectionElement) => IsValid(collectionElement));
+
+        /// <summary>
+        /// Is the specified element contained inside the specified collection
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <param name="collectionElement">Collection element</param>
+        /// <returns>"true" if the specified collection element is contained inside the specified collection, otherwise "false"</returns>
+        public static bool IsElementContainedInCollection<TCollectionElement>(IEnumerable<TCollectionElement>? collection, TCollectionElement collectionElement)
+        {
+            bool ret = false;
+            if (collection != null)
+            {
+                foreach (TCollectionElement collection_element in collection)
+                {
+                    if (Equals(collectionElement, collection_element))
+                    {
+                        ret = true;
+                        break;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Is the specified collection valid and all of its elements unique
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <returns>"true" if the specified collection is valid, otherwise "false"</returns>
+        public static bool AreAllCollectionElementsUnique<TCollectionElement>(IEnumerable<TCollectionElement>? collection) =>
+            IsCollectionValid
+            (
+                collection,
+                (collectionElement) =>
+                {
+                    bool ret = true;
+                    bool is_no_first_entry_found = true;
+                    foreach (TCollectionElement collection_element in collection!)
+                    {
+                        if (Equals(collectionElement, collection_element))
+                        {
+                            if (is_no_first_entry_found)
+                            {
+                                is_no_first_entry_found = false;
+                            }
+                            else
+                            {
+                                ret = false;
+                                break;
+                            }
+                        }
+                    }
+                    return ret;
+                }
+            );
+
+        /// <summary>
+        /// Is the specified collection valid and all of its elements unique
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <returns>"true" if the specified collection is valid, otherwise "false"</returns>
+        public static bool IsCollectionValidAndAllElementsUnique<TCollectionElement>(IEnumerable<TCollectionElement?>? collection)
+            where TCollectionElement : class, IValidable =>
+            IsCollectionValid
+            (
+                collection,
+                (collectionElement) =>
+                {
+                    bool ret = IsValid(collectionElement);
+                    if (ret)
+                    {
+                        bool is_no_first_entry_found = true;
+                        foreach (TCollectionElement? collection_element in collection!)
+                        {
+                            if (Equals(collectionElement, collection_element))
+                            {
+                                if (is_no_first_entry_found)
+                                {
+                                    is_no_first_entry_found = false;
+                                }
+                                else
+                                {
+                                    ret = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    return ret;
+                }
+            );
 
         /// <summary>
         /// Validates the specified input
@@ -147,8 +241,7 @@ namespace Taurus.Validators
         /// <param name="collection">Collection</param>
         /// <param name="parameterName">Parameter name</param>
         /// <exception cref="ValidationException{IEnumerable{Validable?}?}">When the specified collection is not valid</exception>
-        public static void ValidateCollectionIsNotNull<TCollectionElement>(IEnumerable<TCollectionElement?>? collection, string parameterName)
-            where TCollectionElement : class, IValidable =>
+        public static void ValidateCollectionIsNotNull<TCollectionElement>(IEnumerable<TCollectionElement>? collection, string parameterName) =>
             ValidateCollection(collection, parameterName, IsNotNull);
 
         /// <summary>
@@ -161,5 +254,40 @@ namespace Taurus.Validators
         public static void ValidateCollection<TValidable>(IEnumerable<TValidable?>? collection, string parameterName)
             where TValidable : class, IValidable =>
             ValidateCollection(collection, parameterName, IsValid);
+
+        /// <summary>
+        /// Validates the specified collection that all of its elements are unique
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <param name="parameterName">Parameter name</param>
+        /// <exception cref="ValidationException{IEnumerable{TCollectionElement}?}">When the specified collection is not valid</exception>
+        public static void ValidateCollectionElementIsContainedInsideCollection<TCollectionElement>
+        (
+            IEnumerable<TCollectionElement>? collection,
+            TCollectionElement collectionElement,
+            string parameterName
+        ) => Validate(collection, parameterName, (input) => IsElementContainedInCollection(input, collectionElement));
+
+        /// <summary>
+        /// Validates the specified collection that all of its elements are unique
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Collection element type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <param name="parameterName">Parameter name</param>
+        /// <exception cref="ValidationException{IEnumerable{TCollectionElement}?}">When the specified collection is not valid</exception>
+        public static void ValidateAllCollectionElementsBeingUnique<TCollectionElement>(IEnumerable<TCollectionElement>? collection, string parameterName) =>
+            Validate(collection, parameterName, AreAllCollectionElementsUnique);
+
+        /// <summary>
+        /// Validates the specified collection which all of its elements are also unique
+        /// </summary>
+        /// <typeparam name="TCollectionElement">Validable type</typeparam>
+        /// <param name="collection">Collection</param>
+        /// <param name="parameterName">Parameter name</param>
+        /// <exception cref="ValidationException{IEnumerable{TCollectionElement?}?}">When the specified collection is not valid</exception>
+        public static void ValidateCollectionWithOnlyUniqueElements<TCollectionElement>(IEnumerable<TCollectionElement?>? collection, string parameterName)
+            where TCollectionElement : class, IValidable =>
+            Validate(collection, parameterName, IsCollectionValidAndAllElementsUnique);
     }
 }
