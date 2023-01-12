@@ -48,6 +48,11 @@ namespace Taurus.Connectors
         Kicked,
 
         /// <summary>
+        /// Banned
+        /// </summary>
+        Banned,
+
+        /// <summary>
         /// Denied
         /// </summary>
         Denied,
