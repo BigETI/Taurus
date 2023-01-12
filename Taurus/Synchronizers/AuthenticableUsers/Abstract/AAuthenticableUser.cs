@@ -14,7 +14,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// Is user authenticated
         /// </summary>
-        public bool IsAuthenticated { get; private set; }
+        public virtual bool IsAuthenticated { get; private set; }
 
         /// <summary>
         /// Constructs a new authenticable user
