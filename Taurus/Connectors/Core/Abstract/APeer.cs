@@ -23,6 +23,11 @@ namespace Taurus.Connectors
         public IConnector Connector { get; }
 
         /// <summary>
+        /// Endpoint
+        /// </summary>
+        public virtual string Endpoint => string.Empty;
+
+        /// <summary>
         /// Constructs a new peer
         /// </summary>
         /// <param name="peerGUID">Peer GUID</param>

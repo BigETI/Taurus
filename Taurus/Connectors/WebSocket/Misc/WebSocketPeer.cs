@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 
 /// <summary>
 /// Taurus connectors WebSocket namespace
@@ -14,6 +15,11 @@ namespace Taurus.Connectors.WebSocket
         /// TCP client
         /// </summary>
         public TcpClient TCPClient { get; }
+
+        /// <summary>
+        /// Endpoint
+        /// </summary>
+        public override string Endpoint => (TCPClient.Client.RemoteEndPoint is IPEndPoint ip_endpoint) ? ip_endpoint.Address.ToString() : string.Empty;
 
         /// <summary>
         /// Constructs a new WebSocket peer

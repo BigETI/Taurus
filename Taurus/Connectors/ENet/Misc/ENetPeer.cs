@@ -17,6 +17,11 @@ namespace Taurus.Connectors.ENet
         public Peer Peer { get; }
 
         /// <summary>
+        /// Endpoint
+        /// </summary>
+        public override string Endpoint => Peer.IP;
+
+        /// <summary>
         /// Constructs a new ENet peer
         /// </summary>
         /// <param name="peerGUID">Peer GUID</param>

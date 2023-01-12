@@ -22,6 +22,11 @@ namespace Taurus.Connectors
         IConnector Connector { get; }
 
         /// <summary>
+        /// Endpoint
+        /// </summary>
+        string Endpoint { get; }
+
+        /// <summary>
         /// Disconnects this peer
         /// </summary>
         /// <param name="peer">Peer</param>
