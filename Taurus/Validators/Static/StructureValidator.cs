@@ -63,7 +63,7 @@ namespace Taurus.Validators
                     if (ret)
                     {
                         bool is_no_first_entry_found = true;
-                        foreach (TCollectionElement? collection_element in collection!)
+                        foreach (TCollectionElement collection_element in collection!)
                         {
                             if (Equals(collectionElement, collection_element))
                             {
