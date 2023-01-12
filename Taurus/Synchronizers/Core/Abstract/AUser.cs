@@ -108,7 +108,7 @@ namespace Taurus.Synchronizers
         /// <returns>Task</returns>
         public async Task SendErrorMessageAsync(EErrorType errorType, string errorMessage, string errorMessageType, bool isFatal)
         {
-            Console.Error.WriteLine($"[{ errorType }] { errorMessage }");
+            Console.Error.WriteLine($"[{errorType}] {errorMessage}");
             await SendMessageAsync(new ErrorMessageData(errorType, errorMessageType, errorMessage));
             if (isFatal)
             {

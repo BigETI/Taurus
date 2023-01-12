@@ -122,7 +122,7 @@ namespace Taurus.Synchronizers
                 {
                     string error_message = message.Message ?? string.Empty;
                     OnUserErrorMessageReceived?.Invoke(user, message.ErrorType, message.IssuingMessageType ?? string.Empty, error_message);
-                    Console.Error.WriteLine($"[{ message.ErrorType }]{ ((message.IssuingMessageType == null) ? $"[{ message.IssuingMessageType }] " : string.Empty) }{ error_message }");
+                    Console.Error.WriteLine($"[{message.ErrorType}]{((message.IssuingMessageType == null) ? $"[{message.IssuingMessageType}] " : string.Empty)}{error_message}");
                     return Task.CompletedTask;
                 },
                 (user, message, _) =>
@@ -226,7 +226,7 @@ namespace Taurus.Synchronizers
             user.SendErrorMessageAsync<TMessageData>
             (
                 EErrorType.InvalidMessageParameters,
-                $"Message is invalid. Expected message type: \"{ expectedMessageType }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes.Span) }",
+                $"Message is invalid. Expected message type: \"{expectedMessageType}\"{Environment.NewLine}{Environment.NewLine}Bytes:{Environment.NewLine}{Convert.ToBase64String(bytes.Span)}",
                 isFatal
             );
 
@@ -268,7 +268,7 @@ namespace Taurus.Synchronizers
             user.SendErrorMessageAsync<TMessageData>
             (
                 EErrorType.InvalidMessageParameters,
-                $"Message is invalid. Message type: \"{ message.GetType().FullName }\"{ Environment.NewLine }{ Environment.NewLine }Bytes:{ Environment.NewLine }{ Convert.ToBase64String(bytes.Span) }",
+                $"Message is invalid. Message type: \"{message.GetType().FullName}\"{Environment.NewLine}{Environment.NewLine}Bytes:{Environment.NewLine}{Convert.ToBase64String(bytes.Span)}",
                 isFatal
             );
 

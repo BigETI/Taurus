@@ -63,7 +63,7 @@ namespace Taurus.Synchronizers
         /// Gets the string representation of this object
         /// </summary>
         /// <returns>String representation of this object</returns>
-        public override string ToString() => $"{ Math.Round(Time.TotalMilliseconds) } ms ±{ Math.Round(Jitter.TotalMilliseconds) } ms";
+        public override string ToString() => $"{Math.Round(Time.TotalMilliseconds)} ms ±{Math.Round(Jitter.TotalMilliseconds)} ms";
 
         /// <summary>
         /// Is the specified object equivalent to this object

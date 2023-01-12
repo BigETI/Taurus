@@ -52,7 +52,7 @@ namespace Taurus.Connectors.Local
             }
             if (!(localPeer.Connector is LocalConnector local_connector))
             {
-                throw new ArgumentException($"Peer connector is not an instance of \"{ nameof(LocalConnector) }\".", nameof(localPeer));
+                throw new ArgumentException($"Peer connector is not an instance of \"{nameof(LocalConnector)}\".", nameof(localPeer));
             }
             ILocalPeer new_local_peer = new LocalPeer(new PeerGUID(Guid.NewGuid()), this, local_connector);
             localPeerGUIDToTargetLocalPeerLookup.Add(localPeer.PeerGUID, new_local_peer);
@@ -136,7 +136,7 @@ namespace Taurus.Connectors.Local
             }
             if (!(targetLocalConnector is LocalConnector target_local_connector))
             {
-                throw new ArgumentException($"Target local connector is not an instance of \"{ nameof(LocalConnector) }\".", nameof(targetLocalConnector));
+                throw new ArgumentException($"Target local connector is not an instance of \"{nameof(LocalConnector)}\".", nameof(targetLocalConnector));
             }
             connectToLocalConnectors.Enqueue(target_local_connector);
         }

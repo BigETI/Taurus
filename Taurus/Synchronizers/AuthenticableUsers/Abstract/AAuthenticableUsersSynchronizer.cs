@@ -107,7 +107,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <returns>Task</returns>
         protected Task UserIsNotAuthenticatedEvent<TMessageData>(TAuthenticableUser authenticableUser, bool isFatal)
             where TMessageData : IBaseMessageData =>
-            authenticableUser.SendErrorMessageAsync<TMessageData>(EErrorType.MessageSenderIsNotAuthenticated, $"Message sender sending \"{ Naming.GetMessageTypeNameFromMessageDataType<TMessageData>() }\" message is not authenticated.", isFatal);
+            authenticableUser.SendErrorMessageAsync<TMessageData>(EErrorType.MessageSenderIsNotAuthenticated, $"Message sender sending \"{Naming.GetMessageTypeNameFromMessageDataType<TMessageData>()}\" message is not authenticated.", isFatal);
 
         /// <summary>
         /// Listens to any user is not authenticated event

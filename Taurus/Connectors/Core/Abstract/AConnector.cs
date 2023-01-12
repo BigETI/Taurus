@@ -276,7 +276,7 @@ namespace Taurus.Connectors
                         }
                         break;
                     default:
-                        throw new NotSupportedException($"Task status { task_status } is not supported yet.");
+                        throw new NotSupportedException($"Task status {task_status} is not supported yet.");
                 }
             }
             while (peerDisconnectionRequestedEvents.TryDequeue(out PeerDisconnection peer_disconnection_requested_event))

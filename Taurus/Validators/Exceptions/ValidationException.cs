@@ -26,7 +26,7 @@ namespace Taurus.Validators
         /// </summary>
         /// <param name="input">Input</param>
         /// <param name="symbolName">Symbol name</param>
-        public ValidationException(TInput input, string symbolName) : base($"\"{ symbolName }\" is not valid.")
+        public ValidationException(TInput input, string symbolName) : base($"\"{symbolName}\" is not valid.")
         {
             Input = input;
             SymbolName = symbolName;
