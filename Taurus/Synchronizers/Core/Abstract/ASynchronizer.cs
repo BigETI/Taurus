@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ENet;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -213,6 +214,73 @@ namespace Taurus.Synchronizers
         }
 
         /// <summary>
+        /// Gets invoked when a peer connection has been attempted
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        private void PeerConnectionAttemptedEvent(IPeer peer) => OnPeerConnectionAttempted?.Invoke(peer);
+
+        /// <summary>
+        /// Gets invoked when a peer has connected
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        private void PeerConnectedEvent(IPeer peer)
+        {
+            OnPeerConnected?.Invoke(peer);
+            _ = AddNewUserFromPeerAsync(peer);
+        }
+
+        /// <summary>
+        /// Gets invoked when a peer has disconnected
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="disconnectionReason">Disconnection reason</param>
+        private void PeerDisconnectedEvent(IPeer peer, EDisconnectionReason disconnectionReason)
+        {
+            if (TryGettingUserFromPeer(peer, out TUser user))
+            {
+                OnUserDisconnected?.Invoke(user, disconnectionReason);
+                peerGUIDToUserLookup.TryRemove(peer.PeerGUID, out _);
+                users.TryRemove(user.UserGUID, out _);
+            }
+            OnPeerDisconnected?.Invoke(peer, disconnectionReason);
+        }
+
+        /// <summary>
+        /// Gets invoked when a peer message has been received
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="message">Message</param>
+        private void PeerMessageReceivedEvent(IPeer peer, ReadOnlySpan<byte> message)
+        {
+            OnPeerMessageReceived?.Invoke(peer, message);
+            if (TryGettingUserFromPeer(peer, out TUser user))
+            {
+                BaseMessageData? base_network_message_data = Serializer.Deserialize<BaseMessageData?>(message);
+                if (Validator.IsValid(base_network_message_data))
+                {
+                    if
+                    (
+                        userMessageParsers.TryGetValue
+                        (
+                            base_network_message_data!.MessageType!,
+                            out List<IBaseUserMessageParser<TUser>> user_message_parsers
+                        )
+                    )
+                    {
+                        foreach (IBaseUserMessageParser<TUser> user_message_parser in user_message_parsers)
+                        {
+                            user_message_parser.ParseUserMessage(user, message);
+                        }
+                    }
+                    else
+                    {
+                        OnUnknownUserMessageReceived?.Invoke(user, base_network_message_data, message);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Listens to any user message parse failed event
         /// </summary>
         /// <typeparam name="TMessageData">Message data type</typeparam>
@@ -313,59 +381,16 @@ namespace Taurus.Synchronizers
             bool ret = !connectors.Contains(connector);
             if (ret)
             {
+                connector.OnPeerConnectionAttempted += PeerConnectionAttemptedEvent;
+                connector.OnPeerConnected += PeerConnectedEvent;
+                connector.OnPeerDisconnected += PeerDisconnectedEvent;
+                connector.OnPeerMessageReceived += PeerMessageReceivedEvent;
                 connectors.Add(connector);
                 foreach (IPeer peer in connector.Peers.Values)
                 {
                     OnPeerConnected?.Invoke(peer);
                     _ = AddNewUserFromPeerAsync(peer);
                 }
-                connector.OnPeerConnectionAttempted += (peer) => OnPeerConnectionAttempted?.Invoke(peer);
-                connector.OnPeerConnected +=
-                    (peer) =>
-                    {
-                        OnPeerConnected?.Invoke(peer);
-                        _ = AddNewUserFromPeerAsync(peer);
-                    };
-                connector.OnPeerDisconnected +=
-                    (peer, disconnectionReason) =>
-                    {
-                        if (TryGettingUserFromPeer(peer, out TUser user))
-                        {
-                            OnUserDisconnected?.Invoke(user, disconnectionReason);
-                            peerGUIDToUserLookup.TryRemove(peer.PeerGUID, out _);
-                            users.TryRemove(user.UserGUID, out _);
-                        }
-                        OnPeerDisconnected?.Invoke(peer, disconnectionReason);
-                    };
-                connector.OnPeerMessageReceived += (peer, message) =>
-                {
-                    OnPeerMessageReceived?.Invoke(peer, message);
-                    if (TryGettingUserFromPeer(peer, out TUser user))
-                    {
-                        BaseMessageData? base_network_message_data = Serializer.Deserialize<BaseMessageData?>(message);
-                        if (Validator.IsValid(base_network_message_data))
-                        {
-                            if
-                            (
-                                userMessageParsers.TryGetValue
-                                (
-                                    base_network_message_data!.MessageType!,
-                                    out List<IBaseUserMessageParser<TUser>> user_message_parsers
-                                )
-                            )
-                            {
-                                foreach (IBaseUserMessageParser<TUser> user_message_parser in user_message_parsers)
-                                {
-                                    user_message_parser.ParseUserMessage(user, message);
-                                }
-                            }
-                            else
-                            {
-                                OnUnknownUserMessageReceived?.Invoke(user, base_network_message_data, message);
-                            }
-                        }
-                    }
-                };
             }
             return ret;
         }
@@ -380,6 +405,10 @@ namespace Taurus.Synchronizers
             bool ret = connectors.Remove(connector);
             if (ret)
             {
+                connector.OnPeerConnectionAttempted -= PeerConnectionAttemptedEvent;
+                connector.OnPeerConnected -= PeerConnectedEvent;
+                connector.OnPeerDisconnected -= PeerDisconnectedEvent;
+                connector.OnPeerMessageReceived -= PeerMessageReceivedEvent;
                 foreach (IPeer peer in connector.Peers.Values)
                 {
                     if (TryGettingUserFromPeer(peer, out TUser user))
