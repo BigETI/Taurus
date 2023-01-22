@@ -25,7 +25,7 @@ namespace Taurus.Connectors
         /// </summary>
         /// <param name="obj">Object</param>
         /// <returns>"true" if both objects are equivalent, otherwise "false"</returns>
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object? obj) => base.Equals(obj);
 
         /// <summary>
         /// Gets the hash code of this object
@@ -39,7 +39,7 @@ namespace Taurus.Connectors
         /// <param name="left">Left peer GUID</param>
         /// <param name="right">Right peer GUID</param>
         /// <returns>"true" if the specified peer GUIDs are equivalent, otherwise "false"</returns>
-        public static bool operator ==(PeerGUID left, PeerGUID right) => left.Equals(right);
+        public static bool operator ==(PeerGUID? left, PeerGUID? right) => left?.GUID == right?.GUID;
 
         /// <summary>
         /// Are the specified peer GUIDs not equivalent
@@ -47,6 +47,6 @@ namespace Taurus.Connectors
         /// <param name="left">Left peer GUID</param>
         /// <param name="right">Right peer GUID</param>
         /// <returns>"true" if the specified peer GUIDs are not equivalent, otherwise "false"</returns>
-        public static bool operator !=(PeerGUID left, PeerGUID right) => !left.Equals(right);
+        public static bool operator !=(PeerGUID? left, PeerGUID? right) => left?.GUID != right?.GUID;
     }
 }

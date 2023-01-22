@@ -84,7 +84,7 @@ namespace Taurus.Synchronizers
         /// <param name="left">Left latency</param>
         /// <param name="right">Right latency</param>
         /// <returns>"true" if the specified latencies are equivalent, otherwise "false"</returns>
-        public static bool operator ==(Latency left, Latency right) => (left.Time == right.Time) && (left.Jitter == right.Jitter);
+        public static bool operator ==(Latency? left, Latency? right) => (left?.Time == right?.Time) && (left?.Jitter == right?.Jitter);
 
         /// <summary>
         /// Are the specified latencies not equivalent
@@ -92,6 +92,6 @@ namespace Taurus.Synchronizers
         /// <param name="left">Left latency</param>
         /// <param name="right">Right latency</param>
         /// <returns>"true" if the specified latencies are not equivalent, otherwise "false"</returns>
-        public static bool operator !=(Latency left, Latency right) => (left.Time != right.Time) || (left.Jitter != right.Jitter);
+        public static bool operator !=(Latency? left, Latency? right) => (left?.Time != right?.Time) || (left?.Jitter != right?.Jitter);
     }
 }

@@ -25,7 +25,7 @@ namespace Taurus.Synchronizers
         /// </summary>
         /// <param name="obj">Object</param>
         /// <returns>"true" if both objects are equivalent, otherwise "false"</returns>
-        public override bool Equals(object obj) => base.Equals(obj);
+        public override bool Equals(object? obj) => base.Equals(obj);
 
         /// <summary>
         /// Gets the hash code of this object
@@ -39,7 +39,7 @@ namespace Taurus.Synchronizers
         /// <param name="left">Left user GUID</param>
         /// <param name="right">Right user GUID</param>
         /// <returns>"true" if the specified user GUIDs are equivalent, otherwise "false"</returns>
-        public static bool operator ==(UserGUID left, UserGUID right) => left.Equals(right);
+        public static bool operator ==(UserGUID? left, UserGUID? right) => left?.GUID == right?.GUID;
 
         /// <summary>
         /// Are the specified user GUIDs not equivalent
@@ -47,6 +47,6 @@ namespace Taurus.Synchronizers
         /// <param name="left">Left user GUID</param>
         /// <param name="right">Right user GUID</param>
         /// <returns>"true" if the specified user GUIDs are not equivalent, otherwise "false"</returns>
-        public static bool operator !=(UserGUID left, UserGUID right) => !left.Equals(right);
+        public static bool operator !=(UserGUID? left, UserGUID? right) => left?.GUID != right?.GUID;
     }
 }

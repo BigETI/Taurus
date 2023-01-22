@@ -63,14 +63,14 @@ namespace Taurus.GUIDs
         /// </summary>
         /// <param name="obj">Object</param>
         /// <returns>"true" if both GUIDs are equivalent, otherwise "false"</returns>
-        public virtual bool Equals(TGUID other) => GUID == other.GUID;
+        public virtual bool Equals(TGUID other) => GUID == other?.GUID;
 
         /// <summary>
         /// Does this peer GUID equal to the specified object
         /// </summary>
         /// <param name="obj">Object</param>
         /// <returns>"true" if both objects are equivalent, otherwise "false"</returns>
-        public override bool Equals(object obj) => base.Equals(obj) && (obj is TGUID guid) && Equals(guid);
+        public override bool Equals(object? obj) => (obj is TGUID guid) && (GUID == guid.GUID);
 
         /// <summary>
         /// Gets the has code of this object
