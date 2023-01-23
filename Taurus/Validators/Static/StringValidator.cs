@@ -15,8 +15,7 @@ namespace Taurus.Validators
         /// </summary>
         /// <param name="stringValue">String value</param>
         /// <returns>"true" if the specified string is not empty or has no whitespaces, otherwise "false"</returns>
-        public static bool IsStringNotEmptyOrHasNoWhitespaces(string? stringValue) =>
-            string.IsNullOrWhiteSpace(stringValue);
+        public static bool IsStringNotEmptyOrHasNoWhitespaces(string? stringValue) => !string.IsNullOrWhiteSpace(stringValue);
 
         /// <summary>
         /// Are the specified strings not empty or have no whitespaces
