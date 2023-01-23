@@ -18,9 +18,14 @@ namespace Taurus.Connectors
         Invalid,
 
         /// <summary>
-        /// Error
+        /// An error has occured
         /// </summary>
         Error,
+
+        /// <summary>
+        /// Peer conection has been denied
+        /// </summary>
+        Denied,
 
         /// <summary>
         /// Object has been disposed
@@ -28,43 +33,18 @@ namespace Taurus.Connectors
         Disposed,
 
         /// <summary>
-        /// User has been disconnected
-        /// </summary>
-        Disconnected,
-
-        /// <summary>
-        /// User has timed out
+        /// Peer has timed out
         /// </summary>
         TimedOut,
 
         /// <summary>
-        /// User has quit the lobby
+        /// Peer has quit
         /// </summary>
         Quit,
 
         /// <summary>
-        /// Kicked
+        /// Peer has been kicked
         /// </summary>
-        Kicked,
-
-        /// <summary>
-        /// Banned
-        /// </summary>
-        Banned,
-
-        /// <summary>
-        /// Denied
-        /// </summary>
-        Denied,
-
-        /// <summary>
-        /// Lobby has been closed
-        /// </summary>
-        LobbyClosed,
-
-        /// <summary>
-        /// User has been deleted
-        /// </summary>
-        Deleted
+        Kicked
     }
 }
