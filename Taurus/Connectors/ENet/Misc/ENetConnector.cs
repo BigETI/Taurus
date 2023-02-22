@@ -19,6 +19,16 @@ namespace Taurus.Connectors.ENet
     internal sealed class ENetConnector : AConnector, IENetConnector
     {
         /// <summary>
+        /// ENet initialization mutex
+        /// </summary>
+        private static readonly Mutex eNetInitializationMutex = new Mutex();
+
+        /// <summary>
+        /// ENet initialization count
+        /// </summary>
+        private static uint eNetInitializationCount;
+
+        /// <summary>
         /// Connect to ENet addresses
         /// </summary>
         private readonly ConcurrentQueue<Address> connectToENetAddresses = new ConcurrentQueue<Address>();
@@ -73,11 +83,22 @@ namespace Taurus.Connectors.ENet
             ICompressor? compressor
         ) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
+            if ((timeoutTime < Library.timeoutMinimum) || (timeoutTime > Library.timeoutMaximum))
+            {
+                throw new ArgumentException($"Timeout time has to be set between {Library.timeoutMinimum} ms and {Library.timeoutMaximum} ms. Value: {timeoutTime} ms");
+            }
             TimeoutTime = timeoutTime;
             connectorThread = new Thread
             (
                 () =>
                 {
+                    eNetInitializationMutex.WaitOne();
+                    if (eNetInitializationCount == 0U)
+                    {
+                        Library.Initialize();
+                    }
+                    ++eNetInitializationCount;
+                    eNetInitializationMutex.ReleaseMutex();
                     Host host = new Host();
                     try
                     {
@@ -106,6 +127,10 @@ namespace Taurus.Connectors.ENet
                                         0
                                     );
                                 }
+                            }
+                            else if (!host.IsSet)
+                            {
+                                host.Create(1, 0);
                             }
                             bool has_network_event = true;
                             if (host.CheckEvents(out Event network_event) <= 0)
@@ -186,6 +211,16 @@ namespace Taurus.Connectors.ENet
                     {
                         host.Dispose();
                         peerIDToPeerLookup.Clear();
+                        eNetInitializationMutex.WaitOne();
+                        if (eNetInitializationCount > 0U)
+                        {
+                            --eNetInitializationCount;
+                            if (eNetInitializationCount == 0U)
+                            {
+                                Library.Deinitialize();
+                            }
+                        }
+                        eNetInitializationMutex.ReleaseMutex();
                     }
                 }
             );
