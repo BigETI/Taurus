@@ -9,9 +9,9 @@ namespace Taurus.Connectors.ENet
     public interface IENetConnector : IConnector
     {
         /// <summary>
-        /// Timeout time in milliseconds
+        /// ENet host service timeout time in milliseconds
         /// </summary>
-        uint TimeoutTime { get; }
+        uint ENetHostServiceTimeoutTime { get; }
 
         /// <summary>
         /// Listens to the specified port

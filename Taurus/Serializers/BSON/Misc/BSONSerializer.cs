@@ -35,10 +35,6 @@ namespace Taurus.Serializers.BSON
         /// <typeparam name="T">Object type</typeparam>
         /// <param name="obj">Object</param>
         /// <param name="outputStream">Output stream</param>
-        public override void SerializeToStream<T>(T obj, Stream outputStream)
-        {
-            using BsonDataWriter output_bson_data_writer = new BsonDataWriter(outputStream);
-            bsonSerializer.Serialize(output_bson_data_writer, obj);
-        }
+        public override void SerializeToStream<T>(T obj, Stream outputStream) => bsonSerializer.Serialize(new BsonDataWriter(outputStream), obj);
     }
 }

@@ -64,30 +64,34 @@ namespace Taurus.Connectors.ENet
         private byte[] buffer = new byte[2048];
 
         /// <summary>
-        /// Timeout time in milliseconds
+        /// ENet host service timeout time in milliseconds
         /// </summary>
-        public uint TimeoutTime { get; }
+        public uint ENetHostServiceTimeoutTime { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="timeoutTime">Timeout time in milliseconds</param>
+        /// <param name="eNetHostServiceTimeoutTime">Host service timeout time in milliseconds</param>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
         public ENetConnector
         (
-            uint timeoutTime,
+            uint eNetHostServiceTimeoutTime,
             HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
             IFragmenter? fragmenter,
             ICompressor? compressor
         ) : base(onHandlePeerConnectionAttempt, fragmenter, compressor)
         {
-            if ((timeoutTime < Library.timeoutMinimum) || (timeoutTime > Library.timeoutMaximum))
+            if (eNetHostServiceTimeoutTime > Library.timeoutMaximum)
             {
-                throw new ArgumentException($"Timeout time has to be set between {Library.timeoutMinimum} ms and {Library.timeoutMaximum} ms. Value: {timeoutTime} ms");
+                throw new ArgumentException
+                (
+                    $"ENet host service timeout time has to be set between 0 ms and {Library.timeoutMaximum} ms. Specified ENet host service timeout time: {eNetHostServiceTimeoutTime} ms",
+                    nameof(eNetHostServiceTimeoutTime)
+                );
             }
-            TimeoutTime = timeoutTime;
+            ENetHostServiceTimeoutTime = eNetHostServiceTimeoutTime;
             connectorThread = new Thread
             (
                 () =>
@@ -133,12 +137,9 @@ namespace Taurus.Connectors.ENet
                                 host.Create(1, 0);
                             }
                             bool has_network_event = true;
-                            if (host.CheckEvents(out Event network_event) <= 0)
+                            if (host.Service((int)ENetHostServiceTimeoutTime, out Event network_event) <= 0)
                             {
-                                if (host.Service((int)TimeoutTime, out network_event) <= 0)
-                                {
-                                    has_network_event = false;
-                                }
+                                has_network_event = false;
                             }
                             if (has_network_event)
                             {
