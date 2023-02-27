@@ -15,6 +15,14 @@ namespace Taurus.Collections
 
         private volatile T[] fastEnumerableValues = Array.Empty<T>();
 
+        public int Count => concurrentBag.Count;
+
+        public bool IsEmpty => concurrentBag.IsEmpty;
+
+        bool ICollection.IsSynchronized => producerConsumerInterface.IsSynchronized;
+
+        object ICollection.SyncRoot => producerConsumerInterface.SyncRoot;
+
         public FastEnumerableConcurrentBag()
         {
             concurrentBag = new ConcurrentBag<T>();
@@ -26,15 +34,6 @@ namespace Taurus.Collections
             concurrentBag = new ConcurrentBag<T>(collection);
             producerConsumerInterface = concurrentBag;
         }
-
-        public int Count => concurrentBag.Count;
-
-
-        public bool IsEmpty => concurrentBag.IsEmpty;
-
-        bool ICollection.IsSynchronized => producerConsumerInterface.IsSynchronized;
-
-        object ICollection.SyncRoot => producerConsumerInterface.SyncRoot;
 
         public void Add(T item)
         {

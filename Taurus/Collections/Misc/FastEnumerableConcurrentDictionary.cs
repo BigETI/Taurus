@@ -24,48 +24,6 @@ namespace Taurus.Collections
 
         private volatile TValue[] fastEnumerableValues = Array.Empty<TValue>();
 
-        public FastEnumerableConcurrentDictionary()
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>();
-            dictionaryInterface = concurrentDictionary;
-        }
-
-        public FastEnumerableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(collection);
-            dictionaryInterface = concurrentDictionary;
-        }
-
-        public FastEnumerableConcurrentDictionary(IEqualityComparer<TKey> comparer)
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(comparer);
-            dictionaryInterface = concurrentDictionary;
-        }
-
-        public FastEnumerableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(collection, comparer);
-            dictionaryInterface = concurrentDictionary;
-        }
-
-        public FastEnumerableConcurrentDictionary(int concurrencyLevel, int capacity)
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, capacity);
-            dictionaryInterface = concurrentDictionary;
-        }
-
-        public FastEnumerableConcurrentDictionary(int concurrencyLevel, IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, collection, comparer);
-            dictionaryInterface = concurrentDictionary;
-        }
-
-        public FastEnumerableConcurrentDictionary(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
-        {
-            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, capacity, comparer);
-            dictionaryInterface = concurrentDictionary;
-        }
-
         public TValue this[TKey key]
         {
             get => concurrentDictionary[key];
@@ -112,6 +70,48 @@ namespace Taurus.Collections
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
 
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+
+        public FastEnumerableConcurrentDictionary()
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>();
+            dictionaryInterface = concurrentDictionary;
+        }
+
+        public FastEnumerableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection)
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(collection);
+            dictionaryInterface = concurrentDictionary;
+        }
+
+        public FastEnumerableConcurrentDictionary(IEqualityComparer<TKey> comparer)
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(comparer);
+            dictionaryInterface = concurrentDictionary;
+        }
+
+        public FastEnumerableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(collection, comparer);
+            dictionaryInterface = concurrentDictionary;
+        }
+
+        public FastEnumerableConcurrentDictionary(int concurrencyLevel, int capacity)
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, capacity);
+            dictionaryInterface = concurrentDictionary;
+        }
+
+        public FastEnumerableConcurrentDictionary(int concurrencyLevel, IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer)
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, collection, comparer);
+            dictionaryInterface = concurrentDictionary;
+        }
+
+        public FastEnumerableConcurrentDictionary(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
+        {
+            concurrentDictionary = new ConcurrentDictionary<TKey, TValue>(concurrencyLevel, capacity, comparer);
+            dictionaryInterface = concurrentDictionary;
+        }
 
         public TValue AddOrUpdate<TArg>
         (

@@ -24,6 +24,53 @@ namespace Taurus.Collections
 
         private TValue[] fastEnumerableValues = Array.Empty<TValue>();
 
+        public TValue this[TKey key]
+        {
+            get => dictionary[key];
+            set
+            {
+                dictionary[key] = value;
+                areFastEnumerableKeyValuePairsOutdated = true;
+                areFastEnumerableValuesOutdated = true;
+            }
+        }
+
+        public ICollection<TKey> Keys
+        {
+            get
+            {
+                if (areFastEnumerableKeysOutdated)
+                {
+                    fastEnumerableKeys = dictionary.Keys.ToArray();
+                    areFastEnumerableKeysOutdated = false;
+                }
+                return fastEnumerableKeys;
+            }
+        }
+
+        public ICollection<TValue> Values
+        {
+            get
+            {
+                if (areFastEnumerableValuesOutdated)
+                {
+                    fastEnumerableValues = dictionary.Values.ToArray();
+                    areFastEnumerableValuesOutdated = false;
+                }
+                return fastEnumerableValues;
+            }
+        }
+
+        public IEqualityComparer<TKey> Comparer => dictionary.Comparer;
+
+        public int Count => dictionary.Count;
+
+        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => dictionaryInterface.IsReadOnly;
+
+        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
+
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+
         public FastEnumerableDictionary()
         {
             dictionary = new Dictionary<TKey, TValue>();
@@ -71,48 +118,6 @@ namespace Taurus.Collections
             dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
             dictionaryInterface = dictionary;
         }
-
-        public TValue this[TKey key]
-        {
-            get => dictionary[key];
-            set => dictionary[key] = value;
-        }
-
-        public ICollection<TKey> Keys
-        {
-            get
-            {
-                if (areFastEnumerableKeysOutdated)
-                {
-                    fastEnumerableKeys = dictionary.Keys.ToArray();
-                    areFastEnumerableKeysOutdated = false;
-                }
-                return fastEnumerableKeys;
-            }
-        }
-
-        public ICollection<TValue> Values
-        {
-            get
-            {
-                if (areFastEnumerableValuesOutdated)
-                {
-                    fastEnumerableValues = dictionary.Values.ToArray();
-                    areFastEnumerableValuesOutdated = false;
-                }
-                return fastEnumerableValues;
-            }
-        }
-
-        public IEqualityComparer<TKey> Comparer => dictionary.Comparer;
-
-        public int Count => dictionary.Count;
-
-        bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => dictionaryInterface.IsReadOnly;
-
-        IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => throw new NotImplementedException();
-
-        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => throw new NotImplementedException();
 
         public void Add(TKey key, TValue value)
         {

@@ -46,7 +46,11 @@ namespace Taurus.Collections
 
         public void CopyTo(T[] array, int index) => concurrentQueue.CopyTo(array, index);
 
-        public void Enqueue(T item) => concurrentQueue.Enqueue(item);
+        public void Enqueue(T item)
+        {
+            concurrentQueue.Enqueue(item);
+            areFastEnumerableValuesOutdated = true;
+        }
 
         public IEnumerator<T> GetEnumerator()
         {
