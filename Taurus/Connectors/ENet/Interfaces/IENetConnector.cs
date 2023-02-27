@@ -14,6 +14,11 @@ namespace Taurus.Connectors.ENet
         uint ENetHostServiceTimeoutTime { get; }
 
         /// <summary>
+        /// Maximal peer count
+        /// </summary>
+        uint MaximalPeerCount { get; }
+
+        /// <summary>
         /// Listens to the specified port
         /// </summary>
         /// <param name="port">Port</param>

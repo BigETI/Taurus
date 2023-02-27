@@ -67,17 +67,24 @@ namespace Taurus.Connectors.ENet
         /// ENet host service timeout time in milliseconds
         /// </summary>
         public uint ENetHostServiceTimeoutTime { get; }
+        
+        /// <summary>
+        /// Maximal peer count
+        /// </summary>
+        public uint MaximalPeerCount { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="eNetHostServiceTimeoutTime">Host service timeout time in milliseconds</param>
+        /// <param name="maximalPeerCount">Maximal peer count</param>
         /// <param name="onHandlePeerConnectionAttempt">Handles peer connection attempts</param>
         /// <param name="fragmenter">Fragmenter</param>
         /// <param name="compressor">Compressor</param>
         public ENetConnector
         (
             uint eNetHostServiceTimeoutTime,
+            uint maximalPeerCount,
             HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
             IFragmenter? fragmenter,
             ICompressor? compressor
@@ -91,7 +98,16 @@ namespace Taurus.Connectors.ENet
                     nameof(eNetHostServiceTimeoutTime)
                 );
             }
+            if (maximalPeerCount > Library.maxPeers)
+            {
+                throw new ArgumentException
+                (
+                    $"Maximal peer count can not exceed {Library.maxPeers}; Specified maximal peer count: {maximalPeerCount}",
+                    nameof(maximalPeerCount)
+                );
+            }
             ENetHostServiceTimeoutTime = eNetHostServiceTimeoutTime;
+            MaximalPeerCount = maximalPeerCount;
             connectorThread = new Thread
             (
                 () =>
@@ -127,7 +143,7 @@ namespace Taurus.Connectors.ENet
                                         {
                                             Port = listening_to_port
                                         },
-                                        (int)Library.maxPeers,
+                                        (int)maximalPeerCount,
                                         0
                                     );
                                 }
@@ -136,12 +152,7 @@ namespace Taurus.Connectors.ENet
                             {
                                 host.Create(1, 0);
                             }
-                            bool has_network_event = true;
                             if (host.Service((int)ENetHostServiceTimeoutTime, out Event network_event) <= 0)
-                            {
-                                has_network_event = false;
-                            }
-                            if (has_network_event)
                             {
                                 IPeer peer;
                                 switch (network_event.Type)
@@ -178,6 +189,7 @@ namespace Taurus.Connectors.ENet
                                             packet.CopyTo(buffer);
                                             Marshal.Copy(packet.Data, buffer, 0, packet.Length);
                                             EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, packet.Length));
+                                            packet.Dispose();
                                         }
                                         break;
                                     case EventType.Timeout:
