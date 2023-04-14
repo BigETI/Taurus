@@ -10,7 +10,7 @@ namespace Taurus.Serializers.BSON
     /// <summary>
     /// A class that describes a BSON serializer
     /// </summary>
-    internal sealed class BSONSerializer : ASerializer, IBSONSerializer
+    public sealed class BSONSerializer : ASerializer, IBSONSerializer
     {
         /// <summary>
         /// BSON serializer

@@ -16,7 +16,7 @@ namespace Taurus.Connectors.ENet
     /// <summary>
     /// A class that describes an ENet connector
     /// </summary>
-    internal sealed class ENetConnector : AConnector, IENetConnector
+    public sealed class ENetConnector : AConnector, IENetConnector
     {
         /// <summary>
         /// ENet initialization mutex
@@ -239,6 +239,70 @@ namespace Taurus.Connectors.ENet
             );
             connectorThread.Start();
         }
+
+        /// <summary>
+        /// Creates a new ENet connector
+        /// </summary>
+        /// <param name="eNetHostServiceTimeoutTime">ENet host service timeout time in milliseconds</param>
+        /// <param name="maximalPeerCount">Maximal peer count</param>
+        /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer conection attempt needs to be handled</param>
+        /// <returns>New ENet connector</returns>
+        public static ENetConnector CreateNewENetConnector
+        (
+            uint eNetHostServiceTimeoutTime,
+            uint maximalPeerCount,
+            HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt
+        ) => CreateNewENetConnector(eNetHostServiceTimeoutTime, maximalPeerCount, onHandlePeerConnectionAttempt, null, null);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eNetHostServiceTimeoutTime">ENet host service timeout time in milliseconds</param>
+        /// <param name="maximalPeerCount">Maximal peer count</param>
+        /// <param name="onHandlePeerConnectionAttempt"></param>
+        /// <param name="fragmenter">Fragmenter</param>
+        /// <returns>New ENet connector</returns>
+        public static ENetConnector CreateNewENetConnector
+        (
+            uint eNetHostServiceTimeoutTime,
+            uint maximalPeerCount,
+            HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
+            IFragmenter fragmenter
+        ) => CreateNewENetConnector(eNetHostServiceTimeoutTime, maximalPeerCount, onHandlePeerConnectionAttempt, fragmenter, null);
+
+        /// <summary>
+        /// Creates a new ENet connector
+        /// </summary>
+        /// <param name="eNetHostServiceTimeoutTime">ENet host service timeout time in milliseconds</param>
+        /// <param name="maximalPeerCount">Maximal peer count</param>
+        /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer conection attempt needs to be handled</param>
+        /// <param name="compressor">Compressor</param>
+        /// <returns>New ENet connector</returns>
+        public static ENetConnector CreateNewENetConnector
+        (
+            uint eNetHostServiceTimeoutTime,
+            uint maximalPeerCount,
+            HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
+            ICompressor compressor
+        ) => CreateNewENetConnector(eNetHostServiceTimeoutTime, maximalPeerCount, onHandlePeerConnectionAttempt, null, compressor);
+
+        /// <summary>
+        /// Creates a new ENet connector
+        /// </summary>
+        /// <param name="eNetHostServiceTimeoutTime">ENet host service timeout time in milliseconds</param>
+        /// <param name="maximalPeerCount">Maximal peer count</param>
+        /// <param name="onHandlePeerConnectionAttempt">Gets invoked when a peer conection attempt needs to be handled</param>
+        /// <param name="fragmenter">Fragmenter</param>
+        /// <param name="compressor">Compressor</param>
+        /// <returns>New ENet connector</returns>
+        public static ENetConnector CreateNewENetConnector
+        (
+            uint eNetHostServiceTimeoutTime,
+            uint maximalPeerCount,
+            HandlePeerConnectionAttemptDelegate onHandlePeerConnectionAttempt,
+            IFragmenter? fragmenter,
+            ICompressor? compressor
+        ) => new ENetConnector(eNetHostServiceTimeoutTime, maximalPeerCount, onHandlePeerConnectionAttempt, fragmenter, compressor);
 
         /// <summary>
         /// Tries to get ENet peer
