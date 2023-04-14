@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <ProjectReference Include="..\Taurus.Fragmenters.TaurusFragmenter\Taurus.Fragmenters.TaurusFragmenter.csproj" />
   </ItemGroup>
 
 </Project>

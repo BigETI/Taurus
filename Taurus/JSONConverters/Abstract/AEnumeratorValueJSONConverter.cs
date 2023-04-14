@@ -45,8 +45,8 @@ namespace Taurus.JSONConverters
         /// <param name="existingValue">Existing value</param>
         /// <param name="serializer">JSON serializer</param>
         /// <returns>Read object</returns>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) =>
-            ((reader.TokenType == JsonToken.String) && Enum.TryParse(reader.Value.ToString(), out TEnumerator enumerator_value)) ?
+        public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer) =>
+            ((reader.TokenType == JsonToken.String) && (reader.Value != null) && Enum.TryParse(reader.Value.ToString(), out TEnumerator enumerator_value)) ?
                 enumerator_value :
                 defaultEnumeratorValue;
 
@@ -56,6 +56,6 @@ namespace Taurus.JSONConverters
         /// <param name="writer">JSON writer</param>
         /// <param name="value">JSON value</param>
         /// <param name="serializer">JSON serializer</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
     }
 }
