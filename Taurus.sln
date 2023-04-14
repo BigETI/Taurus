@@ -5,21 +5,23 @@ VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus", "Taurus\Taurus.csproj", "{55BBA419-A105-4C4E-8D21-4D40F40E60FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Connectors.Local", "Taurus.Connectors.Local\Taurus.Connectors.Local.csproj", "{E92C95AF-7FAF-42BD-A393-0D8CE944312A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Connectors.Local", "Taurus.Connectors.Local\Taurus.Connectors.Local.csproj", "{E92C95AF-7FAF-42BD-A393-0D8CE944312A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Connectors.WebSocket", "Taurus.Connectors.WebSocket\Taurus.Connectors.WebSocket.csproj", "{3CF41021-E7EB-4062-AFC6-BFB89BD4A776}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Connectors.WebSocket", "Taurus.Connectors.WebSocket\Taurus.Connectors.WebSocket.csproj", "{3CF41021-E7EB-4062-AFC6-BFB89BD4A776}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Connectors.ENet", "Taurus.Connectors.ENet\Taurus.Connectors.ENet.csproj", "{103BB296-1AE1-4B83-A6DC-F0C4419017FD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Connectors.ENet", "Taurus.Connectors.ENet\Taurus.Connectors.ENet.csproj", "{103BB296-1AE1-4B83-A6DC-F0C4419017FD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Serializers.JSON", "Taurus.Serializers.JSON\Taurus.Serializers.JSON.csproj", "{B1711594-0820-4B0D-B5F9-B2AEC2AC0291}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Serializers.JSON", "Taurus.Serializers.JSON\Taurus.Serializers.JSON.csproj", "{B1711594-0820-4B0D-B5F9-B2AEC2AC0291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Serializers.BSON", "Taurus.Serializers.BSON\Taurus.Serializers.BSON.csproj", "{30C3A1C9-1415-4568-AADC-C8ECFD1671CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Serializers.BSON", "Taurus.Serializers.BSON\Taurus.Serializers.BSON.csproj", "{30C3A1C9-1415-4568-AADC-C8ECFD1671CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Fragmenters.TaurusFragmenter", "Taurus.Fragmenters.TaurusFragmenter\Taurus.Fragmenters.TaurusFragmenter.csproj", "{A9A86D50-C127-4C74-9C4A-626C158FA3F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Fragmenters.TaurusFragmenter", "Taurus.Fragmenters.TaurusFragmenter\Taurus.Fragmenters.TaurusFragmenter.csproj", "{A9A86D50-C127-4C74-9C4A-626C158FA3F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Compressors.GZIP", "Taurus.Compressors.GZIP\Taurus.Compressors.GZIP.csproj", "{C127586D-8584-4C22-B3D8-28918EEF9F9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Compressors.GZIP", "Taurus.Compressors.GZIP\Taurus.Compressors.GZIP.csproj", "{C127586D-8584-4C22-B3D8-28918EEF9F9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Synchronizers.AuthenticableUsers", "Taurus.Synchronizers.AuthenticableUsers\Taurus.Synchronizers.AuthenticableUsers.csproj", "{51D623F1-66CD-470B-988E-67890F390495}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taurus.Synchronizers.AuthenticableUsers", "Taurus.Synchronizers.AuthenticableUsers\Taurus.Synchronizers.AuthenticableUsers.csproj", "{51D623F1-66CD-470B-988E-67890F390495}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Taurus.Tests", "Taurus.Tests\Taurus.Tests.csproj", "{09B1F721-AE6E-4C18-A462-599FB2D1D741}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{51D623F1-66CD-470B-988E-67890F390495}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51D623F1-66CD-470B-988E-67890F390495}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51D623F1-66CD-470B-988E-67890F390495}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09B1F721-AE6E-4C18-A462-599FB2D1D741}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09B1F721-AE6E-4C18-A462-599FB2D1D741}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09B1F721-AE6E-4C18-A462-599FB2D1D741}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09B1F721-AE6E-4C18-A462-599FB2D1D741}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
