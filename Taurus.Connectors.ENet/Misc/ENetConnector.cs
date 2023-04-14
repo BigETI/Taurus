@@ -34,11 +34,6 @@ namespace Taurus.Connectors.ENet
         private readonly ConcurrentQueue<Address> connectToENetAddresses = new ConcurrentQueue<Address>();
 
         /// <summary>
-        /// Dispose packets
-        /// </summary>
-        private readonly List<Packet> disposePackets = new List<Packet>();
-
-        /// <summary>
         /// ENet peer ID to peer lookup
         /// </summary>
         private readonly Dictionary<uint, IPeer> peerIDToPeerLookup = new Dictionary<uint, IPeer>();
@@ -152,7 +147,12 @@ namespace Taurus.Connectors.ENet
                             {
                                 host.Create(1, 0);
                             }
-                            if (host.Service((int)ENetHostServiceTimeoutTime, out Event network_event) <= 0)
+                            while (connectToENetAddresses.TryDequeue(out Address connect_to_e_net_address))
+                            {
+                                host.Connect(connect_to_e_net_address);
+                            }
+                            ProcessRequests();
+                            while (host.Service((int)ENetHostServiceTimeoutTime, out Event network_event) > 0)
                             {
                                 IPeer peer;
                                 switch (network_event.Type)
@@ -199,20 +199,6 @@ namespace Taurus.Connectors.ENet
                                         }
                                         break;
                                 }
-                            }
-                            ProcessRequests();
-                            while (connectToENetAddresses.TryDequeue(out Address connect_to_e_net_address))
-                            {
-                                host.Connect(connect_to_e_net_address);
-                            }
-                            if (disposePackets.Count > 0)
-                            {
-                                host.Flush();
-                                foreach (Packet packet in disposePackets)
-                                {
-                                    packet.Dispose();
-                                }
-                                disposePackets.Clear();
                             }
                         }
                     }
@@ -373,7 +359,6 @@ namespace Taurus.Connectors.ENet
                 Packet packet = default;
                 packet.Create(message.ToArray(), PacketFlags.Reliable);
                 e_net_peer!.Peer.Send(0, ref packet);
-                disposePackets.Add(packet);
             }
         }
 
@@ -394,8 +379,7 @@ namespace Taurus.Connectors.ENet
         /// <summary>
         /// Stops listening to port
         /// </summary>
-        public void StopListening() =>
-            listeningToPort = 0;
+        public void StopListening() => listeningToPort = 0;
 
         /// <summary>
         /// Connects to the specified network
@@ -406,10 +390,11 @@ namespace Taurus.Connectors.ENet
         {
             StringValidator.ValidateStringIsNotEmptyOrHasNoWhitespaces(host, nameof(host));
             Validator.Validate(port, nameof(port), (input) => input > 0);
-            Address address = new Address
-            {
-                Port = port
-            };
+            Address address =
+                new Address
+                {
+                    Port = port
+                };
             address.SetHost(host);
             connectToENetAddresses.Enqueue(address);
         }
