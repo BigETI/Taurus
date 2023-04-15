@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Taurus.Collections;
 using Taurus.Connectors;
 using Taurus.GUIDs;
 using Taurus.Serializers;
@@ -32,7 +33,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Users
         /// </summary>
-        private readonly ConcurrentDictionary<UserGUID, TUser> users = new ConcurrentDictionary<UserGUID, TUser>();
+        private readonly FastEnumerableConcurrentDictionary<UserGUID, TUser> users = new FastEnumerableConcurrentDictionary<UserGUID, TUser>();
 
         /// <summary>
         /// Peer GUID to user lookup

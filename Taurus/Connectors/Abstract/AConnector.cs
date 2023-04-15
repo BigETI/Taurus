@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Taurus.Collections;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
@@ -23,13 +24,12 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peers
         /// </summary>
-        private readonly Dictionary<PeerGUID, IPeer> peers = new Dictionary<PeerGUID, IPeer>();
+        private readonly FastEnumerableDictionary<PeerGUID, IPeer> peers = new FastEnumerableDictionary<PeerGUID, IPeer>();
 
         /// <summary>
         /// Peer GUID to defragmenter stream lookup
         /// </summary>
-        private readonly Dictionary<PeerGUID, IDefragmenterStream> peerGUIDToDefragmenterStreamLookup =
-            new Dictionary<PeerGUID, IDefragmenterStream>();
+        private readonly Dictionary<PeerGUID, IDefragmenterStream> peerGUIDToDefragmenterStreamLookup = new Dictionary<PeerGUID, IDefragmenterStream>();
 
         /// <summary>
         /// Peer connection attempted events
@@ -44,14 +44,12 @@ namespace Taurus.Connectors
         /// <summary>
         /// Peer disconnection requested events
         /// </summary>
-        private readonly ConcurrentQueue<PeerDisconnection> peerDisconnectionRequestedEvents =
-            new ConcurrentQueue<PeerDisconnection>();
+        private readonly ConcurrentQueue<PeerDisconnection> peerDisconnectionRequestedEvents = new ConcurrentQueue<PeerDisconnection>();
 
         /// <summary>
         /// Valid peer disconnection requested events
         /// </summary>
-        private readonly ConcurrentQueue<PeerDisconnection> validPeerDisconnectionRequestedEvents =
-            new ConcurrentQueue<PeerDisconnection>();
+        private readonly ConcurrentQueue<PeerDisconnection> validPeerDisconnectionRequestedEvents = new ConcurrentQueue<PeerDisconnection>();
 
         /// <summary>
         /// Peer disconnected events
@@ -135,8 +133,7 @@ namespace Taurus.Connectors
         /// Enqueues peer connection attempted event
         /// </summary>
         /// <param name="peer">Peer</param>
-        protected void EnqueuePeerConnectionAttemptedEvent(IPeer peer) =>
-            peerConnectionAttemptedEvents.Enqueue(peer);
+        protected void EnqueuePeerConnectionAttemptedEvent(IPeer peer) => peerConnectionAttemptedEvents.Enqueue(peer);
 
         /// <summary>
         /// Enqueues peer disconnected event
