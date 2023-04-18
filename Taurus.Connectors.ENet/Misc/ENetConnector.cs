@@ -29,6 +29,12 @@ namespace Taurus.Connectors.ENet
         private static uint eNetInitializationCount;
 
         /// <summary>
+        /// Disconnection reasons
+        /// </summary>
+        private static readonly HashSet<EDisconnectionReason> disconnectionReasons =
+            new HashSet<EDisconnectionReason>((EDisconnectionReason[])Enum.GetValues(typeof(EDisconnectionReason)));
+
+        /// <summary>
         /// Connect to ENet addresses
         /// </summary>
         private readonly ConcurrentQueue<Address> connectToENetAddresses = new ConcurrentQueue<Address>();
@@ -168,11 +174,12 @@ namespace Taurus.Connectors.ENet
                                     case EventType.Disconnect:
                                         if (peerIDToPeerLookup.TryGetValue(network_event.Peer.ID, out peer))
                                         {
+                                            EDisconnectionReason disconnection_reason = (EDisconnectionReason)network_event.Data;
                                             EnqueuePeerDisconnectedEvent
                                             (
                                                 peer,
-                                                Enum.IsDefined(typeof(EDisconnectionReason), network_event.Data) ?
-                                                    (EDisconnectionReason)network_event.Data :
+                                                disconnectionReasons.Contains(disconnection_reason) ?
+                                                    disconnection_reason :
                                                     EDisconnectionReason.Invalid
                                             );
                                         }
