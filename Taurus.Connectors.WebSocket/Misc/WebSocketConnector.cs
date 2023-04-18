@@ -65,96 +65,100 @@ namespace Taurus.Connectors.WebSocket
             ICompressor? compressor
         ) : base(onHandlePeerConnectionAttempt, fragmenter ?? DefaultFragmenter, compressor)
         {
-            connectorThread = new Thread(() =>
-            {
-                TcpListener? tcp_listener = null;
-                ushort listened_to_port = 0;
-                int old_listener_backlog = 0;
-                while (isConnectorThreadRunning)
-                {
-                    ushort listening_to_port = listeningToPort;
-                    int listener_backlog = listenerBacklog;
-                    if (listened_to_port != listening_to_port)
+            connectorThread =
+                new Thread
+                (
+                    () =>
                     {
-                        listened_to_port = listening_to_port;
-                        old_listener_backlog = listener_backlog;
-                        StopTCPListener(tcp_listener);
-                        if (listening_to_port != 0)
+                        TcpListener? tcp_listener = null;
+                        ushort listened_to_port = 0;
+                        int old_listener_backlog = 0;
+                        while (isConnectorThreadRunning)
                         {
-                            tcp_listener = new TcpListener(IPAddress.Any, listening_to_port);
-                            if (listener_backlog > 0)
+                            ushort listening_to_port = listeningToPort;
+                            int listener_backlog = listenerBacklog;
+                            if (listened_to_port != listening_to_port)
                             {
-                                tcp_listener.Start(listener_backlog);
-                            }
-                            else
-                            {
-                                tcp_listener.Start();
-                            }
-                        }
-                    }
-                    else if (old_listener_backlog != listener_backlog)
-                    {
-                        old_listener_backlog = listener_backlog;
-                        StopTCPListener(tcp_listener);
-                        if (tcp_listener != null)
-                        {
-                            if (listener_backlog > 0)
-                            {
-                                tcp_listener.Start(listener_backlog);
-                            }
-                            else
-                            {
-                                tcp_listener.Start();
-                            }
-                        }
-                    }
-                    if (tcp_listener != null)
-                    {
-                        while (tcp_listener.Pending())
-                        {
-                            EnqueuePeerConnectionAttemptedEvent(new WebSocketPeer(new PeerGUID(Guid.NewGuid()), this, tcp_listener.AcceptTcpClient()));
-                        }
-                    }
-                    ProcessRequests();
-                    while (connectToHostAndPortEvents.TryDequeue(out WebSocketConnection connect_to_host_and_port_event))
-                    {
-                        EnqueuePeerConnectionAttemptedEvent
-                        (
-                            new WebSocketPeer
-                            (
-                                new PeerGUID(Guid.NewGuid()),
-                                this,
-                                new TcpClient(connect_to_host_and_port_event.Host, connect_to_host_and_port_event.Port)
-                            )
-                        );
-                    }
-                    foreach (IPeer peer in Peers.Values)
-                    {
-                        if (peer is IWebSocketPeer web_socket_peer)
-                        {
-                            int available_bytes_count = web_socket_peer.TCPClient.Available;
-                            if (available_bytes_count > 0)
-                            {
-                                if (buffer.Length < available_bytes_count)
+                                listened_to_port = listening_to_port;
+                                old_listener_backlog = listener_backlog;
+                                StopTCPListener(tcp_listener);
+                                if (listening_to_port != 0)
                                 {
-                                    buffer =
-                                        new byte
-                                        [
-                                            available_bytes_count / buffer.Length * (((available_bytes_count % buffer.Length) == 0) ? 1 : 2) * buffer.Length
-                                        ];
-                                }
-                                int read_bytes_count = web_socket_peer.TCPClient.GetStream().Read(buffer, 0, available_bytes_count);
-                                if (read_bytes_count > 0)
-                                {
-                                    EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, read_bytes_count));
+                                    tcp_listener = new TcpListener(IPAddress.Any, listening_to_port);
+                                    if (listener_backlog > 0)
+                                    {
+                                        tcp_listener.Start(listener_backlog);
+                                    }
+                                    else
+                                    {
+                                        tcp_listener.Start();
+                                    }
                                 }
                             }
+                            else if (old_listener_backlog != listener_backlog)
+                            {
+                                old_listener_backlog = listener_backlog;
+                                StopTCPListener(tcp_listener);
+                                if (tcp_listener != null)
+                                {
+                                    if (listener_backlog > 0)
+                                    {
+                                        tcp_listener.Start(listener_backlog);
+                                    }
+                                    else
+                                    {
+                                        tcp_listener.Start();
+                                    }
+                                }
+                            }
+                            if (tcp_listener != null)
+                            {
+                                while (tcp_listener.Pending())
+                                {
+                                    EnqueuePeerConnectionAttemptedEvent(new WebSocketPeer(new PeerGUID(Guid.NewGuid()), this, tcp_listener.AcceptTcpClient()));
+                                }
+                            }
+                            ProcessRequests();
+                            while (connectToHostAndPortEvents.TryDequeue(out WebSocketConnection connect_to_host_and_port_event))
+                            {
+                                EnqueuePeerConnectionAttemptedEvent
+                                (
+                                    new WebSocketPeer
+                                    (
+                                        new PeerGUID(Guid.NewGuid()),
+                                        this,
+                                        new TcpClient(connect_to_host_and_port_event.Host, connect_to_host_and_port_event.Port)
+                                    )
+                                );
+                            }
+                            foreach (IPeer peer in Peers.Values)
+                            {
+                                if (peer is IWebSocketPeer web_socket_peer)
+                                {
+                                    int available_bytes_count = web_socket_peer.TCPClient.Available;
+                                    if (available_bytes_count > 0)
+                                    {
+                                        if (buffer.Length < available_bytes_count)
+                                        {
+                                            buffer =
+                                                new byte
+                                                [
+                                                    available_bytes_count / buffer.Length * (((available_bytes_count % buffer.Length) == 0) ? 1 : 2) * buffer.Length
+                                                ];
+                                        }
+                                        int read_bytes_count = web_socket_peer.TCPClient.GetStream().Read(buffer, 0, available_bytes_count);
+                                        if (read_bytes_count > 0)
+                                        {
+                                            EnqueuePeerMessageReceivedEvent(peer, buffer.AsSpan(0, read_bytes_count));
+                                        }
+                                    }
+                                }
+                            }
                         }
+                        StopTCPListener(tcp_listener);
+                        ProcessRequests();
                     }
-                }
-                StopTCPListener(tcp_listener);
-                ProcessRequests();
-            });
+                );
             connectorThread.Start();
         }
 
