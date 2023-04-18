@@ -66,7 +66,7 @@ namespace Taurus.Fragmenters.TaurusFragmenter
         public TaurusDefragmenterStream() => messagesBinaryReader = new BinaryReader(messagesMemoryStream, Encoding.UTF8, true);
 
         /// <summary>
-        /// Proceses messages
+        /// Processes messages
         /// </summary>
         private void ProcessMessages()
         {
@@ -79,8 +79,9 @@ namespace Taurus.Fragmenters.TaurusFragmenter
                     {
                         break;
                     }
-                    parsedHeader <<= 8;
-                    parsedHeader |= (long)read_byte & 0xFF;
+                    parsedHeader >>= 8;
+                    parsedHeader &= 0xFFFFFFFFFFFFFF;
+                    parsedHeader |= (long)read_byte << 56;
                 }
                 if (parsedHeader == TaurusFragmenter.Header)
                 {
@@ -184,6 +185,7 @@ namespace Taurus.Fragmenters.TaurusFragmenter
         public override void Write(byte[] buffer, int offset, int count)
         {
             messagesMemoryStream.Write(buffer, offset, count);
+            messagesMemoryStream.Seek(0L, SeekOrigin.Begin);
             ProcessMessages();
         }
 
