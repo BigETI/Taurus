@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 
 /// <summary>
@@ -12,9 +14,9 @@ namespace Taurus.Fragmenters
     internal sealed class NoDefragmentationDefragmenterStream : ADefragmenterStream, INoDefragmentationDefragmenterStream
     {
         /// <summary>
-        /// Memory stream
+        /// Message queue
         /// </summary>
-        private readonly MemoryStream memoryStream = new MemoryStream();
+        private readonly Queue<ReadOnlyMemory<byte>> messageQueue = new Queue<ReadOnlyMemory<byte>>();
 
         /// <summary>
         /// Is message pending
@@ -29,15 +31,19 @@ namespace Taurus.Fragmenters
         /// <summary>
         /// Flushes this stream
         /// </summary>
-        public override void Flush() => memoryStream.Flush();
+        public override void Flush()
+        {
+            // ...
+        }
 
         /// <summary>
-        /// Writes data into thi stream
+        /// Writes data into this stream
         /// </summary>
         /// <param name="buffer">Buffer</param>
         /// <param name="offset">Offset</param>
         /// <param name="count">Count</param>
-        public override void Write(byte[] buffer, int offset, int count) => memoryStream.Write(buffer, offset, count);
+        public override void Write(byte[] buffer, int offset, int count) =>
+            messageQueue.Enqueue(buffer.AsMemory(offset, count));
 
         /// <summary>
         /// Tries to dequeue a message
@@ -46,16 +52,8 @@ namespace Taurus.Fragmenters
         /// <returns>"true" is message has been successfully dequeued, otherwise "false"</returns>
         public override bool TryDequeuingMessage(out ReadOnlySpan<byte> message)
         {
-            bool ret = memoryStream.Length > 0;
-            if (ret)
-            {
-                memoryStream.Seek(0L, SeekOrigin.Begin);
-                message = memoryStream.ToArray();
-            }
-            else
-            {
-                message = Array.Empty<byte>();
-            }
+            bool ret = messageQueue.TryDequeue(out ReadOnlyMemory<byte> bytes);
+            message = ret ? bytes.Span : ReadOnlySpan<byte>.Empty;
             return ret;
         }
 
@@ -70,11 +68,10 @@ namespace Taurus.Fragmenters
             {
                 throw new ArgumentException("Can not write contents to output stream.", nameof(outputStream));
             }
-            bool ret = memoryStream.Length > 0L;
+            bool ret = messageQueue.TryDequeue(out ReadOnlyMemory<byte> bytes);
             if (ret)
             {
-                memoryStream.CopyTo(outputStream);
-                memoryStream.SetLength(0L);
+                outputStream.Write(bytes.Span);
             }
             return ret;
         }
