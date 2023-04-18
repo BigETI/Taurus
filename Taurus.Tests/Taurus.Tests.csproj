@@ -17,6 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Taurus.Compressors.GZIP\Taurus.Compressors.GZIP.csproj" />
+    <ProjectReference Include="..\Taurus.Connectors.ENet\Taurus.Connectors.ENet.csproj" />
+    <ProjectReference Include="..\Taurus.Connectors.Local\Taurus.Connectors.Local.csproj" />
+    <ProjectReference Include="..\Taurus.Connectors.WebSocket\Taurus.Connectors.WebSocket.csproj" />
+    <ProjectReference Include="..\Taurus.Serializers.BSON\Taurus.Serializers.BSON.csproj" />
+    <ProjectReference Include="..\Taurus.Serializers.JSON\Taurus.Serializers.JSON.csproj" />
     <ProjectReference Include="..\Taurus\Taurus.csproj" />
   </ItemGroup>
 

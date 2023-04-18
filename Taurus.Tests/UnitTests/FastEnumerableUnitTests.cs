@@ -3,7 +3,7 @@ using Taurus.Collections;
 namespace Taurus.Tests
 {
     [TestClass]
-    public class FastEnumerableUnitTests
+    public sealed class FastEnumerableUnitTests
     {
         [TestMethod]
         public void TestFastEnumerableConcurrentBag()
