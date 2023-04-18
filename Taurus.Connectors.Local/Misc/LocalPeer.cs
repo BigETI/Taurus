@@ -1,5 +1,4 @@
 ﻿using System;
-
 /// <summary>
 /// Taurus connectors local namespace
 /// </summary>
@@ -11,9 +10,45 @@ namespace Taurus.Connectors.Local
     internal sealed class LocalPeer : APeer, ILocalPeer
     {
         /// <summary>
-        /// Target local connector
+        /// Target local peer
         /// </summary>
-        public ILocalConnector TargetLocalConnector { get; }
+        private ILocalPeer? targetLocalPeer;
+
+        /// <summary>
+        /// Target local peer
+        /// </summary>
+        public ILocalPeer? TargetLocalPeer
+        {
+            get => targetLocalPeer;
+            internal set
+            {
+                if (value == this)
+                {
+                    throw new ArgumentException("Target local connector can not be of the same instance as this.", nameof(value));
+                }
+                if (targetLocalPeer != value)
+                {
+                    if ((targetLocalPeer != null) && (targetLocalPeer.TargetLocalPeer == this))
+                    {
+                        targetLocalPeer.TargetLocalPeer = null;
+                    }
+                    targetLocalPeer = value;
+                    if ((targetLocalPeer != null) && (targetLocalPeer.TargetLocalPeer == null))
+                    {
+                        targetLocalPeer.TargetLocalPeer = this;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Target local peer
+        /// </summary>
+        ILocalPeer? ILocalPeer.TargetLocalPeer
+        {
+            get => TargetLocalPeer;
+            set => TargetLocalPeer = value;
+        }
 
         /// <summary>
         /// Constructs a new local peer
@@ -21,13 +56,9 @@ namespace Taurus.Connectors.Local
         /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
         /// <param name="targetLocalConnector">Target local connector</param>
-        public LocalPeer(PeerGUID peerGUID, IConnector connector, ILocalConnector targetLocalConnector) : base(peerGUID, connector)
+        public LocalPeer(PeerGUID peerGUID, IConnector connector) : base(peerGUID, connector)
         {
-            if (targetLocalConnector == connector)
-            {
-                throw new ArgumentException("Target local connector can not be the same instance as the specified connector.", nameof(targetLocalConnector));
-            }
-            TargetLocalConnector = targetLocalConnector;
+            // ...
         }
     }
 }

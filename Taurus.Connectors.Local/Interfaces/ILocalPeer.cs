@@ -9,8 +9,8 @@ namespace Taurus.Connectors.Local
     public interface ILocalPeer : IPeer
     {
         /// <summary>
-        /// Target local connector
+        /// Target local peer
         /// </summary>
-        ILocalConnector TargetLocalConnector { get; }
+        ILocalPeer? TargetLocalPeer { get; internal set; }
     }
 }
