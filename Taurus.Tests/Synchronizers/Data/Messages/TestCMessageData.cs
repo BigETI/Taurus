@@ -9,9 +9,11 @@ namespace Taurus.Tests.Synchronizers.Data.Messages
         [JsonProperty("value")]
         public string? Value { get; set; }
 
+        public override bool IsValid => base.IsValid && (Value != null);
+
         public TestCMessageData()
         {
-
+            // ...
         }
 
         public TestCMessageData(string value) => Value = value;

@@ -11,7 +11,7 @@ namespace Taurus.Tests.Synchronizers.Data.Messages
 
         public TestAMessageData()
         {
-
+            // ...
         }
 
         public TestAMessageData(int value) => Value = value;
