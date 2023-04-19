@@ -50,7 +50,7 @@ This library is a successor to the network stack implemented in [ElectrodZ Multi
 
 ## Real-life use cases
 
-Currently Taurus is in use for an upcoming online multiplyer game made with the Unity Engine.
+Currently Taurus is in use for an upcoming online multiplayer game made with the Unity Engine.
 
 It is planned to use Taurus for future online multiplayer game projects.
 
