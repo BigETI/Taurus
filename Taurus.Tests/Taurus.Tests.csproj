@@ -23,6 +23,7 @@
     <ProjectReference Include="..\Taurus.Connectors.WebSocket\Taurus.Connectors.WebSocket.csproj" />
     <ProjectReference Include="..\Taurus.Serializers.BSON\Taurus.Serializers.BSON.csproj" />
     <ProjectReference Include="..\Taurus.Serializers.JSON\Taurus.Serializers.JSON.csproj" />
+    <ProjectReference Include="..\Taurus.Synchronizers.AuthenticableUsers\Taurus.Synchronizers.AuthenticableUsers.csproj" />
     <ProjectReference Include="..\Taurus\Taurus.csproj" />
   </ItemGroup>
 
