@@ -5,7 +5,7 @@ using Taurus.Tests.Synchronizers.Data.Messages;
 namespace Taurus.Tests
 {
     [TestClass]
-    public sealed class AuthenticableUsersSynbchronizerUnitTests
+    public sealed class AuthenticableUsersSynchronizerUnitTests
     {
         private static readonly double maximalServerInitializationTimeSeconds = 3.0;
 
