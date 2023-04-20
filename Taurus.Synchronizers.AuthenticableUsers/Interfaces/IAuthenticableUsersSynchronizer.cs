@@ -7,12 +7,14 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// An interface that represents an authenticated users synchronizer
     /// </summary>
     /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
-    public interface IAuthenticableUsersSynchronizer<TAuthenticableUser> : ISynchronizer<TAuthenticableUser> where TAuthenticableUser : IAuthenticableUser
+    /// <typeparam name="TAuthenticatedUserInformation">Authenticated user information</typeparam>
+    public interface IAuthenticableUsersSynchronizer<TAuthenticableUser, TAuthenticatedUserInformation> :
+        ISynchronizer<TAuthenticableUser> where TAuthenticableUser : IAuthenticableUser
     {
         /// <summary>
         /// Gets invoked when an user has been authenticated
         /// </summary>
-        event UserAuthenticatedDelegate<TAuthenticableUser>? OnUserAuthenticated;
+        event UserAuthenticatedDelegate<TAuthenticableUser, TAuthenticatedUserInformation>? OnUserAuthenticated;
 
         /// <summary>
         /// Gets invoked when a peer user has been authenticated

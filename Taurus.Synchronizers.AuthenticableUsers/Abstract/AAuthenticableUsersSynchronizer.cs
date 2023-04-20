@@ -24,7 +24,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         TAuthenticationFailedMessageData
     > :
         ASynchronizer<TAuthenticableUser>,
-        IAuthenticableUsersSynchronizer<TAuthenticableUser>
+        IAuthenticableUsersSynchronizer<TAuthenticableUser, TAuthenticatedUserInformation>
         where TAuthenticableUser : IAuthenticableUser
         where TAuthenticateMessageData : IBaseMessageData
         where TAuthenticatedUserInformation : class
@@ -45,7 +45,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// Gets invoked when an user has been authenticated
         /// </summary>
-        public event UserAuthenticatedDelegate<TAuthenticableUser>? OnUserAuthenticated;
+        public event UserAuthenticatedDelegate<TAuthenticableUser, TAuthenticatedUserInformation>? OnUserAuthenticated;
 
         /// <summary>
         /// Gets invoked when a peer user has been authenticated
@@ -140,7 +140,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
                 {
                     user.AuthenticableUser.FlagAsAuthenticated();
                     UpdateAuthenticatedUser(user.AuthenticableUser, user.AuthenticatedUserInformation);
-                    OnUserAuthenticated?.Invoke(user.AuthenticableUser);
+                    OnUserAuthenticated?.Invoke(user.AuthenticableUser, user.AuthenticatedUserInformation);
                 }
             }
             if (OnUserAuthenticationFailed == null)
