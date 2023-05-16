@@ -1,8 +1,5 @@
 ﻿using Taurus.Validators;
 
-/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>

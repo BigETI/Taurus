@@ -1,16 +1,21 @@
-﻿/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
-namespace Taurus.Synchronizers.AuthenticableUsers
+﻿namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>
     /// An interface that represents an user authentication result
     /// </summary>
-    /// <typeparam name="TAuthenticatedUserInformation">AUthenticated user information</typeparam>
+    /// <typeparam name="TAuthenticatedUserInformation">AUthenticated user information type</typeparam>
+    /// <typeparam name="TAuthenticationFailReason">AUthentication fail reason type</typeparam>
     /// <typeparam name="TAuthenticationSuccessfulMessageData">Authentication successful message data type</typeparam>
     /// <typeparam name="TAuthenticationFailedMessageData">Authentication failed message data type</typeparam>
-    public interface IUserAuthenticationResult<TAuthenticatedUserInformation, TAuthenticationSuccessfulMessageData, TAuthenticationFailedMessageData>
+    public interface IUserAuthenticationResult
+    <
+        TAuthenticatedUserInformation,
+        TAuthenticationFailReason,
+        TAuthenticationSuccessfulMessageData,
+        TAuthenticationFailedMessageData
+    >
         where TAuthenticatedUserInformation : class
+        where TAuthenticationFailReason : class
         where TAuthenticationSuccessfulMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
     {
@@ -22,16 +27,21 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// Authenticated user information
         /// </summary>
-        public TAuthenticatedUserInformation? AuthenticatedUserInformation { get; }
+        TAuthenticatedUserInformation? AuthenticatedUserInformation { get; }
+
+        /// <summary>
+        /// Authentication fail reason
+        /// </summary>
+        TAuthenticationFailReason? AuthenticationFailReason { get; }
 
         /// <summary>
         /// Authentication successful message data
         /// </summary>
-        public TAuthenticationSuccessfulMessageData? AuthenticationSuccessfulMessageData { get; }
+        TAuthenticationSuccessfulMessageData? AuthenticationSuccessfulMessageData { get; }
 
         /// <summary>
         /// Authentication failed message data
         /// </summary>
-        public TAuthenticationFailedMessageData? AuthenticationFailedMessageData { get; }
+        TAuthenticationFailedMessageData? AuthenticationFailedMessageData { get; }
     }
 }

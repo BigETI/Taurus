@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus connectors ENet namespace
-/// </summary>
-namespace Taurus.Connectors.ENet
+﻿namespace Taurus.Connectors.ENet
 {
     /// <summary>
     /// Used to invoke when peer is ENet peer asserted

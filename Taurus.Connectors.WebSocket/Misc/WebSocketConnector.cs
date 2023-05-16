@@ -7,9 +7,6 @@ using Taurus.Compressors;
 using Taurus.Fragmenters;
 using Taurus.Fragmenters.TaurusFragmenter;
 
-/// <summary>
-/// Taurus connectors WebSocket namespace
-/// </summary>
 namespace Taurus.Connectors.WebSocket
 {
     /// <summary>

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Taurus connectors namespace
-/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>
@@ -29,7 +26,7 @@ namespace Taurus.Connectors
         /// <summary>
         /// Disconnects this peer
         /// </summary>
-        /// <param name="peer">Peer</param>
+        /// <param name="disconnectionReason">Disconnection reason</param>
         void Disconnect(EDisconnectionReason disconnectionReason);
 
         /// <summary>

@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 
-/// <summary>
-/// Taurus validators namespace
-/// </summary>
 namespace Taurus.Validators
 {
     /// <summary>
@@ -126,7 +123,7 @@ namespace Taurus.Validators
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="validable">Validable</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{TValidable}">When the specified validable is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified validable is not valid</exception>
         public static void Validate<TValidable>(TValidable validable, string parameterName) where TValidable : struct, IValidable =>
             Validator.Validate(validable, parameterName, IsValid);
 
@@ -136,7 +133,7 @@ namespace Taurus.Validators
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="validable">Validable</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{TValidable?}">When the specified validable is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified validable is not valid</exception>
         public static void Validate<TValidable>(TValidable? validable, string parameterName) where TValidable : struct, IValidable =>
             Validator.Validate(validable, parameterName, IsValid);
 
@@ -146,7 +143,7 @@ namespace Taurus.Validators
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{Validable?}?}">When the specified collection is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified collection is not valid</exception>
         public static void ValidateCollection<TValidable>(IEnumerable<TValidable>? collection, string parameterName)
             where TValidable : struct, IValidable =>
             Validator.ValidateCollection(collection, parameterName, IsValid);
@@ -157,7 +154,7 @@ namespace Taurus.Validators
         /// <typeparam name="TValidable">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{Validable?}?}">When the specified collection is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified collection is not valid</exception>
         public static void ValidateCollection<TValidable>(IEnumerable<TValidable?>? collection, string parameterName)
             where TValidable : struct, IValidable =>
             Validator.ValidateCollection(collection, parameterName, IsValid);
@@ -168,7 +165,7 @@ namespace Taurus.Validators
         /// <typeparam name="TCollectionElement">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{TCollectionElement}?}">When the specified collection is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified collection is not valid</exception>
         public static void ValidateCollectionWithOnlyUniqueElements<TCollectionElement>(IEnumerable<TCollectionElement>? collection, string parameterName)
             where TCollectionElement : struct, IValidable =>
             Validator.Validate(collection, parameterName, IsCollectionValidAndAllElementsUnique);
@@ -179,7 +176,7 @@ namespace Taurus.Validators
         /// <typeparam name="TCollectionElement">Validable type</typeparam>
         /// <param name="collection">Collection</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{TCollectionElement?}?}">When the specified collection is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified collection is not valid</exception>
         public static void ValidateCollectionWithOnlyUniqueElements<TCollectionElement>(IEnumerable<TCollectionElement?>? collection, string parameterName)
             where TCollectionElement : struct, IValidable =>
             Validator.Validate(collection, parameterName, IsCollectionValidAndAllElementsUnique);

@@ -3,9 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus promises namespace
-/// </summary>
 namespace Taurus.Promises
 {
     /// <summary>

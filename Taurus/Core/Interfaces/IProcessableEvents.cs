@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus namespace
-/// </summary>
-namespace Taurus
+﻿namespace Taurus
 {
     /// <summary>
     /// An interface that represents processable events

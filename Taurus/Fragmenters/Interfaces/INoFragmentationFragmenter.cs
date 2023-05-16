@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus fragmenters namespace
-/// </summary>
-namespace Taurus.Fragmenters
+﻿namespace Taurus.Fragmenters
 {
     /// <summary>
     /// An interface that represents a no fragmentation fragmenter

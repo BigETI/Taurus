@@ -1,8 +1,5 @@
 ﻿using System;
 
-/// <summary>
-/// Taurus promises namespace
-/// </summary>
 namespace Taurus.Promises
 {
     /// <summary>

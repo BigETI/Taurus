@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Taurus.Synchronizers.Data.Messages;
+using Taurus.Validators;
 
 namespace Taurus.Tests.Synchronizers.Data.Messages
 {
@@ -7,15 +8,19 @@ namespace Taurus.Tests.Synchronizers.Data.Messages
     internal sealed class AuthenticationFailedMessageData : BaseMessageData
     {
         [JsonProperty("reason")]
-        public string? Reason { get; set; }
+        public EAuthenticationFailReason Reason { get; set; }
 
-        public override bool IsValid => base.IsValid && (Reason != null);
+        public override bool IsValid => base.IsValid && EnumeratorValidator.IsEnumeratorValid(Reason, EAuthenticationFailReason.Invalid);
 
         public AuthenticationFailedMessageData()
         {
 
         }
 
-        public AuthenticationFailedMessageData(string reason) => Reason = reason;
+        public AuthenticationFailedMessageData(EAuthenticationFailReason reason)
+        {
+            EnumeratorValidator.ValidateEnumerator(reason, EAuthenticationFailReason.Invalid, nameof(reason));
+            Reason = reason;
+        }
     }
 }

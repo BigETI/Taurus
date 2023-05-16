@@ -2,9 +2,6 @@
 using System.IO;
 using System.Text;
 
-/// <summary>
-/// Taurus fragmenters Taurus fragmenter namespace
-/// </summary>
 namespace Taurus.Fragmenters.TaurusFragmenter
 {
     /// <summary>

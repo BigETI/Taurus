@@ -1,8 +1,5 @@
 ﻿using Taurus.Synchronizers;
 
-/// <summary>
-/// Taurus JSON converters
-/// </summary>
 namespace Taurus.JSONConverters
 {
     /// <summary>

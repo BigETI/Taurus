@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 
-/// <summary>
-/// Taurus comparators namespace
-/// </summary>
 namespace Taurus.Comparators
 {
     /// <summary>

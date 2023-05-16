@@ -2,9 +2,6 @@
 using System.Threading.Tasks;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus connectors namespace
-/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>

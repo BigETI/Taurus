@@ -1,8 +1,5 @@
 ﻿using System;
 
-/// <summary>
-/// Taurus validators namespace
-/// </summary>
 namespace Taurus.Validators
 {
     /// <summary>

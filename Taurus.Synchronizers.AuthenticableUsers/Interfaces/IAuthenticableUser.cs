@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
-namespace Taurus.Synchronizers.AuthenticableUsers
+﻿namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>
     /// An interface that represents an authenticated user

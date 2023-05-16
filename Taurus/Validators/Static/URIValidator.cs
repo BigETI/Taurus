@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Taurus validators namespace
-/// </summary>
 namespace Taurus.Validators
 {
     /// <summary>

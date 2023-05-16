@@ -1,9 +1,6 @@
 ﻿using System;
 using Taurus.GUIDs;
 
-/// <summary>
-/// Taurus connectors namespace
-/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>

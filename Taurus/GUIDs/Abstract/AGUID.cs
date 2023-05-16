@@ -1,9 +1,6 @@
 ﻿using System;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus GUIDs namespace
-/// </summary>
 namespace Taurus.GUIDs
 {
     /// <summary>
@@ -61,7 +58,7 @@ namespace Taurus.GUIDs
         /// <summary>
         /// Does this GUID equal to the specified GUID
         /// </summary>
-        /// <param name="obj">Object</param>
+        /// <param name="other">Other GUID</param>
         /// <returns>"true" if both GUIDs are equivalent, otherwise "false"</returns>
         public virtual bool Equals(TGUID other) => GUID == other?.GUID;
 

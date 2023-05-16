@@ -2,9 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Taurus promises
-/// </summary>
 namespace Taurus.Promises
 {
     /// <summary>

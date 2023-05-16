@@ -8,9 +8,6 @@ using Taurus.Compressors;
 using Taurus.Fragmenters;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus connectors ENet namespace
-/// </summary>
 namespace Taurus.Connectors.ENet
 {
     /// <summary>

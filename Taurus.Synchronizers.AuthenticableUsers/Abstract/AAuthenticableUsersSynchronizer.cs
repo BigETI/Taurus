@@ -2,9 +2,6 @@
 using System.Threading.Tasks;
 using Taurus.Serializers;
 
-/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
 namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>
@@ -13,6 +10,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
     /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
     /// <typeparam name="TAuthenticateMessageData">Authenticate message data type</typeparam>
     /// <typeparam name="TAuthenticatedUserInformation">Authenticated user information type</typeparam>
+    /// <typeparam name="TAuthenticationFailReason">Authentication fail reason type</typeparam>
     /// <typeparam name="TAuthenticationSucceededMessageData">Authentication succeeded message data type</typeparam>
     /// <typeparam name="TAuthenticationFailedMessageData">Authentication failed message data type</typeparam>
     public abstract class AAuthenticableUsersSynchronizer
@@ -20,14 +18,16 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         TAuthenticableUser,
         TAuthenticateMessageData,
         TAuthenticatedUserInformation,
+        TAuthenticationFailReason,
         TAuthenticationSucceededMessageData,
         TAuthenticationFailedMessageData
     > :
         ASynchronizer<TAuthenticableUser>,
-        IAuthenticableUsersSynchronizer<TAuthenticableUser, TAuthenticatedUserInformation>
+        IAuthenticableUsersSynchronizer<TAuthenticableUser, TAuthenticatedUserInformation, TAuthenticationFailReason>
         where TAuthenticableUser : IAuthenticableUser
         where TAuthenticateMessageData : IBaseMessageData
         where TAuthenticatedUserInformation : class
+        where TAuthenticationFailReason : class
         where TAuthenticationSucceededMessageData : class, IBaseMessageData
         where TAuthenticationFailedMessageData : class, IBaseMessageData
     {
@@ -40,7 +40,9 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// User authentication failed events
         /// </summary>
-        private readonly ConcurrentQueue<TAuthenticableUser> userAuthenticationFailedEvents = new ConcurrentQueue<TAuthenticableUser>();
+        private readonly ConcurrentQueue<(TAuthenticableUser AuthenticableUser, TAuthenticationFailReason AuthenticationFailReason)>
+            userAuthenticationFailedEvents =
+                new ConcurrentQueue<(TAuthenticableUser AuthenticableUser, TAuthenticationFailReason AuthenticationFailReason)>();
 
         /// <summary>
         /// Gets invoked when an user has been authenticated
@@ -50,7 +52,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// Gets invoked when a peer user has been authenticated
         /// </summary>
-        public event UserAuthenticationFailedDelegate<TAuthenticableUser>? OnUserAuthenticationFailed;
+        public event UserAuthenticationFailedDelegate<TAuthenticableUser, TAuthenticationFailReason>? OnUserAuthenticationFailed;
 
         /// <summary>
         /// Constructs a new authenticated users synchronizer
@@ -62,8 +64,15 @@ namespace Taurus.Synchronizers.AuthenticableUsers
             (
                 async (authenticableUser, message, _) =>
                 {
-                    IUserAuthenticationResult<TAuthenticatedUserInformation, TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData> user_authentication_result =
-                        await HandlePeerUserAuthenticationAsync(authenticableUser, message);
+                    IUserAuthenticationResult
+                    <
+                        TAuthenticatedUserInformation,
+                        TAuthenticationFailReason,
+                        TAuthenticationSucceededMessageData,
+                        TAuthenticationFailedMessageData
+                    >
+                        user_authentication_result =
+                            await HandlePeerUserAuthenticationAsync(authenticableUser, message);
                     if (user_authentication_result.IsSuccessful)
                     {
                         userAuthenticatedEvents.Enqueue((authenticableUser, user_authentication_result.AuthenticatedUserInformation!));
@@ -71,7 +80,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
                     }
                     else
                     {
-                        userAuthenticationFailedEvents.Enqueue(authenticableUser);
+                        userAuthenticationFailedEvents.Enqueue((authenticableUser, user_authentication_result.AuthenticationFailReason!));
                         await authenticableUser.SendMessageAsync(user_authentication_result.AuthenticationFailedMessageData!);
                     }
                 }
@@ -84,7 +93,16 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <param name="authenticableUser">Authenticable user</param>
         /// <param name="authenticateMessageData">Authenticate message data</param>
         /// <returns>User authentication result as a task</returns>
-        protected abstract Task<IUserAuthenticationResult<TAuthenticatedUserInformation, TAuthenticationSucceededMessageData, TAuthenticationFailedMessageData>>
+        protected abstract Task
+        <
+            IUserAuthenticationResult
+            <
+                TAuthenticatedUserInformation,
+                TAuthenticationFailReason,
+                TAuthenticationSucceededMessageData,
+                TAuthenticationFailedMessageData
+            >
+        >
             HandlePeerUserAuthenticationAsync(TAuthenticableUser authenticableUser, TAuthenticateMessageData authenticateMessageData);
 
         /// <summary>
@@ -149,9 +167,9 @@ namespace Taurus.Synchronizers.AuthenticableUsers
             }
             else
             {
-                while (userAuthenticationFailedEvents.TryDequeue(out TAuthenticableUser user))
+                while (userAuthenticationFailedEvents.TryDequeue(out (TAuthenticableUser AuthenticableUser, TAuthenticationFailReason AuthenticationFailReason) user))
                 {
-                    OnUserAuthenticationFailed.Invoke(user);
+                    OnUserAuthenticationFailed.Invoke(user.AuthenticableUser, user.AuthenticationFailReason);
                 }
             }
         }

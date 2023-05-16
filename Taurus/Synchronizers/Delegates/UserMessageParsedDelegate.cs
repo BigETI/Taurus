@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>

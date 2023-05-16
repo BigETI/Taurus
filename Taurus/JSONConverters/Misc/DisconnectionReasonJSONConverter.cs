@@ -1,8 +1,5 @@
 ﻿using Taurus.Connectors;
 
-/// <summary>
-/// Taurus JSON converters
-/// </summary>
 namespace Taurus.JSONConverters
 {
     /// <summary>

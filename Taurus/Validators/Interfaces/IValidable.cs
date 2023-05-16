@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus validators namespace
-/// </summary>
-namespace Taurus.Validators
+﻿namespace Taurus.Validators
 {
     /// <summary>
     /// An interface that represents an object that can be validated

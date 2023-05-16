@@ -2,9 +2,6 @@
 using System.IO;
 using System.Text;
 
-/// <summary>
-/// Taurus serializers JSON namespace
-/// </summary>
 namespace Taurus.Serializers.JSON
 {
     /// <summary>

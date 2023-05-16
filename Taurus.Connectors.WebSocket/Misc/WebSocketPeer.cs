@@ -1,9 +1,6 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 
-/// <summary>
-/// Taurus connectors WebSocket namespace
-/// </summary>
 namespace Taurus.Connectors.WebSocket
 {
     /// <summary>
@@ -26,6 +23,7 @@ namespace Taurus.Connectors.WebSocket
         /// </summary>
         /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
+        /// <param name="tcpClient">TCP client</param>
         public WebSocketPeer(PeerGUID peerGUID, IConnector connector, TcpClient tcpClient) : base(peerGUID, connector) => TCPClient = tcpClient;
     }
 }

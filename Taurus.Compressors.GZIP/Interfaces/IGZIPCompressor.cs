@@ -1,8 +1,5 @@
 ﻿using System.IO.Compression;
 
-/// <summary>
-/// Taurus compressors Gzip namespace
-/// </summary>
 namespace Taurus.Compressors.GZIP
 {
     /// <summary>

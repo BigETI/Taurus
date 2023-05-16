@@ -1,9 +1,6 @@
 ﻿using Taurus.Connectors;
 using Taurus.Serializers;
 
-/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
 namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>
@@ -21,8 +18,8 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// </summary>
         /// <param name="userGUID">User GUID</param>
         /// <param name="peer">Peer</param>
-        protected AAuthenticableUser(UserGUID userGUID, IPeer peer, ISerializer serializer) :
-            base(userGUID, peer, serializer)
+        /// <param name="serializer">Serializer</param>
+        protected AAuthenticableUser(UserGUID userGUID, IPeer peer, ISerializer serializer) : base(userGUID, peer, serializer)
         {
             // ...
         }

@@ -3,9 +3,6 @@ using System.Collections.Concurrent;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
-/// <summary>
-/// Taurus connectors local namespace
-/// </summary>
 namespace Taurus.Connectors.Local
 {
     /// <summary>

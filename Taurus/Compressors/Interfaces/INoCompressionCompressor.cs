@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus compressors namespace
-/// </summary>
-namespace Taurus.Compressors
+﻿namespace Taurus.Compressors
 {
     /// <summary>
     /// An interface that represents a no compression compressor

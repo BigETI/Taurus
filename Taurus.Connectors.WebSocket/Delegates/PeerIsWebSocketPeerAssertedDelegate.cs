@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus connectors WebSocket namespace
-/// </summary>
-namespace Taurus.Connectors.WebSocket
+﻿namespace Taurus.Connectors.WebSocket
 {
     /// <summary>
     /// Used to invoke when a peer is a WebSocket peer asserted

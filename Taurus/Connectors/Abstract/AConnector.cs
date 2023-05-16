@@ -6,9 +6,6 @@ using Taurus.Collections;
 using Taurus.Compressors;
 using Taurus.Fragmenters;
 
-/// <summary>
-/// Taurus connectors namespace
-/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>

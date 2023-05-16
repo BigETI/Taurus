@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
 
-/// <summary>
-/// Taurus compressors namespace
-/// </summary>
 namespace Taurus.Compressors
 {
     /// <summary>

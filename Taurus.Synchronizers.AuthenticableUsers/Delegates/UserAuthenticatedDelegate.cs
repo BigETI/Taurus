@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
-namespace Taurus.Synchronizers.AuthenticableUsers
+﻿namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>
     /// Used to invoke when an user has been authenticated

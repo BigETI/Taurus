@@ -1,9 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-/// <summary>
-/// Taurus JSON converters
-/// </summary>
 namespace Taurus.JSONConverters
 {
     /// <summary>

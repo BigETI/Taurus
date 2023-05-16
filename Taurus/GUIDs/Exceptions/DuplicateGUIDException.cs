@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-/// <summary>
-/// Taurus GUIDs namespace
-/// </summary>
 namespace Taurus.GUIDs
 {
     /// <summary>

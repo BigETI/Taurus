@@ -1,9 +1,6 @@
 ﻿using System;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus GUIDs namespace
-/// </summary>
 namespace Taurus.GUIDs
 {
     /// <summary>

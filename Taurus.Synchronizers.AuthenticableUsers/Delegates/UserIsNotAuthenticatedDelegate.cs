@@ -1,8 +1,5 @@
 ﻿using System.Threading.Tasks;
 
-/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
 namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>

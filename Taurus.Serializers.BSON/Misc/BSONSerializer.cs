@@ -2,9 +2,6 @@
 using Newtonsoft.Json.Bson;
 using System.IO;
 
-/// <summary>
-/// Taurus serializers BSON namespace
-/// </summary>
 namespace Taurus.Serializers.BSON
 {
     /// <summary>

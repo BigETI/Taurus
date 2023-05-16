@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using Taurus.GUIDs;
 
-/// <summary>
-/// Taurus validators namespace
-/// </summary>
 namespace Taurus.Validators
 {
     /// <summary>
@@ -69,7 +66,7 @@ namespace Taurus.Validators
         /// <typeparam name="TGUID">GUID type</typeparam>
         /// <param name="guid">GUID</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{TGUID}}">When the specified GUIDs are not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified GUIDs are not valid</exception>
         public static void ValidateGUIDs<TGUID>(IEnumerable<TGUID>? guid, string parameterName) where TGUID : IGUID<TGUID> =>
             Validator.ValidateCollection(guid, parameterName, IsGUIDValid);
 
@@ -78,7 +75,7 @@ namespace Taurus.Validators
         /// </summary>
         /// <param name="guid">GUID</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{Guid}?}">When the specified GUIDs are not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified GUIDs are not valid</exception>
         public static void ValidateGUIDs(IEnumerable<Guid>? guid, string parameterName) =>
             Validator.ValidateCollection(guid, parameterName, IsGUIDValid);
     }

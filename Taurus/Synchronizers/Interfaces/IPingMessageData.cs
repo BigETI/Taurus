@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
-namespace Taurus.Synchronizers
+﻿namespace Taurus.Synchronizers
 {
     /// <summary>
     /// An interface that represents ping message data

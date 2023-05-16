@@ -3,9 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Taurus fragmenters namespace
-/// </summary>
 namespace Taurus.Fragmenters
 {
     /// <summary>

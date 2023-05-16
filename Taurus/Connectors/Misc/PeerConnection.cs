@@ -1,8 +1,5 @@
 ﻿using System.Threading.Tasks;
 
-/// <summary>
-/// Taurus connectors namespace
-/// </summary>
 namespace Taurus.Connectors
 {
     /// <summary>

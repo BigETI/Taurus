@@ -7,9 +7,6 @@ using Taurus.Serializers;
 using Taurus.Synchronizers.Data.Messages;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>
@@ -144,7 +141,6 @@ namespace Taurus.Synchronizers
         /// <typeparam name="TMessageData">Message data type</typeparam>
         /// <param name="errorType">Error tyoe</param>
         /// <param name="errorMessage">Error message</param>
-        /// <param name="isFatal">Is error fatal</param>
         /// <returns>Task</returns>
         public Task SendErrorMessageAsync<TMessageData>(EErrorType errorType, string errorMessage)
             where TMessageData : IBaseMessageData =>

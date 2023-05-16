@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
-namespace Taurus.Synchronizers
+﻿namespace Taurus.Synchronizers
 {
     /// <summary>
     /// Used to invoke when an user error message has been received

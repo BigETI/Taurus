@@ -1,16 +1,12 @@
 ﻿using System;
 using Taurus.Serializers;
 
-/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>
     /// A class that describes an user message parser
     /// </summary>
     /// <typeparam name="TUser">User type</typeparam>
-    /// <typeparam name="TSynchronizer">Synchronizer type</typeparam>
     /// <typeparam name="TMessageData">Message data type</typeparam>
     public sealed class UserMessageParser<TUser, TMessageData> : IUserMessageParser<TUser, TMessageData>
         where TUser : IUser
@@ -66,7 +62,7 @@ namespace Taurus.Synchronizers
         /// <summary>
         /// Parses incoming user message
         /// </summary>
-        /// <param name="peer">Peer</param>
+        /// <param name="user">User</param>
         /// <param name="bytes">Bytes</param>
         public void ParseUserMessage(TUser user, ReadOnlySpan<byte> bytes)
         {

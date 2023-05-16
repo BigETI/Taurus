@@ -1,7 +1,5 @@
 ﻿using System;
-/// <summary>
-/// Taurus connectors local namespace
-/// </summary>
+
 namespace Taurus.Connectors.Local
 {
     /// <summary>
@@ -55,7 +53,6 @@ namespace Taurus.Connectors.Local
         /// </summary>
         /// <param name="peerGUID">Peer GUID</param>
         /// <param name="connector">Connector</param>
-        /// <param name="targetLocalConnector">Target local connector</param>
         public LocalPeer(PeerGUID peerGUID, IConnector connector) : base(peerGUID, connector)
         {
             // ...

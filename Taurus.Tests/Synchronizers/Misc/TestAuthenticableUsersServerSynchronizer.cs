@@ -13,6 +13,7 @@ namespace Taurus.Tests.Synchronizers
             ITestAuthenticableServerUser,
             AuthenticateMessageData,
             string,
+            AuthenticationFailReason,
             AuthenticationSucceededMessageData,
             AuthenticationFailedMessageData
         >
@@ -51,17 +52,18 @@ namespace Taurus.Tests.Synchronizers
 
         protected override Task
             <
-                IUserAuthenticationResult<string, AuthenticationSucceededMessageData, AuthenticationFailedMessageData>
+                IUserAuthenticationResult<string, AuthenticationFailReason, AuthenticationSucceededMessageData, AuthenticationFailedMessageData>
             > HandlePeerUserAuthenticationAsync(ITestAuthenticableServerUser authenticableUser, AuthenticateMessageData authenticateMessageData)
         {
             return
                 Task.FromResult
                 (
                     (authenticateMessageData.Secret == Secret) ?
-                        UserAuthenticationResult<string, AuthenticationSucceededMessageData, AuthenticationFailedMessageData>.CreateFromSuccess("Test", new(MOTD)) :
-                        UserAuthenticationResult<string, AuthenticationSucceededMessageData, AuthenticationFailedMessageData>.CreateFromFailure
+                        UserAuthenticationResult<string, AuthenticationFailReason, AuthenticationSucceededMessageData, AuthenticationFailedMessageData>.CreateFromSuccess("Test", new(MOTD)) :
+                        UserAuthenticationResult<string, AuthenticationFailReason, AuthenticationSucceededMessageData, AuthenticationFailedMessageData>.CreateFromFailure
                         (
-                            new("Invalid secret")
+                            AuthenticationFailReason.InvalidSecret,
+                            new(EAuthenticationFailReason.InvalidSecret)
                         )
                 );
         }

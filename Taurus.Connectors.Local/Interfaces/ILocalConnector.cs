@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus connectors local namespace
-/// </summary>
-namespace Taurus.Connectors.Local
+﻿namespace Taurus.Connectors.Local
 {
     /// <summary>
     /// An interface that represents a local connector

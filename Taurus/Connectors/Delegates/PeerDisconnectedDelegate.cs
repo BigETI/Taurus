@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus connectors namespace
-/// </summary>
-namespace Taurus.Connectors
+﻿namespace Taurus.Connectors
 {
     /// <summary>
     /// Used to invoke when a peer has been disconnected

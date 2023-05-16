@@ -1,8 +1,5 @@
 ﻿using System;
 
-/// <summary>
-/// Taurus connectors WebSocket namespace
-/// </summary>
 namespace Taurus.Connectors.WebSocket
 {
     /// <summary>

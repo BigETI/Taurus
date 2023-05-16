@@ -1,14 +1,12 @@
-﻿/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
-namespace Taurus.Synchronizers.AuthenticableUsers
+﻿namespace Taurus.Synchronizers.AuthenticableUsers
 {
     /// <summary>
     /// An interface that represents an authenticated users synchronizer
     /// </summary>
     /// <typeparam name="TAuthenticableUser">Authenticable user type</typeparam>
-    /// <typeparam name="TAuthenticatedUserInformation">Authenticated user information</typeparam>
-    public interface IAuthenticableUsersSynchronizer<TAuthenticableUser, TAuthenticatedUserInformation> :
+    /// <typeparam name="TAuthenticatedUserInformation">Authenticated user information type</typeparam>
+    /// <typeparam name="TAuthenticationFailReason">Authentication fail reason type</typeparam>
+    public interface IAuthenticableUsersSynchronizer<TAuthenticableUser, TAuthenticatedUserInformation, TAuthenticationFailReason> :
         ISynchronizer<TAuthenticableUser> where TAuthenticableUser : IAuthenticableUser
     {
         /// <summary>
@@ -19,7 +17,7 @@ namespace Taurus.Synchronizers.AuthenticableUsers
         /// <summary>
         /// Gets invoked when a peer user has been authenticated
         /// </summary>
-        event UserAuthenticationFailedDelegate<TAuthenticableUser>? OnUserAuthenticationFailed;
+        event UserAuthenticationFailedDelegate<TAuthenticableUser, TAuthenticationFailReason>? OnUserAuthenticationFailed;
 
         /// <summary>
         /// Adds an authenticated user message parser

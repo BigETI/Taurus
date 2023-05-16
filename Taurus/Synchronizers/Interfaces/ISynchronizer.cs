@@ -4,9 +4,6 @@ using System.Threading.Tasks;
 using Taurus.Connectors;
 using Taurus.Serializers;
 
-/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>

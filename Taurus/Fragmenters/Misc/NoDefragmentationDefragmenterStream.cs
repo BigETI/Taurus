@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 
-/// <summary>
-/// Taurus fragmenters namespace
-/// </summary>
 namespace Taurus.Fragmenters
 {
     /// <summary>

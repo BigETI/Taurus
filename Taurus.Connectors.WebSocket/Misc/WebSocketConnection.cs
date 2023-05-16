@@ -1,9 +1,6 @@
 ﻿using System;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus connectors WebSocket namespace
-/// </summary>
 namespace Taurus.Connectors.WebSocket
 {
     /// <summary>

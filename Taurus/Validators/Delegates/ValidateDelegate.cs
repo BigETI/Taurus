@@ -1,7 +1,4 @@
-﻿/// <summary>
-/// Taurus validators namespace
-/// </summary>
-namespace Taurus.Validators
+﻿namespace Taurus.Validators
 {
     /// <summary>
     /// Used to invoke when an input needs to be validated

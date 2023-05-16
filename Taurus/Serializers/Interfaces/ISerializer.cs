@@ -1,9 +1,6 @@
 ﻿using System;
 using System.IO;
 
-/// <summary>
-/// Taurus serializers namespace
-/// </summary>
 namespace Taurus.Serializers
 {
     /// <summary>

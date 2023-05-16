@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-/// <summary>
-/// Taurus validators namespace
-/// </summary>
 namespace Taurus.Validators
 {
     /// <summary>
@@ -38,7 +35,7 @@ namespace Taurus.Validators
         /// <param name="enumerator">Enumerator</param>
         /// <param name="invalidEnumerator">Invalid enumerator</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{TEnumerator}">When the specified enumerator is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified enumerator is not valid</exception>
         public static void ValidateEnumerator<TEnumerator>(TEnumerator enumerator, TEnumerator invalidEnumerator, string parameterName)
             where TEnumerator : Enum =>
             Validator.Validate(enumerator, parameterName, (input) => IsEnumeratorValid(input, invalidEnumerator));
@@ -50,7 +47,7 @@ namespace Taurus.Validators
         /// <param name="enumerators">Enumerators</param>
         /// <param name="invalidEnumerator">Invalid enumerator</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{TEnumerator}?}">When the specified enumerator is not valid</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified enumerator is not valid</exception>
         public static void ValidateEnumerators<TEnumerator>(IEnumerable<TEnumerator>? enumerators, TEnumerator invalidEnumerator, string parameterName)
             where TEnumerator : Enum =>
             Validator.ValidateCollection(enumerators, parameterName, (enumerator) => IsEnumeratorValid(enumerator, invalidEnumerator));

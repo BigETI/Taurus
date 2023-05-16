@@ -9,9 +9,6 @@ using Taurus.Serializers;
 using Taurus.Synchronizers.Data.Messages;
 using Taurus.Validators;
 
-/// <summary>
-/// Taurus synchronizers namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>

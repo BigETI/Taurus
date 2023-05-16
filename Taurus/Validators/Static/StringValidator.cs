@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
 
-/// <summary>
-/// Taurus validators namespace
-/// </summary>
 namespace Taurus.Validators
 {
     /// <summary>
@@ -30,7 +27,7 @@ namespace Taurus.Validators
         /// </summary>
         /// <param name="stringValue">String value</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{string?}">When the specified string is not empty or has no whitespaces</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified string is not empty or has no whitespaces</exception>
         public static void ValidateStringIsNotEmptyOrHasNoWhitespaces(string? stringValue, string parameterName) =>
             Validator.Validate(stringValue, parameterName, IsStringNotEmptyOrHasNoWhitespaces);
 
@@ -39,7 +36,7 @@ namespace Taurus.Validators
         /// </summary>
         /// <param name="strings">Strings</param>
         /// <param name="parameterName">Parameter name</param>
-        /// <exception cref="ValidationException{IEnumerable{string?}?}">When the specified strings are not empty or have no whitespaces</exception>
+        /// <exception cref="ValidationException{TInput}">When the specified strings are not empty or have no whitespaces</exception>
         public static void ValidateStringsAreNotEmptyOrHaveNoWhitespaces(IEnumerable<string?>? strings, string parameterName) =>
             Validator.ValidateCollection(strings, parameterName, IsStringNotEmptyOrHasNoWhitespaces);
     }

@@ -1,9 +1,6 @@
 ﻿using System;
 using Taurus.GUIDs;
 
-/// <summary>
-/// Taurus synchronizers authenticable users namespace
-/// </summary>
 namespace Taurus.Synchronizers
 {
     /// <summary>
